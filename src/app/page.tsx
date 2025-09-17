@@ -1,90 +1,140 @@
 "use client";
 
-import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useProducts } from '@/hooks/use-products.tsx';
 import { useCart } from '@/hooks/use-cart.tsx';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Search } from 'lucide-react';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import type { Product } from '@/lib/types';
+import { ArrowRight, ShoppingBag } from 'lucide-react';
 
 export default function Home() {
   const { products } = useProducts();
   const { addToCart } = useCart();
   const { toast } = useToast();
-  const [searchTerm, setSearchTerm] = useState('');
 
-  const filteredProducts = products.filter(product =>
-    product.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const featuredProducts = products.slice(0, 4);
+  const categoryProducts = products.slice(4, 8);
 
   const handleAddToCart = (product: Product) => {
     addToCart(product);
     toast({
       title: "Added to cart",
       description: `${product.name} has been added to your cart.`,
+      action: (
+        <Button asChild variant="link" className="text-white">
+          <Link href="/cart">View cart</Link>
+        </Button>
+      )
     });
   };
 
   return (
-    <div className="container mx-auto py-8 px-4">
-      <div className="mb-12 text-center">
-        <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl">Discover Your Style</h1>
-        <p className="mt-4 text-lg text-muted-foreground">Curated home decor for the modern nest.</p>
-      </div>
+    <div className="bg-background text-foreground">
+      {/* Hero Section */}
+      <section className="relative h-[60vh] md:h-[80vh] flex items-center justify-center text-center text-white overflow-hidden">
+        <Image
+          src="https://picsum.photos/seed/hero-bags/1800/1200"
+          alt="Stylish bags collection"
+          fill
+          className="object-cover object-center brightness-50"
+          data-ai-hint="fashionable handbags"
+          priority
+        />
+        <div className="relative z-10 p-4">
+          <h1 className="text-4xl md:text-6xl lg:text-7xl font-headline tracking-tight text-shadow-lg">
+            Carry Your Style
+          </h1>
+          <p className="mt-4 max-w-2xl mx-auto text-lg md:text-xl text-shadow">
+            Discover our curated collection of Pinterest-worthy bags, wallets, and accessories.
+          </p>
+          <Button asChild size="lg" className="mt-8 group">
+            <Link href="#featured">
+              Explore Collection <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+            </Link>
+          </Button>
+        </div>
+      </section>
 
-      <div className="mb-8 max-w-md mx-auto">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-          <Input
-            type="search"
-            placeholder="Search for products..."
-            className="w-full pl-10"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+      {/* Featured Products Section */}
+      <section id="featured" className="py-16 md:py-24">
+        <div className="container mx-auto px-4">
+          <h2 className="text-3xl md:text-4xl font-headline text-center mb-12">Featured Collection</h2>
+          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
+            {featuredProducts.map((product) => (
+              <Card key={product.id} className="group flex flex-col overflow-hidden rounded-lg border-none shadow-lg transition-all duration-300 hover:shadow-2xl hover:-translate-y-2">
+                <div className="relative overflow-hidden">
+                  <Link href={`/products/${product.id}`}>
+                    <Image
+                      src={product.imageUrl}
+                      alt={product.name}
+                      width={600}
+                      height={600}
+                      className="aspect-square w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                      data-ai-hint={product.imageHint}
+                    />
+                  </Link>
+                   <div className="absolute top-3 right-3">
+                    <Button size="icon" className="rounded-full h-10 w-10 bg-white/80 text-foreground hover:bg-white backdrop-blur-sm" onClick={() => handleAddToCart(product)}>
+                      <ShoppingBag className="h-5 w-5" />
+                    </Button>
+                  </div>
+                </div>
+                <CardContent className="flex-1 p-4 bg-card">
+                  <Link href={`/products/${product.id}`}>
+                    <h3 className="text-lg font-semibold leading-tight hover:text-primary transition-colors">{product.name}</h3>
+                  </Link>
+                </CardContent>
+                <CardFooter className="flex items-center justify-between p-4 pt-0 bg-card">
+                  <p className="text-xl font-bold text-primary">${product.price.toFixed(2)}</p>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
         </div>
-      </div>
+      </section>
 
-      {filteredProducts.length > 0 ? (
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {filteredProducts.map((product) => (
-            <Card key={product.id} className="group flex flex-col overflow-hidden rounded-lg shadow-sm transition-all hover:shadow-xl">
-              <CardHeader className="p-0">
-                <Link href={`/products/${product.id}`} className="block overflow-hidden">
-                  <Image
-                    src={product.imageUrl}
-                    alt={product.name}
-                    width={600}
-                    height={600}
-                    className="aspect-square w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                    data-ai-hint={product.imageHint}
-                  />
+      {/* Categories Section */}
+      <section className="py-16 md:py-24 bg-secondary/50">
+        <div className="container mx-auto px-4">
+          <h2 className="text-3xl md:text-4xl font-headline text-center mb-12">Shop by Category</h2>
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {categoryProducts.map((product, index) => {
+              const categories = ["Handbags", "Wallets", "For Him", "For Her"];
+              return (
+                 <Link href={`/products/${product.id}`} key={product.id} className="relative aspect-square md:aspect-[4/5] group overflow-hidden rounded-xl shadow-md">
+                    <Image
+                      src={product.imageUrl}
+                      alt={categories[index]}
+                      fill
+                      className="object-cover transition-transform duration-500 group-hover:scale-110"
+                      data-ai-hint={product.imageHint}
+                    />
+                    <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors duration-300"></div>
+                    <div className="absolute bottom-0 left-0 p-6">
+                      <h3 className="text-2xl font-headline text-white tracking-tight">{categories[index]}</h3>
+                    </div>
                 </Link>
-              </CardHeader>
-              <CardContent className="flex-1 p-4">
-                <Link href={`/products/${product.id}`}>
-                  <CardTitle className="text-lg font-semibold leading-tight hover:text-primary transition-colors">{product.name}</CardTitle>
-                </Link>
-              </CardContent>
-              <CardFooter className="flex items-center justify-between p-4 pt-0">
-                <p className="text-xl font-bold text-foreground">${product.price.toFixed(2)}</p>
-                <Button onClick={() => handleAddToCart(product)}>
-                  Add to Cart
-                </Button>
-              </CardFooter>
-            </Card>
-          ))}
+              )
+            })}
+          </div>
         </div>
-      ) : (
-        <div className="text-center py-16">
-          <p className="text-muted-foreground">No products found for "{searchTerm}".</p>
+      </section>
+
+      {/* Footer CTA Section */}
+      <section className="py-24 text-center">
+        <div className="container mx-auto px-4">
+           <h2 className="text-3xl md:text-4xl font-headline">Join The #TrendNest</h2>
+            <p className="mt-4 max-w-xl mx-auto text-muted-foreground">Follow us on social media for style inspiration and new arrivals.</p>
+            <div className="mt-8 flex justify-center gap-4">
+              <Button variant="outline">Instagram</Button>
+              <Button variant="outline">Pinterest</Button>
+              <Button variant="outline">Facebook</Button>
+            </div>
         </div>
-      )}
+      </section>
     </div>
   );
 }
