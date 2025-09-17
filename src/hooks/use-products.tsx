@@ -1,69 +1,75 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { Product } from '@/lib/types';
 import { getInitialProducts } from '@/lib/products';
+import { db } from '@/lib/firebase';
+import { collection, getDocs, doc, setDoc, deleteDoc, onSnapshot, writeBatch } from "firebase/firestore";
 
 interface ProductsContextType {
   products: Product[];
-  addProduct: (product: Omit<Product, 'id'>) => void;
-  updateProduct: (product: Product) => void;
-  deleteProduct: (productId: string) => void;
+  addProduct: (product: Omit<Product, 'id'>) => Promise<void>;
+  updateProduct: (product: Product) => Promise<void>;
+  deleteProduct: (productId: string) => Promise<void>;
   getProductById: (productId: string) => Product | undefined;
 }
 
 const ProductsContext = createContext<ProductsContextType | undefined>(undefined);
-
-const PRODUCTS_STORAGE_KEY = 'ttrend-nest-products';
 
 export const ProductsProvider = ({ children }: { children: ReactNode }) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
-    try {
-      const storedProducts = localStorage.getItem(PRODUCTS_STORAGE_KEY);
-      if (storedProducts) {
-        setProducts(JSON.parse(storedProducts));
-      } else {
-        const initialProducts = getInitialProducts();
-        setProducts(initialProducts);
-        localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(initialProducts));
-      }
-    } catch (error) {
-      console.error("Failed to access localStorage:", error);
-      setProducts(getInitialProducts());
-    } finally {
+    const productsCollection = collection(db, "products");
+    
+    const seedDatabase = async () => {
+        const querySnapshot = await getDocs(productsCollection);
+        if (querySnapshot.empty) {
+            console.log("No products found, seeding database...");
+            const initialProducts = getInitialProducts();
+            const batch = writeBatch(db);
+            initialProducts.forEach((product) => {
+                const docRef = doc(db, "products", product.id);
+                batch.set(docRef, product);
+            });
+            await batch.commit();
+        }
         setIsInitialized(true);
-    }
+    };
+
+    seedDatabase();
+
+    const unsubscribe = onSnapshot(productsCollection, (snapshot) => {
+      const productsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Product));
+      setProducts(productsData);
+      if (!isInitialized) {
+        setIsInitialized(true);
+      }
+    });
+
+    return () => unsubscribe();
+  }, [isInitialized]);
+
+  const addProduct = useCallback(async (productData: Omit<Product, 'id'>) => {
+    const newId = new Date().getTime().toString();
+    const newProduct: Product = { ...productData, id: newId };
+    await setDoc(doc(db, "products", newId), newProduct);
   }, []);
 
-  useEffect(() => {
-    if (isInitialized) {
-        try {
-            localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(products));
-        } catch (error) {
-            console.error("Failed to save products to localStorage:", error);
-        }
-    }
-  }, [products, isInitialized]);
+  const updateProduct = useCallback(async (updatedProduct: Product) => {
+    const productRef = doc(db, "products", updatedProduct.id);
+    await setDoc(productRef, updatedProduct, { merge: true });
+  }, []);
 
-  const addProduct = (productData: Omit<Product, 'id'>) => {
-    const newProduct: Product = { ...productData, id: new Date().getTime().toString() };
-    setProducts(prev => [...prev, newProduct]);
-  };
+  const deleteProduct = useCallback(async (productId: string) => {
+    const productRef = doc(db, "products", productId);
+    await deleteDoc(productRef);
+  }, []);
 
-  const updateProduct = (updatedProduct: Product) => {
-    setProducts(prev => prev.map(p => p.id === updatedProduct.id ? updatedProduct : p));
-  };
-
-  const deleteProduct = (productId: string) => {
-    setProducts(prev => prev.filter(p => p.id !== productId));
-  };
-
-  const getProductById = (productId: string) => {
+  const getProductById = useCallback((productId: string) => {
     return products.find(p => p.id === productId);
-  };
+  }, [products]);
   
   const value = { products, addProduct, updateProduct, deleteProduct, getProductById };
 

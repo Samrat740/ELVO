@@ -56,12 +56,12 @@ export function ProductForm({ product, onFinished }: ProductFormProps) {
     }
   }, [product, form]);
 
-  const onSubmit = (data: ProductFormValues) => {
+  const onSubmit = async (data: ProductFormValues) => {
     if (product) {
-      updateProduct({ ...product, ...data });
+      await updateProduct({ ...product, ...data });
       toast({ title: "Product Updated", description: `${data.name} has been successfully updated.` });
     } else {
-      addProduct(data);
+      await addProduct(data);
       toast({ title: "Product Added", description: `${data.name} has been successfully added.` });
     }
     onFinished();
@@ -136,7 +136,9 @@ export function ProductForm({ product, onFinished }: ProductFormProps) {
           )}
         />
         <div className="flex justify-end pt-4">
-            <Button type="submit">{product ? 'Save Changes' : 'Create Product'}</Button>
+            <Button type="submit" disabled={form.formState.isSubmitting}>
+              {form.formState.isSubmitting ? 'Saving...' : (product ? 'Save Changes' : 'Create Product')}
+            </Button>
         </div>
       </form>
     </Form>
