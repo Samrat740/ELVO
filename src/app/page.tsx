@@ -18,12 +18,15 @@ export default function Home() {
 
   const featuredProducts = products.filter(p => p.featured);
   
-  const categories = ["Handbags", "Wallets", "For Him", "For Her"];
+  const categories = useMemo(() => {
+    return [...new Set(products.map(p => p.category))];
+  }, [products]);
+
   const categoryProducts = useMemo(() => {
     return categories.map(category => {
       return products.find(p => p.category === category);
     }).filter((p): p is Product => p !== undefined);
-  }, [products]);
+  }, [products, categories]);
 
 
   const handleAddToCart = (product: Product) => {
@@ -109,7 +112,7 @@ export default function Home() {
       <section className="py-16 md:py-24 bg-secondary/50">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl md:text-4xl font-headline text-center mb-12">Shop by Category</h2>
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {categoryProducts.map((product) => (
                <Link href={`/products?category=${product.category}`} key={product.id} className="relative aspect-square md:aspect-[4/5] group overflow-hidden rounded-xl shadow-md">
                     <Image

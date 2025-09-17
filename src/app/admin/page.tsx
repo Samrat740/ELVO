@@ -93,6 +93,7 @@ export default function AdminPage() {
               <TableHead className="w-[100px]">Image</TableHead>
               <TableHead>Name</TableHead>
               <TableHead>Category</TableHead>
+              <TableHead>Audience</TableHead>
               <TableHead>Price</TableHead>
               <TableHead>Stock</TableHead>
               <TableHead>Featured</TableHead>
@@ -115,6 +116,7 @@ export default function AdminPage() {
                   </TableCell>
                   <TableCell className="font-medium">{product.name}</TableCell>
                   <TableCell><Badge variant="secondary">{product.category}</Badge></TableCell>
+                  <TableCell><Badge variant="outline">{product.audience}</Badge></TableCell>
                   <TableCell>${product.price.toFixed(2)}</TableCell>
                   <TableCell>{product.stock}</TableCell>
                   <TableCell>
@@ -154,7 +156,7 @@ export default function AdminPage() {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={7} className="h-48 text-center">
+                <TableCell colSpan={8} className="h-48 text-center">
                   <div className="flex flex-col items-center gap-4">
                     <PackageOpen className="h-12 w-12 text-muted-foreground" />
                     <h3 className="text-xl font-semibold">Empty Inventory</h3>

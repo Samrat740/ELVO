@@ -6,7 +6,8 @@ export interface Product {
   imageUrl: string;
   imageHint: string;
   stock: number;
-  category: 'Handbags' | 'Wallets' | 'For Him' | 'For Her';
+  category: 'Backpack' | 'Handbags' | 'Accessory';
+  audience: 'For Him' | 'For Her';
   featured: boolean;
 }
 

@@ -22,7 +22,8 @@ const productSchema = z.object({
   imageUrl: z.string().url('Must be a valid URL.'),
   imageHint: z.string().min(2, 'Image hint must be at least 2 characters.').max(30, 'Image hint must be less than 30 characters.'),
   stock: z.coerce.number().min(0, 'Stock cannot be negative.'),
-  category: z.enum(['Handbags', 'Wallets', 'For Him', 'For Her']),
+  category: z.enum(['Backpack', 'Handbags', 'Accessory']),
+  audience: z.enum(['For Him', 'For Her']),
   featured: z.boolean(),
 });
 
@@ -41,6 +42,7 @@ const defaultValues = {
   imageHint: '',
   stock: 0,
   category: 'Handbags' as const,
+  audience: 'For Her' as const,
   featured: false,
 };
 
@@ -155,29 +157,51 @@ export function ProductForm({ product, onFinished }: ProductFormProps) {
               )}
             />
         </div>
-         <FormField
-          control={form.control}
-          name="category"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Category</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a category" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="Handbags">Handbags</SelectItem>
-                  <SelectItem value="Wallets">Wallets</SelectItem>
-                  <SelectItem value="For Him">For Him</SelectItem>
-                  <SelectItem value="For Her">For Her</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <div className="grid grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="category"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Category</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a category" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="Backpack">Backpack</SelectItem>
+                    <SelectItem value="Handbags">Handbags</SelectItem>
+                    <SelectItem value="Accessory">Accessory</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="audience"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Audience</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select an audience" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="For Him">For Him</SelectItem>
+                    <SelectItem value="For Her">For Her</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
         <FormField
           control={form.control}
           name="imageUrl"

@@ -11,6 +11,7 @@ const initialProducts: Product[] = [
     imageHint: PlaceHolderImages.find(p => p.id === '1')?.imageHint || 'modern chair',
     stock: 15,
     category: 'Handbags',
+    audience: 'For Her',
     featured: true,
   },
   {
@@ -21,7 +22,8 @@ const initialProducts: Product[] = [
     imageUrl: PlaceHolderImages.find(p => p.id === '2')?.imageUrl || '',
     imageHint: PlaceHolderImages.find(p => p.id === '2')?.imageHint || 'desk lamp',
     stock: 30,
-    category: 'Wallets',
+    category: 'Accessory',
+    audience: 'For Him',
     featured: true,
   },
   {
@@ -32,7 +34,8 @@ const initialProducts: Product[] = [
     imageUrl: PlaceHolderImages.find(p => p.id === '3')?.imageUrl || '',
     imageHint: PlaceHolderImages.find(p => p.id === '3')?.imageHint || 'elegant sofa',
     stock: 10,
-    category: 'For Him',
+    category: 'Backpack',
+    audience: 'For Him',
     featured: true,
   },
   {
@@ -43,7 +46,8 @@ const initialProducts: Product[] = [
     imageUrl: PlaceHolderImages.find(p => p.id === '4')?.imageUrl || '',
     imageHint: PlaceHolderImages.find(p => p.id === '4')?.imageHint || 'ceramic mugs',
     stock: 50,
-    category: 'For Her',
+    category: 'Handbags',
+    audience: 'For Her',
     featured: true,
   },
   {
@@ -54,7 +58,8 @@ const initialProducts: Product[] = [
     imageUrl: PlaceHolderImages.find(p => p.id === '5')?.imageUrl || '',
     imageHint: PlaceHolderImages.find(p => p.id === '5')?.imageHint || 'wall clock',
     stock: 25,
-    category: 'For Him',
+    category: 'Backpack',
+    audience: 'For Him',
     featured: false,
   },
   {
@@ -66,6 +71,7 @@ const initialProducts: Product[] = [
     imageHint: PlaceHolderImages.find(p => p.id === '6')?.imageHint || 'area rug',
     stock: 20,
     category: 'Handbags',
+    audience: 'For Her',
     featured: false,
   },
   {
@@ -76,7 +82,8 @@ const initialProducts: Product[] = [
     imageUrl: PlaceHolderImages.find(p => p.id === '7')?.imageUrl || '',
     imageHint: PlaceHolderImages.find(p => p.id === '7')?.imageHint || 'hanging planters',
     stock: 40,
-    category: 'Wallets',
+    category: 'Accessory',
+    audience: 'For Him',
     featured: false,
   },
   {
@@ -87,7 +94,8 @@ const initialProducts: Product[] = [
     imageUrl: PlaceHolderImages.find(p => p.id === '8')?.imageUrl || '',
     imageHint: PlaceHolderImages.find(p => p.id === '8')?.imageHint || 'wooden bowl',
     stock: 35,
-    category: 'For Her',
+    category: 'Handbags',
+    audience: 'For Her',
     featured: false,
   },
 ];
