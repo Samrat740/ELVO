@@ -19,38 +19,35 @@ const ProductsContext = createContext<ProductsContextType | undefined>(undefined
 
 export const ProductsProvider = ({ children }: { children: ReactNode }) => {
   const [products, setProducts] = useState<Product[]>([]);
-  const [isInitialized, setIsInitialized] = useState(false);
-
+  
   useEffect(() => {
     const productsCollection = collection(db, "products");
     
-    const seedDatabase = async () => {
-        const querySnapshot = await getDocs(productsCollection);
-        if (querySnapshot.empty) {
-            console.log("No products found, seeding database...");
-            const initialProducts = getInitialProducts();
-            const batch = writeBatch(db);
-            initialProducts.forEach((product) => {
-                const docRef = doc(db, "products", product.id);
-                batch.set(docRef, product);
-            });
-            await batch.commit();
-        }
-        setIsInitialized(true);
+    const initialize = async () => {
+        const unsubscribe = onSnapshot(productsCollection, (snapshot) => {
+            const productsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Product));
+            setProducts(productsData);
+
+            if (snapshot.empty) {
+                console.log("No products found, seeding database...");
+                const initialProducts = getInitialProducts();
+                const batch = writeBatch(db);
+                initialProducts.forEach((product) => {
+                    const docRef = doc(db, "products", product.id);
+                    batch.set(docRef, product);
+                });
+                batch.commit();
+            }
+        });
+        return unsubscribe;
     };
+    
+    const unsubscribePromise = initialize();
 
-    seedDatabase();
-
-    const unsubscribe = onSnapshot(productsCollection, (snapshot) => {
-      const productsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Product));
-      setProducts(productsData);
-      if (!isInitialized) {
-        setIsInitialized(true);
-      }
-    });
-
-    return () => unsubscribe();
-  }, [isInitialized]);
+    return () => {
+        unsubscribePromise.then(unsubscribe => unsubscribe && unsubscribe());
+    };
+  }, []);
 
   const addProduct = useCallback(async (productData: Omit<Product, 'id'>) => {
     const newDocRef = doc(collection(db, "products"));
