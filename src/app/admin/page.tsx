@@ -20,7 +20,7 @@ import {
 } from '@/components/ui/dialog';
 import { ProductForm } from '@/components/ProductForm';
 import { Product } from '@/lib/types';
-import { Edit, PlusCircle, Trash2 } from 'lucide-react';
+import { Edit, PlusCircle, Trash2, CheckCircle, XCircle } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -34,6 +34,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { useAuth } from '@/hooks/use-auth';
 import { useRouter } from 'next/navigation';
+import { Badge } from '@/components/ui/badge';
 
 export default function AdminPage() {
   const { products, deleteProduct } = useProducts();
@@ -91,8 +92,10 @@ export default function AdminPage() {
             <TableRow>
               <TableHead className="w-[100px]">Image</TableHead>
               <TableHead>Name</TableHead>
+              <TableHead>Category</TableHead>
               <TableHead>Price</TableHead>
               <TableHead>Stock</TableHead>
+              <TableHead>Featured</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -110,8 +113,16 @@ export default function AdminPage() {
                   />
                 </TableCell>
                 <TableCell className="font-medium">{product.name}</TableCell>
+                <TableCell><Badge variant="secondary">{product.category}</Badge></TableCell>
                 <TableCell>${product.price.toFixed(2)}</TableCell>
                 <TableCell>{product.stock}</TableCell>
+                <TableCell>
+                  {product.featured ? (
+                    <CheckCircle className="h-5 w-5 text-green-500" />
+                  ) : (
+                    <XCircle className="h-5 w-5 text-muted-foreground" />
+                  )}
+                </TableCell>
                 <TableCell className="text-right">
                   <Button variant="ghost" size="icon" onClick={() => handleEdit(product)}>
                     <Edit className="h-4 w-4" />

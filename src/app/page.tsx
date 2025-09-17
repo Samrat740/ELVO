@@ -9,14 +9,22 @@ import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import type { Product } from '@/lib/types';
 import { ArrowRight, ShoppingBag } from 'lucide-react';
+import { useMemo } from 'react';
 
 export default function Home() {
   const { products } = useProducts();
   const { addToCart } = useCart();
   const { toast } = useToast();
 
-  const featuredProducts = products.slice(0, 4);
-  const categoryProducts = products.slice(4, 8);
+  const featuredProducts = products.filter(p => p.featured);
+  
+  const categories = ["Handbags", "Wallets", "For Him", "For Her"];
+  const categoryProducts = useMemo(() => {
+    return categories.map(category => {
+      return products.find(p => p.category === category);
+    }).filter((p): p is Product => p !== undefined);
+  }, [products]);
+
 
   const handleAddToCart = (product: Product) => {
     addToCart(product);
@@ -86,6 +94,7 @@ export default function Home() {
                   <Link href={`/products/${product.id}`}>
                     <h3 className="text-lg font-semibold leading-tight hover:text-primary transition-colors">{product.name}</h3>
                   </Link>
+                  <p className="text-sm text-muted-foreground mt-1">{product.category}</p>
                 </CardContent>
                 <CardFooter className="flex items-center justify-between p-4 pt-0 bg-card">
                   <p className="text-xl font-bold text-primary">${product.price.toFixed(2)}</p>
@@ -101,24 +110,21 @@ export default function Home() {
         <div className="container mx-auto px-4">
           <h2 className="text-3xl md:text-4xl font-headline text-center mb-12">Shop by Category</h2>
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {categoryProducts.map((product, index) => {
-              const categories = ["Handbags", "Wallets", "For Him", "For Her"];
-              return (
-                 <Link href={`/products/${product.id}`} key={product.id} className="relative aspect-square md:aspect-[4/5] group overflow-hidden rounded-xl shadow-md">
+            {categoryProducts.map((product) => (
+               <Link href={`/products?category=${product.category}`} key={product.id} className="relative aspect-square md:aspect-[4/5] group overflow-hidden rounded-xl shadow-md">
                     <Image
                       src={product.imageUrl}
-                      alt={categories[index]}
+                      alt={product.category}
                       fill
                       className="object-cover transition-transform duration-500 group-hover:scale-110"
                       data-ai-hint={product.imageHint}
                     />
                     <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors duration-300"></div>
                     <div className="absolute bottom-0 left-0 p-6">
-                      <h3 className="text-2xl font-headline text-white tracking-tight">{categories[index]}</h3>
+                      <h3 className="text-2xl font-headline text-white tracking-tight">{product.category}</h3>
                     </div>
                 </Link>
-              )
-            })}
+            ))}
           </div>
         </div>
       </section>

@@ -6,6 +6,8 @@ export interface Product {
   imageUrl: string;
   imageHint: string;
   stock: number;
+  category: 'Handbags' | 'Wallets' | 'For Him' | 'For Her';
+  featured: boolean;
 }
 
 export interface CartItem extends Product {

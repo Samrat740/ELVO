@@ -12,6 +12,8 @@ import { Product } from '@/lib/types';
 import { useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Minus, Plus } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Switch } from './ui/switch';
 
 const productSchema = z.object({
   name: z.string().min(3, 'Name must be at least 3 characters.'),
@@ -20,6 +22,8 @@ const productSchema = z.object({
   imageUrl: z.string().url('Must be a valid URL.'),
   imageHint: z.string().min(2, 'Image hint must be at least 2 characters.').max(30, 'Image hint must be less than 30 characters.'),
   stock: z.coerce.number().min(0, 'Stock cannot be negative.'),
+  category: z.enum(['Handbags', 'Wallets', 'For Him', 'For Her']),
+  featured: z.boolean(),
 });
 
 type ProductFormValues = z.infer<typeof productSchema>;
@@ -29,34 +33,31 @@ interface ProductFormProps {
   onFinished: () => void;
 }
 
+const defaultValues = {
+  name: '',
+  description: '',
+  price: 0,
+  imageUrl: '',
+  imageHint: '',
+  stock: 0,
+  category: 'Handbags' as const,
+  featured: false,
+};
+
 export function ProductForm({ product, onFinished }: ProductFormProps) {
   const { addProduct, updateProduct } = useProducts();
   const { toast } = useToast();
 
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema),
-    defaultValues: product || {
-      name: '',
-      description: '',
-      price: 0,
-      imageUrl: '',
-      imageHint: '',
-      stock: 0,
-    },
+    defaultValues: product || defaultValues,
   });
   
   useEffect(() => {
     if (product) {
       form.reset(product);
     } else {
-      form.reset({
-        name: '',
-        description: '',
-        price: 0,
-        imageUrl: '',
-        imageHint: '',
-        stock: 0,
-      });
+      form.reset(defaultValues);
     }
   }, [product, form]);
 
@@ -81,7 +82,7 @@ export function ProductForm({ product, onFinished }: ProductFormProps) {
             <FormItem>
               <FormLabel>Product Name</FormLabel>
               <FormControl>
-                <Input placeholder="e.g. Modern Chair" {...field} />
+                <Input placeholder="e.g. The Minimalist Tote" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -127,7 +128,7 @@ export function ProductForm({ product, onFinished }: ProductFormProps) {
                         variant="outline"
                         size="icon"
                         className="h-8 w-8"
-                        onClick={() => form.setValue('stock', field.value - 1)}
+                        onClick={() => form.setValue('stock', Math.max(0, field.value - 1))}
                         disabled={field.value <= 0}
                       >
                         <Minus className="h-4 w-4" />
@@ -154,6 +155,29 @@ export function ProductForm({ product, onFinished }: ProductFormProps) {
               )}
             />
         </div>
+         <FormField
+          control={form.control}
+          name="category"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Category</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a category" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="Handbags">Handbags</SelectItem>
+                  <SelectItem value="Wallets">Wallets</SelectItem>
+                  <SelectItem value="For Him">For Him</SelectItem>
+                  <SelectItem value="For Her">For Her</SelectItem>
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         <FormField
           control={form.control}
           name="imageUrl"
@@ -174,9 +198,27 @@ export function ProductForm({ product, onFinished }: ProductFormProps) {
             <FormItem>
               <FormLabel>Image Hint</FormLabel>
               <FormControl>
-                <Input placeholder="modern chair" {...field} />
+                <Input placeholder="modern handbag" {...field} />
               </FormControl>
               <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="featured"
+          render={({ field }) => (
+            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+              <div className="space-y-0.5">
+                <FormLabel>Featured Product</FormLabel>
+                <FormMessage />
+              </div>
+              <FormControl>
+                <Switch
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </FormControl>
             </FormItem>
           )}
         />
