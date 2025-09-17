@@ -1,3 +1,52 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "1",
+      "description": "A stylish modern chair with a minimalist design.",
+      "imageUrl": "https://picsum.photos/seed/1/600/600",
+      "imageHint": "modern chair"
+    },
+    {
+      "id": "2",
+      "description": "A sleek, wooden desk lamp for your workspace.",
+      "imageUrl": "https://picsum.photos/seed/2/600/600",
+      "imageHint": "desk lamp"
+    },
+    {
+      "id": "3",
+      "description": "A comfortable and elegant sofa for your living room.",
+      "imageUrl": "https://picsum.photos/seed/3/600/600",
+      "imageHint": "elegant sofa"
+    },
+    {
+      "id": "4",
+      "description": "A set of ceramic mugs with a unique glaze.",
+      "imageUrl": "https://picsum.photos/seed/4/600/600",
+      "imageHint": "ceramic mugs"
+    },
+    {
+      "id": "5",
+      "description": "A minimalist wall clock with a silent quartz movement.",
+      "imageUrl": "https://picsum.photos/seed/5/600/600",
+      "imageHint": "wall clock"
+    },
+    {
+      "id": "6",
+      "description": "A plush geometric-patterned area rug.",
+      "imageUrl": "https://picsum.photos/seed/6/600/600",
+      "imageHint": "area rug"
+    },
+    {
+      "id": "7",
+      "description": "A set of hanging planters for your indoor garden.",
+      "imageUrl": "https://picsum.photos/seed/7/600/600",
+      "imageHint": "hanging planters"
+    },
+    {
+      "id": "8",
+      "description": "An artisanal handcrafted wooden bowl.",
+      "imageUrl": "https://picsum.photos/seed/8/600/600",
+      "imageHint": "wooden bowl"
+    }
+  ]
 }
