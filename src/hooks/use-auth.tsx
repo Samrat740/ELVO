@@ -1,46 +1,75 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
-import { auth } from '@/lib/firebase';
-import { onAuthStateChanged, signInWithEmailAndPassword, signOut, User } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import { Skeleton } from '@/components/ui/skeleton';
 
+// Mock User type to avoid Firebase dependency for this simple auth
+interface MockUser {
+  uid: string;
+  email: string;
+}
+
 interface AuthContextType {
-  currentUser: User | null;
+  currentUser: MockUser | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<any>;
+  login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Hardcoded credentials
+const ADMIN_EMAIL = 'nesttrend30@gmail.com';
+const ADMIN_PASSWORD = 'nesttrend@2025';
+const LOGGED_IN_STATE_KEY = 'ttrend-nest-admin-logged-in';
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [currentUser, setCurrentUser] = useState<MockUser | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setCurrentUser(user);
+    try {
+      const isLoggedIn = localStorage.getItem(LOGGED_IN_STATE_KEY);
+      if (isLoggedIn === 'true') {
+        setCurrentUser({ uid: 'admin', email: ADMIN_EMAIL });
+      }
+    } catch (e) {
+      console.error("Could not access localStorage", e)
+    } finally {
       setLoading(false);
-    });
-    return unsubscribe;
+    }
   }, []);
 
-  const login = useCallback((email: string, password: string) => {
-    return signInWithEmailAndPassword(auth, email, password);
+  const login = useCallback(async (email: string, password: string) => {
+    if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+      const user: MockUser = { uid: 'admin', email: ADMIN_EMAIL };
+      setCurrentUser(user);
+      try {
+        localStorage.setItem(LOGGED_IN_STATE_KEY, 'true');
+      } catch (e) {
+        console.error("Could not access localStorage", e)
+      }
+      return Promise.resolve();
+    } else {
+      return Promise.reject(new Error('Invalid credentials'));
+    }
   }, []);
 
   const logout = useCallback(async () => {
-    await signOut(auth);
+    setCurrentUser(null);
+     try {
+        localStorage.removeItem(LOGGED_IN_STATE_KEY);
+      } catch (e) {
+        console.error("Could not access localStorage", e)
+      }
     router.push('/login');
   }, [router]);
 
   const value = { currentUser, loading, login, logout };
   
-  // To prevent flicker, we can show a loader
-  if (loading) {
+  if (loading && typeof window !== 'undefined') {
      return (
         <div className="flex items-center justify-center h-screen">
           <div className="w-full max-w-md p-6 space-y-4">
