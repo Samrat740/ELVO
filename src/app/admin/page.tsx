@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { useProducts } from '@/hooks/use-products';
+import { useProducts } from '@/hooks/use-products.tsx';
 import { Button } from '@/components/ui/button';
 import {
   Table,

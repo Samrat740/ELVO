@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useProducts } from '@/hooks/use-products';
-import { useCart } from '@/hooks/use-cart';
+import { useProducts } from '@/hooks/use-products.tsx';
+import { useCart } from '@/hooks/use-cart.tsx';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';

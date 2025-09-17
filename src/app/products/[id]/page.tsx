@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
-import { useProducts } from '@/hooks/use-products';
-import { useCart } from '@/hooks/use-cart';
+import { useProducts } from '@/hooks/use-products.tsx';
+import { useCart } from '@/hooks/use-cart.tsx';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
