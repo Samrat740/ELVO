@@ -69,7 +69,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const value = { currentUser, loading, login, logout };
   
-  if (loading && typeof window !== 'undefined') {
+  if (loading) {
      return (
         <div className="flex items-center justify-center h-screen">
           <div className="w-full max-w-md p-6 space-y-4">
