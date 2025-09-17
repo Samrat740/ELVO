@@ -1,6 +1,9 @@
+
 "use client";
 
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
+import { db } from '@/lib/firebase';
+import { collection, doc, onSnapshot, writeBatch } from "firebase/firestore";
 import { CartItem, Product } from '@/lib/types';
 
 interface CartContextType {
@@ -11,75 +14,91 @@ interface CartContextType {
   clearCart: () => void;
   cartCount: number;
   totalPrice: number;
+  loading: boolean;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-const CART_STORAGE_KEY = 'ttrend-nest-cart';
+const CART_ID_STORAGE_KEY = 'ttrend-nest-cart-id';
+
+function getOrCreateCartId(): string {
+  if (typeof window === 'undefined') return '';
+  try {
+    let cartId = localStorage.getItem(CART_ID_STORAGE_KEY);
+    if (!cartId) {
+      cartId = doc(collection(db, 'carts')).id;
+      localStorage.setItem(CART_ID_STORAGE_KEY, cartId);
+    }
+    return cartId;
+  } catch (error) {
+    console.error("Failed to access localStorage:", error);
+    // Fallback for environments where localStorage is disabled
+    return doc(collection(db, 'carts')).id;
+  }
+}
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const [isInitialized, setIsInitialized] = useState(false);
+  const [cartId] = useState<string>(getOrCreateCartId);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    try {
-      const storedCart = localStorage.getItem(CART_STORAGE_KEY);
-      if (storedCart) {
-        setCartItems(JSON.parse(storedCart));
-      }
-    } catch (error) {
-      console.error("Failed to access localStorage:", error);
-    } finally {
-      setIsInitialized(true);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (isInitialized) {
-      try {
-        localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cartItems));
-      } catch (error) {
-        console.error("Failed to save cart to localStorage:", error);
-      }
-    }
-  }, [cartItems, isInitialized]);
-
-  const addToCart = useCallback((product: Product) => {
-    setCartItems(prevItems => {
-      const existingItem = prevItems.find(item => item.id === product.id);
-      if (existingItem) {
-        return prevItems.map(item =>
-          item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
-        );
-      }
-      return [...prevItems, { ...product, quantity: 1 }];
+    if (!cartId) {
+        setLoading(false);
+        return;
+    };
+    
+    const cartItemsCollection = collection(db, "carts", cartId, "items");
+    const unsubscribe = onSnapshot(cartItemsCollection, (snapshot) => {
+      const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as CartItem));
+      setCartItems(items);
+      setLoading(false);
     });
-  }, []);
 
-  const removeFromCart = useCallback((productId: string) => {
-    setCartItems(prevItems => prevItems.filter(item => item.id !== productId));
-  }, []);
+    return () => unsubscribe();
+  }, [cartId]);
 
-  const updateQuantity = useCallback((productId: string, quantity: number) => {
+  const addToCart = useCallback(async (product: Product) => {
+    if (!cartId) return;
+    const existingItem = cartItems.find(item => item.id === product.id);
+    const newQuantity = (existingItem?.quantity || 0) + 1;
+    
+    const itemRef = doc(db, "carts", cartId, "items", product.id);
+    await writeBatch(db).set(itemRef, { ...product, quantity: newQuantity }).commit();
+
+  }, [cartId, cartItems]);
+
+  const removeFromCart = useCallback(async (productId: string) => {
+    if (!cartId) return;
+    const itemRef = doc(db, "carts", cartId, "items", productId);
+    await writeBatch(db).delete(itemRef).commit();
+  }, [cartId]);
+
+  const updateQuantity = useCallback(async (productId: string, quantity: number) => {
+    if (!cartId) return;
+    const itemRef = doc(db, "carts", cartId, "items", productId);
     if (quantity <= 0) {
-      removeFromCart(productId);
+      await removeFromCart(productId);
       return;
     }
-    setCartItems(prevItems =>
-      prevItems.map(item =>
-        item.id === productId ? { ...item, quantity } : item
-      )
-    );
-  }, [removeFromCart]);
+    await writeBatch(db).set(itemRef, { quantity }, { merge: true }).commit();
+  }, [cartId, removeFromCart]);
 
-  const clearCart = useCallback(() => {
-    setCartItems([]);
-  }, []);
+  const clearCart = useCallback(async () => {
+     if (!cartId) return;
+    const cartItemsCollection = collection(db, "carts", cartId, "items");
+    const batch = writeBatch(db);
+    cartItems.forEach(item => {
+        const itemRef = doc(cartItemsCollection, item.id);
+        batch.delete(itemRef);
+    });
+    await batch.commit();
+  }, [cartId, cartItems]);
   
   const cartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
   const totalPrice = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
-  const value = { cartItems, addToCart, removeFromCart, updateQuantity, clearCart, cartCount, totalPrice };
+  const value = { cartItems, addToCart, removeFromCart, updateQuantity, clearCart, cartCount, totalPrice, loading };
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 };

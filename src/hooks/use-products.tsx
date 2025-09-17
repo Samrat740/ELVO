@@ -1,3 +1,4 @@
+
 "use client";
 
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
@@ -52,9 +53,9 @@ export const ProductsProvider = ({ children }: { children: ReactNode }) => {
   }, [isInitialized]);
 
   const addProduct = useCallback(async (productData: Omit<Product, 'id'>) => {
-    const newId = new Date().getTime().toString();
-    const newProduct: Product = { ...productData, id: newId };
-    await setDoc(doc(db, "products", newId), newProduct);
+    const newDocRef = doc(collection(db, "products"));
+    const newProduct: Product = { ...productData, id: newDocRef.id };
+    await setDoc(newDocRef, newProduct);
   }, []);
 
   const updateProduct = useCallback(async (updatedProduct: Product) => {
