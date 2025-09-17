@@ -28,8 +28,8 @@ export default function LoginPage() {
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: 'nesttrend30@gmail.com',
-      password: 'nesttrend@2025',
+      email: '',
+      password: '',
     },
   });
 
