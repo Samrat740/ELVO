@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useProducts } from '@/hooks/use-products.tsx';
 import { Button } from '@/components/ui/button';
@@ -32,11 +32,26 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { useAuth } from '@/hooks/use-auth';
+import { useRouter } from 'next/navigation';
 
 export default function AdminPage() {
   const { products, deleteProduct } = useProducts();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | undefined>(undefined);
+  const { currentUser, loading } = useAuth();
+  const router = useRouter();
+  
+  useEffect(() => {
+    if (!loading && !currentUser) {
+      router.push('/login');
+    }
+  }, [currentUser, loading, router]);
+
+
+  if (loading || !currentUser) {
+    return <div className="container mx-auto py-12 px-4 text-center">Loading...</div>;
+  }
 
   const handleAddNew = () => {
     setEditingProduct(undefined);

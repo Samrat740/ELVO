@@ -1,12 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { Package, ShoppingCart, UserCog } from "lucide-react";
-import { useCart } from "@/hooks/use-cart";
+import { LogOut, Package, ShoppingCart, UserCog } from "lucide-react";
+import { useCart } from "@/hooks/use-cart.tsx";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/use-auth";
 
 export default function Header() {
   const { cartCount } = useCart();
+  const { currentUser, logout } = useAuth();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -20,12 +22,24 @@ export default function Header() {
         <nav className="flex flex-1 items-center space-x-4">
         </nav>
         <div className="flex items-center justify-end space-x-2">
-          <Button variant="ghost" size="icon" asChild>
-            <Link href="/admin">
-              <UserCog className="h-5 w-5" />
-              <span className="sr-only">Admin Panel</span>
-            </Link>
-          </Button>
+           {currentUser ? (
+             <>
+              <Button variant="ghost" size="icon" asChild>
+                <Link href="/admin">
+                  <UserCog className="h-5 w-5" />
+                  <span className="sr-only">Admin Panel</span>
+                </Link>
+              </Button>
+               <Button variant="ghost" size="icon" onClick={logout}>
+                  <LogOut className="h-5 w-5" />
+                  <span className="sr-only">Logout</span>
+              </Button>
+             </>
+           ) : (
+              <Button variant="ghost" size="sm" asChild>
+                <Link href="/login">Admin</Link>
+              </Button>
+           )}
           <Button variant="ghost" size="icon" asChild>
             <Link href="/cart" className="relative">
               <ShoppingCart className="h-5 w-5" />
