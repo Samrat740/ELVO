@@ -11,6 +11,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Product } from '@/lib/types';
 import { useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { Minus, Plus } from 'lucide-react';
 
 const productSchema = z.object({
   name: z.string().min(3, 'Name must be at least 3 characters.'),
@@ -18,6 +19,7 @@ const productSchema = z.object({
   price: z.coerce.number().min(0.01, 'Price must be greater than 0.'),
   imageUrl: z.string().url('Must be a valid URL.'),
   imageHint: z.string().min(2, 'Image hint must be at least 2 characters.').max(30, 'Image hint must be less than 30 characters.'),
+  stock: z.coerce.number().min(0, 'Stock cannot be negative.'),
 });
 
 type ProductFormValues = z.infer<typeof productSchema>;
@@ -39,6 +41,7 @@ export function ProductForm({ product, onFinished }: ProductFormProps) {
       price: 0,
       imageUrl: '',
       imageHint: '',
+      stock: 0,
     },
   });
   
@@ -52,6 +55,7 @@ export function ProductForm({ product, onFinished }: ProductFormProps) {
         price: 0,
         imageUrl: '',
         imageHint: '',
+        stock: 0,
       });
     }
   }, [product, form]);
@@ -96,19 +100,60 @@ export function ProductForm({ product, onFinished }: ProductFormProps) {
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
-          name="price"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Price</FormLabel>
-              <FormControl>
-                <Input type="number" step="0.01" placeholder="299.99" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <div className="grid grid-cols-2 gap-4">
+            <FormField
+            control={form.control}
+            name="price"
+            render={({ field }) => (
+                <FormItem>
+                <FormLabel>Price</FormLabel>
+                <FormControl>
+                    <Input type="number" step="0.01" placeholder="299.99" {...field} />
+                </FormControl>
+                <FormMessage />
+                </FormItem>
+            )}
+            />
+            <FormField
+              control={form.control}
+              name="stock"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Items in Stock</FormLabel>
+                  <FormControl>
+                    <div className="flex items-center gap-2">
+                       <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={() => form.setValue('stock', field.value - 1)}
+                        disabled={field.value <= 0}
+                      >
+                        <Minus className="h-4 w-4" />
+                      </Button>
+                      <Input
+                        {...field}
+                        type="number"
+                        min="0"
+                        className="h-8 text-center w-16"
+                      />
+                       <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={() => form.setValue('stock', field.value + 1)}
+                      >
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+        </div>
         <FormField
           control={form.control}
           name="imageUrl"

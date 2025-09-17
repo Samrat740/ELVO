@@ -59,7 +59,7 @@ export default function AdminPage() {
       </div>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>{editingProduct ? 'Edit Product' : 'Add New Product'}</DialogTitle>
           </DialogHeader>
@@ -77,6 +77,7 @@ export default function AdminPage() {
               <TableHead className="w-[100px]">Image</TableHead>
               <TableHead>Name</TableHead>
               <TableHead>Price</TableHead>
+              <TableHead>Stock</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -95,6 +96,7 @@ export default function AdminPage() {
                 </TableCell>
                 <TableCell className="font-medium">{product.name}</TableCell>
                 <TableCell>${product.price.toFixed(2)}</TableCell>
+                <TableCell>{product.stock}</TableCell>
                 <TableCell className="text-right">
                   <Button variant="ghost" size="icon" onClick={() => handleEdit(product)}>
                     <Edit className="h-4 w-4" />

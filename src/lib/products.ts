@@ -9,6 +9,7 @@ const initialProducts: Product[] = [
     price: 299.99,
     imageUrl: PlaceHolderImages.find(p => p.id === '1')?.imageUrl || '',
     imageHint: PlaceHolderImages.find(p => p.id === '1')?.imageHint || 'modern chair',
+    stock: 15,
   },
   {
     id: '2',
@@ -17,6 +18,7 @@ const initialProducts: Product[] = [
     price: 79.99,
     imageUrl: PlaceHolderImages.find(p => p.id === '2')?.imageUrl || '',
     imageHint: PlaceHolderImages.find(p => p.id === '2')?.imageHint || 'desk lamp',
+    stock: 30,
   },
   {
     id: '3',
@@ -25,6 +27,7 @@ const initialProducts: Product[] = [
     price: 899.99,
     imageUrl: PlaceHolderImages.find(p => p.id === '3')?.imageUrl || '',
     imageHint: PlaceHolderImages.find(p => p.id === '3')?.imageHint || 'elegant sofa',
+    stock: 10,
   },
   {
     id: '4',
@@ -33,6 +36,7 @@ const initialProducts: Product[] = [
     price: 49.99,
     imageUrl: PlaceHolderImages.find(p => p.id === '4')?.imageUrl || '',
     imageHint: PlaceHolderImages.find(p => p.id === '4')?.imageHint || 'ceramic mugs',
+    stock: 50,
   },
   {
     id: '5',
@@ -41,6 +45,7 @@ const initialProducts: Product[] = [
     price: 65.00,
     imageUrl: PlaceHolderImages.find(p => p.id === '5')?.imageUrl || '',
     imageHint: PlaceHolderImages.find(p => p.id === '5')?.imageHint || 'wall clock',
+    stock: 25,
   },
   {
     id: '6',
@@ -49,6 +54,7 @@ const initialProducts: Product[] = [
     price: 199.50,
     imageUrl: PlaceHolderImages.find(p => p.id === '6')?.imageUrl || '',
     imageHint: PlaceHolderImages.find(p => p.id === '6')?.imageHint || 'area rug',
+    stock: 20,
   },
   {
     id: '7',
@@ -57,6 +63,7 @@ const initialProducts: Product[] = [
     price: 55.99,
     imageUrl: PlaceHolderImages.find(p => p.id === '7')?.imageUrl || '',
     imageHint: PlaceHolderImages.find(p => p.id === '7')?.imageHint || 'hanging planters',
+    stock: 40,
   },
   {
     id: '8',
@@ -65,6 +72,7 @@ const initialProducts: Product[] = [
     price: 45.00,
     imageUrl: PlaceHolderImages.find(p => p.id === '8')?.imageUrl || '',
     imageHint: PlaceHolderImages.find(p => p.id === '8')?.imageHint || 'wooden bowl',
+    stock: 35,
   },
 ];
 
