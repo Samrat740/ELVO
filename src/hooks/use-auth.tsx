@@ -2,7 +2,6 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { Skeleton } from '@/components/ui/skeleton';
 
 // Mock User type to avoid Firebase dependency for this simple auth
 interface MockUser {
@@ -68,18 +67,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, [router]);
 
   const value = { currentUser, loading, login, logout };
-  
-  if (loading) {
-     return (
-        <div className="flex items-center justify-center h-screen">
-          <div className="w-full max-w-md p-6 space-y-4">
-            <Skeleton className="h-10 w-full" />
-            <Skeleton className="h-10 w-full" />
-            <Skeleton className="h-10 w-full" />
-          </div>
-        </div>
-      )
-  }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
