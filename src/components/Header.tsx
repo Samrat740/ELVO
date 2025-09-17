@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { LogOut, Package, ShoppingCart, UserCog, LogIn } from "lucide-react";
+import { LogOut, Package, ShoppingCart, UserCog, UserPlus } from "lucide-react";
 import { useCart } from "@/hooks/use-cart.tsx";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
@@ -40,9 +40,9 @@ export default function Header() {
              </>
            ) : (
               <Button variant="ghost" size="icon" asChild>
-                <Link href="/login">
-                  <LogIn className="h-5 w-5" />
-                   <span className="sr-only">Admin Login</span>
+                <Link href="/signup">
+                  <UserPlus className="h-5 w-5" />
+                   <span className="sr-only">Sign Up</span>
                 </Link>
               </Button>
            )}

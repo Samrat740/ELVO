@@ -45,10 +45,10 @@ export default function Home() {
         />
         <div className="relative z-10 p-4">
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-headline tracking-tight text-shadow-lg">
-            Carry Your Style
+            Effortless Style, Unpacked.
           </h1>
           <p className="mt-4 max-w-2xl mx-auto text-lg md:text-xl text-shadow">
-            Discover our curated collection of Pinterest-worthy bags, wallets, and accessories.
+            At Trend Nest, we believe that the perfect accessory can transform your look. We curate a collection of high-quality, Pinterest-worthy bags, wallets, and more, so you can carry your style with confidence.
           </p>
           <Button asChild size="lg" className="mt-8 group">
             <Link href="#featured">
