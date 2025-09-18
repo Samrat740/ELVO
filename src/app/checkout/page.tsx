@@ -15,7 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useEffect } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { db } from '@/lib/firebase';
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { addDoc, collection, serverTimestamp, writeBatch, doc, increment } from 'firebase/firestore';
 
 const checkoutSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters.'),
@@ -52,8 +52,11 @@ export default function CheckoutPage() {
 
   const onSubmit = async (data: CheckoutFormValues) => {
     try {
-      // Create a new order document in Firestore
-      await addDoc(collection(db, 'orders'), {
+      const batch = writeBatch(db);
+
+      // 1. Create the order document
+      const orderRef = doc(collection(db, 'orders'));
+      batch.set(orderRef, {
         userId: currentUser ? currentUser.uid : null,
         shippingInfo: data,
         items: cartItems.map(item => ({
@@ -61,10 +64,22 @@ export default function CheckoutPage() {
           name: item.name,
           quantity: item.quantity,
           price: item.price,
+          imageUrl: item.imageUrl,
         })),
         total: totalPrice,
         createdAt: serverTimestamp(),
       });
+
+      // 2. Decrement stock for each item in the cart
+      for (const item of cartItems) {
+        const productRef = doc(db, 'products', item.id);
+        batch.update(productRef, {
+          stock: increment(-item.quantity)
+        });
+      }
+
+      // 3. Commit the atomic batch
+      await batch.commit();
 
       toast({
         title: 'Order Placed!',
