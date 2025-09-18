@@ -29,35 +29,58 @@ type CheckoutFormValues = z.infer<typeof checkoutSchema>;
 
 export default function CheckoutPage() {
   const { cartItems, totalPrice, clearCart, cartCount } = useCart();
-  const { currentUser } = useAuth();
+  const { currentUser, loading: authLoading } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
 
   useEffect(() => {
+    if (!authLoading && !currentUser) {
+      router.push('/login');
+    }
     if (cartCount === 0) {
       router.replace('/cart');
     }
-  }, [cartCount, router]);
+  }, [authLoading, currentUser, cartCount, router]);
 
   const form = useForm<CheckoutFormValues>({
     resolver: zodResolver(checkoutSchema),
     defaultValues: {
-      name: '',
-      email: '',
+      name: currentUser?.displayName || '',
+      email: currentUser?.email || '',
       address: '',
       city: '',
       zip: '',
     },
   });
+  
+  useEffect(() => {
+    if (currentUser) {
+      form.reset({
+        name: currentUser.displayName || '',
+        email: currentUser.email || '',
+        address: '',
+        city: '',
+        zip: '',
+      });
+    }
+  }, [currentUser, form]);
 
   const onSubmit = async (data: CheckoutFormValues) => {
+    if (!currentUser) {
+       toast({
+        variant: "destructive",
+        title: 'Authentication Error',
+        description: 'You must be logged in to place an order.',
+      });
+      return;
+    }
     try {
       const batch = writeBatch(db);
 
       // 1. Create the order document
       const orderRef = doc(collection(db, 'orders'));
       batch.set(orderRef, {
-        userId: currentUser ? currentUser.uid : null,
+        userId: currentUser.uid,
         shippingInfo: data,
         items: cartItems.map(item => ({
           id: item.id,
@@ -98,8 +121,8 @@ export default function CheckoutPage() {
     }
   };
 
-  if (cartCount === 0) {
-    return null;
+  if (authLoading || !currentUser || cartCount === 0) {
+    return <div className="container mx-auto py-12 px-4 text-center">Loading...</div>;
   }
   
   return (
