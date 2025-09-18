@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useState } from 'react';
@@ -16,11 +17,12 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
   const { addToCart } = useCart();
   const { toast } = useToast();
   const [product, setProduct] = useState<Product | undefined | null>(undefined);
+  const { id } = params;
 
   useEffect(() => {
-    const foundProduct = getProductById(params.id);
+    const foundProduct = getProductById(id);
     setProduct(foundProduct ?? null);
-  }, [getProductById, params.id]);
+  }, [getProductById, id]);
 
   if (product === undefined) {
     return <ProductDetailSkeleton />;
