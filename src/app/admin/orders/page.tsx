@@ -104,12 +104,15 @@ export default function OrdersPage() {
                 <AccordionContent>
                     <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6 bg-muted/20">
                       <div className="space-y-4">
-                        <h4 className="font-semibold">Shipping Address</h4>
+                        <h4 className="font-semibold">Shipping & Contact</h4>
                         <div className="text-sm text-muted-foreground">
                           <p>{order.shippingInfo.name}</p>
                           <p>{order.shippingInfo.address}</p>
                           <p>{order.shippingInfo.city}, {order.shippingInfo.zip}</p>
+                          <p className="mt-2 font-medium">Contact Details:</p>
                           <p>{order.shippingInfo.email}</p>
+                          <p>{order.shippingInfo.phone}</p>
+                          {order.shippingInfo.altPhone && <p>{order.shippingInfo.altPhone} (Alt)</p>}
                         </div>
                       </div>
                       <div className="md:col-span-2 space-y-4">

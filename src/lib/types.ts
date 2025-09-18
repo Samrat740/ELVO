@@ -26,6 +26,8 @@ export interface Order {
     shippingInfo: {
         name: string;
         email: string;
+        phone: string;
+        altPhone?: string;
         address: string;
         city: string;
         zip: string;

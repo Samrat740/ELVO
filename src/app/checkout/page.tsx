@@ -17,9 +17,15 @@ import { useAuth } from '@/hooks/use-auth';
 import { db } from '@/lib/firebase';
 import { addDoc, collection, serverTimestamp, writeBatch, doc, increment } from 'firebase/firestore';
 
+const phoneRegex = new RegExp(
+  /^([+]?[\s0-9]+)?(\d{3}|[(]?[0-9]+[)])?([-]?[\s]?[0-9])+$/
+);
+
 const checkoutSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters.'),
   email: z.string().email('Please enter a valid email address.'),
+  phone: z.string().regex(phoneRegex, 'Invalid phone number').min(10, 'Phone number must be at least 10 digits.'),
+  altPhone: z.string().regex(phoneRegex, 'Invalid phone number').optional().or(z.literal('')),
   address: z.string().min(5, 'Address must be at least 5 characters.'),
   city: z.string().min(2, 'City must be at least 2 characters.'),
   zip: z.string().min(5, 'ZIP code must be at least 5 characters.'),
@@ -47,6 +53,8 @@ export default function CheckoutPage() {
     defaultValues: {
       name: currentUser?.displayName || '',
       email: currentUser?.email || '',
+      phone: '',
+      altPhone: '',
       address: '',
       city: '',
       zip: '',
@@ -58,6 +66,8 @@ export default function CheckoutPage() {
       form.reset({
         name: currentUser.displayName || '',
         email: currentUser.email || '',
+        phone: '',
+        altPhone: '',
         address: '',
         city: '',
         zip: '',
@@ -163,6 +173,34 @@ export default function CheckoutPage() {
                     </FormItem>
                   )}
                 />
+                 <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="phone"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Mobile Number</FormLabel>
+                        <FormControl>
+                          <Input placeholder="123-456-7890" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="altPhone"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Alternative Mobile (Optional)</FormLabel>
+                        <FormControl>
+                          <Input placeholder="123-456-7890" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
                 <FormField
                   control={form.control}
                   name="address"
