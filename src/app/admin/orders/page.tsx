@@ -69,40 +69,40 @@ export default function OrdersPage() {
                           <AccordionTrigger className="p-2 [&>svg]:h-5 [&>svg]:w-5"></AccordionTrigger>
                         </TableCell>
                       </TableRow>
-                      <AccordionContent asChild>
-                        <tr className="bg-muted/50 hover:bg-muted/50">
-                          <TableCell colSpan={5} className="p-0">
-                            <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-                              <div className="space-y-4">
-                                <h4 className="font-semibold">Shipping Address</h4>
-                                <div className="text-sm text-muted-foreground">
-                                  <p>{order.shippingInfo.name}</p>
-                                  <p>{order.shippingInfo.address}</p>
-                                  <p>{order.shippingInfo.city}, {order.shippingInfo.zip}</p>
-                                  <p>{order.shippingInfo.email}</p>
+                      <TableRow>
+                        <TableCell colSpan={5} className="p-0">
+                           <AccordionContent>
+                              <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6 bg-muted/50">
+                                <div className="space-y-4">
+                                  <h4 className="font-semibold">Shipping Address</h4>
+                                  <div className="text-sm text-muted-foreground">
+                                    <p>{order.shippingInfo.name}</p>
+                                    <p>{order.shippingInfo.address}</p>
+                                    <p>{order.shippingInfo.city}, {order.shippingInfo.zip}</p>
+                                    <p>{order.shippingInfo.email}</p>
+                                  </div>
                                 </div>
-                              </div>
-                              <div className="md:col-span-2 space-y-4">
-                                <h4 className="font-semibold">Items</h4>
-                                <div className="space-y-3">
-                                  {order.items.map(item => (
-                                    <div key={item.id} className="flex justify-between items-center">
-                                      <div className="flex items-center gap-3">
-                                          <Image src={item.imageUrl} alt={item.name} width={48} height={48} className="rounded-md object-cover"/>
-                                          <div>
-                                              <p className="font-medium">{item.name}</p>
-                                              <p className="text-sm text-muted-foreground">Qty: {item.quantity}</p>
-                                          </div>
+                                <div className="md:col-span-2 space-y-4">
+                                  <h4 className="font-semibold">Items</h4>
+                                  <div className="space-y-3">
+                                    {order.items.map(item => (
+                                      <div key={item.id} className="flex justify-between items-center">
+                                        <div className="flex items-center gap-3">
+                                            <Image src={item.imageUrl} alt={item.name} width={48} height={48} className="rounded-md object-cover"/>
+                                            <div>
+                                                <p className="font-medium">{item.name}</p>
+                                                <p className="text-sm text-muted-foreground">Qty: {item.quantity}</p>
+                                            </div>
+                                        </div>
+                                        <p className="font-medium">${(item.price * item.quantity).toFixed(2)}</p>
                                       </div>
-                                      <p className="font-medium">${(item.price * item.quantity).toFixed(2)}</p>
-                                    </div>
-                                  ))}
+                                    ))}
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                          </TableCell>
-                        </tr>
-                      </AccordionContent>
+                           </AccordionContent>
+                        </TableCell>
+                      </TableRow>
                       </React.Fragment>
                   </AccordionItem>
                 ))}
