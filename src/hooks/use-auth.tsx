@@ -1,3 +1,4 @@
+
 "use client";
 
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
@@ -63,7 +64,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       } catch (e) {
         console.error("Could not access localStorage", e)
       }
-    router.push('/login');
+    router.push('/admin/login');
   }, [router]);
 
   const value = { currentUser, loading, login, logout };
