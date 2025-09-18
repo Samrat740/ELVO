@@ -4,14 +4,6 @@
 import { useOrders } from "@/hooks/use-orders";
 import { format } from 'date-fns';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
   Accordion,
   AccordionContent,
   AccordionItem,
@@ -52,19 +44,6 @@ export default function OrdersPage() {
     }
   };
 
-  const getStatusBadgeVariant = (status: OrderStatus) => {
-    switch (status) {
-      case 'Confirmed':
-        return 'default';
-      case 'Shipped':
-        return 'secondary';
-      case 'Delivered':
-        return 'outline';
-      default:
-        return 'default';
-    }
-  };
-
   if (loading) {
     return <div className="p-8">Loading orders...</div>;
   }
@@ -83,84 +62,79 @@ export default function OrdersPage() {
         </div>
       ) : (
         <div className="rounded-lg border">
+          <div className="hidden md:flex bg-muted/50 font-medium px-6 py-3 text-sm text-muted-foreground">
+            <div className="w-24 flex-shrink-0">Order ID</div>
+            <div className="flex-1">Customer</div>
+            <div className="flex-1">Date</div>
+            <div className="flex-1">Status</div>
+            <div className="w-32 text-right">Total</div>
+            <div className="w-16 text-center">Details</div>
+          </div>
           <Accordion type="single" collapsible className="w-full">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-24">Order ID</TableHead>
-                  <TableHead>Customer</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Total</TableHead>
-                  <TableHead className="w-16 text-center">Details</TableHead>
-                </TableRow>
-              </TableHeader>
-                {orders.map((order) => (
-                  <TableBody key={order.id}>
-                    <AccordionItem value={order.id}>
-                        <TableRow>
-                          <TableCell className="font-mono text-sm text-muted-foreground">{order.id.substring(0, 6)}...</TableCell>
-                          <TableCell>{order.shippingInfo.name}</TableCell>
-                          <TableCell>
-                            {order.createdAt ? format(order.createdAt.toDate(), 'PPP') : 'N/A'}
-                          </TableCell>
-                          <TableCell>
-                             <Select onValueChange={(value) => handleStatusChange(order.id, value as OrderStatus)} defaultValue={order.status}>
-                                <SelectTrigger className="w-32 h-9">
-                                    <SelectValue placeholder="Set Status" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="Confirmed">Confirmed</SelectItem>
-                                    <SelectItem value="Shipped">Shipped</SelectItem>
-                                    <SelectItem value="Delivered">Delivered</SelectItem>
-                                </SelectContent>
-                             </Select>
-                          </TableCell>
-                          <TableCell className="text-right font-medium">₹{order.total.toFixed(2)}</TableCell>
-                          <TableCell className="text-center">
-                            <AccordionTrigger className="p-2 [&>svg]:h-5 [&>svg]:w-5"></AccordionTrigger>
-                          </TableCell>
-                        </TableRow>
-                        <TableRow>
-                          <TableCell colSpan={6} className="p-0">
-                            <AccordionContent>
-                                <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6 bg-muted/50">
-                                  <div className="space-y-4">
-                                    <h4 className="font-semibold">Shipping Address</h4>
-                                    <div className="text-sm text-muted-foreground">
-                                      <p>{order.shippingInfo.name}</p>
-                                      <p>{order.shippingInfo.address}</p>
-                                      <p>{order.shippingInfo.city}, {order.shippingInfo.zip}</p>
-                                      <p>{order.shippingInfo.email}</p>
-                                    </div>
+            {orders.map((order) => (
+              <AccordionItem value={order.id} key={order.id} className="border-b">
+                <AccordionTrigger className="flex flex-col md:flex-row items-start md:items-center w-full px-6 py-4 text-left hover:no-underline hover:bg-muted/50 transition-colors">
+                  <div className="flex w-full md:w-auto items-center mb-2 md:mb-0">
+                    <div className="md:w-24 md:flex-shrink-0 font-mono text-sm text-muted-foreground">{order.id.substring(0, 6)}...</div>
+                    <div className="md:hidden flex-1 text-right font-medium">₹{order.total.toFixed(2)}</div>
+                  </div>
+                  <div className="flex-1 md:flex items-center w-full">
+                    <div className="md:flex-1 mb-2 md:mb-0">{order.shippingInfo.name}</div>
+                    <div className="md:flex-1 mb-2 md:mb-0">
+                      {order.createdAt ? format(order.createdAt.toDate(), 'PPP') : 'N/A'}
+                    </div>
+                    <div className="md:flex-1">
+                      <Select onValueChange={(value) => handleStatusChange(order.id, value as OrderStatus)} defaultValue={order.status}>
+                        <SelectTrigger className="w-32 h-9" onClick={(e) => e.stopPropagation()}>
+                            <SelectValue placeholder="Set Status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="Confirmed">Confirmed</SelectItem>
+                            <SelectItem value="Shipped">Shipped</SelectItem>
+                            <SelectItem value="Delivered">Delivered</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <div className="w-32 text-right font-medium hidden md:block">₹{order.total.toFixed(2)}</div>
+                  <div className="w-16 text-center hidden md:block pl-7">
+                    {/* The trigger icon is now part of the AccordionTrigger */}
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent>
+                    <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6 bg-muted/20">
+                      <div className="space-y-4">
+                        <h4 className="font-semibold">Shipping Address</h4>
+                        <div className="text-sm text-muted-foreground">
+                          <p>{order.shippingInfo.name}</p>
+                          <p>{order.shippingInfo.address}</p>
+                          <p>{order.shippingInfo.city}, {order.shippingInfo.zip}</p>
+                          <p>{order.shippingInfo.email}</p>
+                        </div>
+                      </div>
+                      <div className="md:col-span-2 space-y-4">
+                        <h4 className="font-semibold">Items</h4>
+                        <div className="space-y-3">
+                          {order.items.map(item => (
+                            <div key={item.id} className="flex justify-between items-center">
+                              <div className="flex items-center gap-3">
+                                  {item.imageUrl && (
+                                    <Image src={item.imageUrl} alt={item.name} width={48} height={48} className="rounded-md object-cover"/>
+                                  )}
+                                  <div>
+                                      <p className="font-medium">{item.name}</p>
+                                      <p className="text-sm text-muted-foreground">Qty: {item.quantity}</p>
                                   </div>
-                                  <div className="md:col-span-2 space-y-4">
-                                    <h4 className="font-semibold">Items</h4>
-                                    <div className="space-y-3">
-                                      {order.items.map(item => (
-                                        <div key={item.id} className="flex justify-between items-center">
-                                          <div className="flex items-center gap-3">
-                                              {item.imageUrl && (
-                                                <Image src={item.imageUrl} alt={item.name} width={48} height={48} className="rounded-md object-cover"/>
-                                              )}
-                                              <div>
-                                                  <p className="font-medium">{item.name}</p>
-                                                  <p className="text-sm text-muted-foreground">Qty: {item.quantity}</p>
-                                              </div>
-                                          </div>
-                                          <p className="font-medium">₹{(item.price * item.quantity).toFixed(2)}</p>
-                                        </div>
-                                      ))}
-                                    </div>
-                                  </div>
-                                </div>
-                            </AccordionContent>
-                          </TableCell>
-                        </TableRow>
-                    </AccordionItem>
-                  </TableBody>
-                ))}
-            </Table>
+                              </div>
+                              <p className="font-medium">₹{(item.price * item.quantity).toFixed(2)}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                </AccordionContent>
+              </AccordionItem>
+            ))}
           </Accordion>
         </div>
       )}
