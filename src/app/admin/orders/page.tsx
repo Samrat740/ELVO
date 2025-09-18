@@ -97,8 +97,7 @@ export default function OrdersPage() {
               </TableHeader>
                 {orders.map((order) => (
                   <TableBody key={order.id}>
-                    <AccordionItem value={order.id} asChild>
-                      <>
+                    <AccordionItem value={order.id}>
                         <TableRow>
                           <TableCell className="font-mono text-sm text-muted-foreground">{order.id.substring(0, 6)}...</TableCell>
                           <TableCell>{order.shippingInfo.name}</TableCell>
@@ -158,7 +157,6 @@ export default function OrdersPage() {
                             </AccordionContent>
                           </TableCell>
                         </TableRow>
-                      </>
                     </AccordionItem>
                   </TableBody>
                 ))}
