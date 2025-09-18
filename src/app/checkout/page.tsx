@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useRouter } from 'next/navigation';
@@ -12,6 +13,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { useEffect } from 'react';
+import { useAuth } from '@/hooks/use-auth';
+import { db } from '@/lib/firebase';
+import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 
 const checkoutSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters.'),
@@ -25,6 +29,7 @@ type CheckoutFormValues = z.infer<typeof checkoutSchema>;
 
 export default function CheckoutPage() {
   const { cartItems, totalPrice, clearCart, cartCount } = useCart();
+  const { currentUser } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
 
@@ -45,14 +50,37 @@ export default function CheckoutPage() {
     },
   });
 
-  const onSubmit = (data: CheckoutFormValues) => {
-    console.log('Order placed:', data);
-    toast({
-      title: 'Order Placed!',
-      description: 'Thank you for your purchase. Your order is being processed.',
-    });
-    clearCart();
-    router.push('/confirmation');
+  const onSubmit = async (data: CheckoutFormValues) => {
+    try {
+      // Create a new order document in Firestore
+      await addDoc(collection(db, 'orders'), {
+        userId: currentUser ? currentUser.uid : null,
+        shippingInfo: data,
+        items: cartItems.map(item => ({
+          id: item.id,
+          name: item.name,
+          quantity: item.quantity,
+          price: item.price,
+        })),
+        total: totalPrice,
+        createdAt: serverTimestamp(),
+      });
+
+      toast({
+        title: 'Order Placed!',
+        description: 'Thank you for your purchase. Your order is being processed.',
+      });
+      clearCart();
+      router.push('/confirmation');
+
+    } catch (error) {
+      console.error("Error placing order: ", error);
+      toast({
+        variant: "destructive",
+        title: 'Order Failed',
+        description: 'There was an issue placing your order. Please try again.',
+      });
+    }
   };
 
   if (cartCount === 0) {
@@ -137,7 +165,9 @@ export default function CheckoutPage() {
                     )}
                     />
                 </div>
-                 <Button type="submit" size="lg" className="w-full mt-8">Place Order</Button>
+                 <Button type="submit" size="lg" className="w-full mt-8" disabled={form.formState.isSubmitting}>
+                   {form.formState.isSubmitting ? 'Placing Order...' : 'Place Order'}
+                 </Button>
               </form>
             </Form>
           </CardContent>
