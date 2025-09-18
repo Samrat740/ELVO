@@ -12,7 +12,8 @@ import { type Product } from '@/lib/types';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
-export default function ProductDetailPage({ params: { id } }: { params: { id: string } }) {
+export default function ProductDetailPage({ params }: { params: { id: string } }) {
+  const { id } = params;
   const { getProductById } = useProducts();
   const { addToCart } = useCart();
   const { toast } = useToast();
