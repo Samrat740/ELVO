@@ -46,7 +46,7 @@ const productSchema = z.object({
   featured: z.boolean(),
 });
 
-type ProductFormValues = Omit<z.infer<typeof productSchema>, 'imageFile'> & { imageUrl?: string, imageFile?: FileList, imageHint?: string };
+type ProductFormValues = Omit<z.infer<typeof productSchema>, 'imageFile'> & { imageUrl?: string, imageFile?: FileList };
 
 interface ProductFormProps {
   product?: Product;
@@ -58,7 +58,6 @@ const defaultValues: ProductFormValues = {
   description: '',
   price: 0,
   imageUrl: '',
-  imageHint: '',
   stock: 0,
   category: 'Handbags' as const,
   audience: 'For Her' as const,
@@ -100,7 +99,7 @@ export function ProductForm({ product, onFinished }: ProductFormProps) {
 
   const onSubmit = async (data: ProductFormValues) => {
     try {
-        const productDataToSave = { ...data, imageUrl: imagePreview || '', imageHint: data.name.toLowerCase().split(' ').slice(0,2).join(' ')};
+        const productDataToSave = { ...data, imageUrl: imagePreview || '' };
         if (product) {
           await updateProduct(product.id, productDataToSave);
           toast({ title: "Product Updated", description: `${data.name} has been successfully updated.` });
@@ -125,7 +124,7 @@ export function ProductForm({ product, onFinished }: ProductFormProps) {
                 <FormField
                     control={form.control}
                     name="imageFile"
-                    render={({ field }) => (
+                    render={({ field: { onChange, value, ...rest } }) => (
                     <FormItem>
                         <FormLabel>Product Image</FormLabel>
                         <FormControl>
@@ -151,7 +150,8 @@ export function ProductForm({ product, onFinished }: ProductFormProps) {
                                             type="file" 
                                             className="hidden" 
                                             accept={ACCEPTED_IMAGE_TYPES.join(",")} 
-                                            onChange={(e) => field.onChange(e.target.files)}
+                                            onChange={(e) => onChange(e.target.files)}
+                                            {...rest}
                                         />
                                     </label>
                                 )}
@@ -218,7 +218,7 @@ export function ProductForm({ product, onFinished }: ProductFormProps) {
                             variant="outline"
                             size="icon"
                             className="h-9 w-9 shrink-0"
-                            onClick={() => form.setValue('stock', Math.max(0, field.value - 1))}
+                            onClick={() => form.setValue('stock', Math.max(0, (Number(field.value) || 0) - 1))}
                             disabled={field.value <= 0}
                             >
                             <Minus className="h-4 w-4" />
@@ -234,7 +234,7 @@ export function ProductForm({ product, onFinished }: ProductFormProps) {
                             variant="outline"
                             size="icon"
                             className="h-9 w-9 shrink-0"
-                            onClick={() => form.setValue('stock', field.value + 1)}
+                            onClick={() => form.setValue('stock', (Number(field.value) || 0) + 1)}
                             >
                             <Plus className="h-4 w-4" />
                             </Button>
