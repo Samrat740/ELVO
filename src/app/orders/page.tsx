@@ -12,10 +12,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import { Button } from '@/components/ui/button';
 import { ShoppingBag, ArrowLeft } from 'lucide-react';
-import Image from "next/image";
 import { useAuth } from '@/hooks/use-auth';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
@@ -81,24 +79,11 @@ export default function OrdersPage() {
                         <TableCell>
                           {order.createdAt ? format(order.createdAt.toDate(), 'PPP') : 'N/A'}
                         </TableCell>
-                         <TableCell>
-                            <div className="flex -space-x-4">
-                                {order.items.filter(item => item.imageUrl).slice(0,3).map(item => (
-                                    <Image 
-                                        key={item.id} 
-                                        src={item.imageUrl} 
-                                        alt={item.name} 
-                                        width={40} 
-                                        height={40} 
-                                        className="rounded-full border-2 border-background"
-                                    />
-                                ))}
-                                {order.items.length > 3 && (
-                                    <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-background bg-muted text-xs font-medium">
-                                        +{order.items.length - 3}
-                                    </div>
-                                )}
-                            </div>
+                         <TableCell className="max-w-xs truncate">
+                           {order.items[0]?.name}
+                           {order.items.length > 1 && (
+                            <span className="text-muted-foreground"> + {order.items.length - 1} more</span>
+                           )}
                          </TableCell>
                         <TableCell className="text-right font-medium">${order.total.toFixed(2)}</TableCell>
                     </TableRow>
