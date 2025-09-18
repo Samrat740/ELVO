@@ -33,12 +33,12 @@ const devDeskLinks = [
     {
         icon: Lightbulb,
         title: "Suggest a Feature",
-        href: "mailto:nesttrend30@gmail.com?subject=Feature Suggestion"
+        href: "mailto:samratghosh740@gmail.com?subject=Feature Suggestion"
     },
     {
         icon: Bug,
         title: "Report a Bug",
-        href: "mailto:nesttrend30@gmail.com?subject=Bug Report"
+        href: "mailto:samratghosh740@gmail.com?subject=Bug Report"
     }
 ]
 
@@ -70,7 +70,7 @@ export default function ContactPage() {
     return (
         <div className="container mx-auto py-12 px-4">
             <div className="text-center mb-12">
-                <h1 className="text-4xl font-headline tracking-tight">Get in Touch</h1>
+                <h1 className="text-3xl md:text-4xl font-headline tracking-tight">Get in Touch</h1>
                 <p className="mt-4 max-w-2xl mx-auto text-lg text-muted-foreground">We're here to help. Contact us with any questions or feedback.</p>
             </div>
 
@@ -95,12 +95,12 @@ export default function ContactPage() {
                 ))}
             </div>
             
-            <div className="max-w-4xl mx-auto text-center border rounded-lg p-8 bg-muted/20 my-16">
-                <h2 className="text-2xl font-headline flex items-center justify-center gap-3"><Code className="h-6 w-6" /> From the Developer's Desk</h2>
-                <p className="mt-3 text-muted-foreground mb-6">Help us improve your experience by sharing your feedback.</p>
+            <div className="max-w-2xl mx-auto text-center border rounded-lg p-6 bg-muted/20 my-12">
+                <h2 className="text-lg font-semibold flex items-center justify-center gap-2"><Code className="h-5 w-5" /> From the Developer's Desk</h2>
+                <p className="mt-2 text-sm text-muted-foreground mb-4">Help us improve your experience.</p>
                 <div className="flex justify-center gap-4">
                     {devDeskLinks.map((link, index) => (
-                        <Button asChild variant="outline" key={index}>
+                        <Button asChild variant="outline" size="sm" key={index}>
                            <Link href={link.href} target="_blank" rel="noopener noreferrer">
                                 <link.icon className="mr-2 h-4 w-4" />
                                 {link.title}
