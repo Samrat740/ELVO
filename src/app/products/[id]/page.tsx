@@ -12,12 +12,11 @@ import { type Product } from '@/lib/types';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
-export default function ProductDetailPage({ params }: { params: { id: string } }) {
+export default function ProductDetailPage({ params: { id } }: { params: { id: string } }) {
   const { getProductById } = useProducts();
   const { addToCart } = useCart();
   const { toast } = useToast();
   const [product, setProduct] = useState<Product | undefined | null>(undefined);
-  const { id } = params;
 
   useEffect(() => {
     const foundProduct = getProductById(id);
