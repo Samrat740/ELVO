@@ -54,61 +54,61 @@ export default function OrdersPage() {
                   <TableHead className="w-16 text-center">Details</TableHead>
                 </TableRow>
               </TableHeader>
-              <TableBody>
                 {orders.map((order) => (
-                  <AccordionItem value={order.id} key={order.id} asChild>
-                     <React.Fragment>
-                      <TableRow className="hover:bg-transparent">
-                        <TableCell className="font-mono text-sm text-muted-foreground">{order.id.substring(0, 6)}...</TableCell>
-                        <TableCell>{order.shippingInfo.name}</TableCell>
-                        <TableCell>
-                          {order.createdAt ? format(order.createdAt.toDate(), 'PPP') : 'N/A'}
-                        </TableCell>
-                        <TableCell className="text-right font-medium">${order.total.toFixed(2)}</TableCell>
-                        <TableCell className="text-center">
-                          <AccordionTrigger className="p-2 [&>svg]:h-5 [&>svg]:w-5"></AccordionTrigger>
-                        </TableCell>
-                      </TableRow>
-                      <TableRow>
-                        <TableCell colSpan={5} className="p-0">
-                           <AccordionContent>
-                              <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6 bg-muted/50">
-                                <div className="space-y-4">
-                                  <h4 className="font-semibold">Shipping Address</h4>
-                                  <div className="text-sm text-muted-foreground">
-                                    <p>{order.shippingInfo.name}</p>
-                                    <p>{order.shippingInfo.address}</p>
-                                    <p>{order.shippingInfo.city}, {order.shippingInfo.zip}</p>
-                                    <p>{order.shippingInfo.email}</p>
+                  <TableBody key={order.id}>
+                    <AccordionItem value={order.id} asChild>
+                      <>
+                        <TableRow>
+                          <TableCell className="font-mono text-sm text-muted-foreground">{order.id.substring(0, 6)}...</TableCell>
+                          <TableCell>{order.shippingInfo.name}</TableCell>
+                          <TableCell>
+                            {order.createdAt ? format(order.createdAt.toDate(), 'PPP') : 'N/A'}
+                          </TableCell>
+                          <TableCell className="text-right font-medium">${order.total.toFixed(2)}</TableCell>
+                          <TableCell className="text-center">
+                            <AccordionTrigger className="p-2 [&>svg]:h-5 [&>svg]:w-5"></AccordionTrigger>
+                          </TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell colSpan={5} className="p-0">
+                            <AccordionContent>
+                                <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6 bg-muted/50">
+                                  <div className="space-y-4">
+                                    <h4 className="font-semibold">Shipping Address</h4>
+                                    <div className="text-sm text-muted-foreground">
+                                      <p>{order.shippingInfo.name}</p>
+                                      <p>{order.shippingInfo.address}</p>
+                                      <p>{order.shippingInfo.city}, {order.shippingInfo.zip}</p>
+                                      <p>{order.shippingInfo.email}</p>
+                                    </div>
                                   </div>
-                                </div>
-                                <div className="md:col-span-2 space-y-4">
-                                  <h4 className="font-semibold">Items</h4>
-                                  <div className="space-y-3">
-                                    {order.items.map(item => (
-                                      <div key={item.id} className="flex justify-between items-center">
-                                        <div className="flex items-center gap-3">
-                                            {item.imageUrl && (
-                                              <Image src={item.imageUrl} alt={item.name} width={48} height={48} className="rounded-md object-cover"/>
-                                            )}
-                                            <div>
-                                                <p className="font-medium">{item.name}</p>
-                                                <p className="text-sm text-muted-foreground">Qty: {item.quantity}</p>
-                                            </div>
+                                  <div className="md:col-span-2 space-y-4">
+                                    <h4 className="font-semibold">Items</h4>
+                                    <div className="space-y-3">
+                                      {order.items.map(item => (
+                                        <div key={item.id} className="flex justify-between items-center">
+                                          <div className="flex items-center gap-3">
+                                              {item.imageUrl && (
+                                                <Image src={item.imageUrl} alt={item.name} width={48} height={48} className="rounded-md object-cover"/>
+                                              )}
+                                              <div>
+                                                  <p className="font-medium">{item.name}</p>
+                                                  <p className="text-sm text-muted-foreground">Qty: {item.quantity}</p>
+                                              </div>
+                                          </div>
+                                          <p className="font-medium">${(item.price * item.quantity).toFixed(2)}</p>
                                         </div>
-                                        <p className="font-medium">${(item.price * item.quantity).toFixed(2)}</p>
-                                      </div>
-                                    ))}
+                                      ))}
+                                    </div>
                                   </div>
                                 </div>
-                              </div>
-                           </AccordionContent>
-                        </TableCell>
-                      </TableRow>
-                      </React.Fragment>
-                  </AccordionItem>
+                            </AccordionContent>
+                          </TableCell>
+                        </TableRow>
+                      </>
+                    </AccordionItem>
+                  </TableBody>
                 ))}
-              </TableBody>
             </Table>
           </Accordion>
         </div>
