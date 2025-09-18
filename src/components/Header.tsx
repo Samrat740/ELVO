@@ -52,7 +52,7 @@ export default function Header() {
         <Link href="/" className="mr-6 flex items-center space-x-2">
           <ElvoLogo />
           <span className="font-bold sm:inline-block font-headline tracking-wider text-xl">
-            TTREND NEST
+            ELVO
           </span>
         </Link>
         <nav className="flex flex-1 items-center space-x-1">
@@ -134,4 +134,3 @@ export default function Header() {
     </header>
   );
 }
-
