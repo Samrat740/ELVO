@@ -21,7 +21,7 @@ import {
 } from '@/components/ui/dialog';
 import { ProductForm } from '@/components/ProductForm';
 import { Product } from '@/lib/types';
-import { Edit, PlusCircle, Trash2, CheckCircle, XCircle, PackageOpen } from 'lucide-react';
+import { Edit, PlusCircle, Trash2, CheckCircle, XCircle, PackageOpen, MoreVertical } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -34,6 +34,8 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 export default function AdminProductsPage() {
   const { products, deleteProduct } = useProducts();
@@ -72,7 +74,8 @@ export default function AdminProductsPage() {
         </DialogContent>
       </Dialog>
       
-      <div className="rounded-lg border">
+      {/* Desktop Table */}
+      <div className="hidden md:block rounded-lg border">
         <Table>
           <TableHeader>
             <TableRow>
@@ -154,6 +157,95 @@ export default function AdminProductsPage() {
           </TableBody>
         </Table>
       </div>
+
+       {/* Mobile Cards */}
+       <div className="md:hidden grid gap-4">
+        {products.length > 0 ? (
+          products.map((product) => (
+            <Card key={product.id}>
+              <CardHeader>
+                <div className="flex items-start justify-between">
+                  <div className="flex items-start gap-4">
+                    <Image
+                        src={product.imageUrl}
+                        alt={product.name}
+                        width={80}
+                        height={80}
+                        className="rounded-md object-cover"
+                        data-ai-hint={product.imageHint}
+                      />
+                    <div>
+                      <CardTitle className="text-lg">{product.name}</CardTitle>
+                      <div className="flex gap-2 mt-1">
+                        <Badge variant="secondary">{product.category}</Badge>
+                        <Badge variant="outline">{product.audience}</Badge>
+                      </div>
+                    </div>
+                  </div>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon">
+                        <MoreVertical className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => handleEdit(product)}>
+                        <Edit className="mr-2 h-4 w-4" /> Edit
+                      </DropdownMenuItem>
+                       <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                           <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive focus:text-destructive">
+                              <Trash2 className="mr-2 h-4 w-4" /> Delete
+                           </DropdownMenuItem>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              This action cannot be undone. This will permanently delete the product "{product.name}".
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => deleteProduct(product.id)} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </CardHeader>
+              <CardContent>
+                 <div className="flex justify-between items-center text-sm">
+                    <div>
+                      <p className="text-muted-foreground">Price</p>
+                      <p className="font-medium">₹{product.price.toFixed(2)}</p>
+                    </div>
+                     <div>
+                      <p className="text-muted-foreground">Stock</p>
+                      <p className="font-medium">{product.stock}</p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground">Featured</p>
+                       {product.featured ? (
+                          <CheckCircle className="h-5 w-5 text-green-500" />
+                        ) : (
+                          <XCircle className="h-5 w-5 text-muted-foreground" />
+                        )}
+                    </div>
+                 </div>
+              </CardContent>
+            </Card>
+          ))
+        ) : (
+          <div className="flex flex-col items-center gap-4 text-center p-8 border-2 border-dashed rounded-lg">
+            <PackageOpen className="h-12 w-12 text-muted-foreground" />
+            <h3 className="text-xl font-semibold">Empty Inventory</h3>
+            <p className="text-muted-foreground">No products have been added yet.</p>
+          </div>
+        )}
+       </div>
+
     </div>
   );
 }
