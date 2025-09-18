@@ -2,6 +2,7 @@
 "use client";
 
 import { useEffect, useState } from 'react';
+import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import { useProducts } from '@/hooks/use-products.tsx';
 import { useCart } from '@/hooks/use-cart.tsx';
@@ -12,8 +13,9 @@ import { type Product } from '@/lib/types';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
-export default function ProductDetailPage({ params }: { params: { id: string } }) {
-  const { id } = params;
+export default function ProductDetailPage() {
+  const params = useParams();
+  const id = params.id as string;
   const { getProductById } = useProducts();
   const { addToCart } = useCart();
   const { toast } = useToast();
