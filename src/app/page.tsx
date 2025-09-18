@@ -9,8 +9,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import type { Product } from '@/lib/types';
-import { ArrowRight, ShoppingBag } from 'lucide-react';
+import { ArrowRight, ShoppingBag, XCircle } from 'lucide-react';
 import { useMemo } from 'react';
+import { Badge } from '@/components/ui/badge';
 
 export default function Home() {
   const { products } = useProducts();
@@ -88,11 +89,17 @@ export default function Home() {
                       data-ai-hint={product.imageHint}
                     />
                   </Link>
-                   <div className="absolute top-3 right-3">
-                    <Button size="icon" className="rounded-full h-10 w-10 bg-black/50 text-white hover:bg-primary hover:text-primary-foreground backdrop-blur-sm border-none" onClick={() => handleAddToCart(product)}>
-                      <ShoppingBag className="h-5 w-5" />
-                    </Button>
-                  </div>
+                   {product.stock > 0 ? (
+                    <div className="absolute top-3 right-3">
+                      <Button size="icon" className="rounded-full h-10 w-10 bg-black/50 text-white hover:bg-primary hover:text-primary-foreground backdrop-blur-sm border-none" onClick={() => handleAddToCart(product)} disabled={product.stock === 0}>
+                        <ShoppingBag className="h-5 w-5" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="absolute top-3 left-3">
+                       <Badge variant="destructive" className="text-base font-bold uppercase tracking-wider">Out of Stock</Badge>
+                    </div>
+                  )}
                 </div>
                 <CardContent className="flex-1 p-4 bg-card">
                   <Link href={`/products/${product.id}`}>

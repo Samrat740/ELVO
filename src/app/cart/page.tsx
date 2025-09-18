@@ -9,9 +9,11 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
+import { useProducts } from "@/hooks/use-products";
 
 export default function CartPage() {
   const { cartItems, updateQuantity, removeFromCart, totalPrice, cartCount } = useCart();
+  const { getProductById } = useProducts();
 
   return (
     <div className="container mx-auto py-12 px-4">
@@ -31,43 +33,54 @@ export default function CartPage() {
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-3 lg:items-start">
           <div className="lg:col-span-2">
             <div className="space-y-4">
-              {cartItems.map((item) => (
-                <Card key={item.id} className="flex items-center p-4">
-                  <Image
-                    src={item.imageUrl}
-                    alt={item.name}
-                    width={100}
-                    height={100}
-                    className="aspect-square rounded-md object-cover"
-                    data-ai-hint={item.imageHint}
-                  />
-                  <div className="ml-4 flex-1">
-                    <Link href={`/products/${item.id}`} className="font-semibold hover:text-primary">{item.name}</Link>
-                    <p className="text-sm text-muted-foreground">₹{item.price.toFixed(2)}</p>
-                    <div className="mt-2 flex items-center">
-                      <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => updateQuantity(item.id, item.quantity - 1)}>
-                        <Minus className="h-4 w-4" />
-                      </Button>
-                      <Input
-                        type="number"
-                        min="1"
-                        value={item.quantity}
-                        onChange={(e) => updateQuantity(item.id, parseInt(e.target.value) || 1)}
-                        className="h-8 w-14 text-center mx-2"
-                      />
-                      <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => updateQuantity(item.id, item.quantity + 1)}>
-                        <Plus className="h-4 w-4" />
-                      </Button>
+              {cartItems.map((item) => {
+                const product = getProductById(item.id);
+                const maxQuantity = product?.stock ?? 0;
+                
+                return (
+                  <Card key={item.id} className="flex items-center p-4">
+                    <Image
+                      src={item.imageUrl}
+                      alt={item.name}
+                      width={100}
+                      height={100}
+                      className="aspect-square rounded-md object-cover"
+                      data-ai-hint={item.imageHint}
+                    />
+                    <div className="ml-4 flex-1">
+                      <Link href={`/products/${item.id}`} className="font-semibold hover:text-primary">{item.name}</Link>
+                      <p className="text-sm text-muted-foreground">₹{item.price.toFixed(2)}</p>
+                      <div className="mt-2 flex items-center">
+                        <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => updateQuantity(item.id, item.quantity - 1)}>
+                          <Minus className="h-4 w-4" />
+                        </Button>
+                        <Input
+                          type="number"
+                          min="1"
+                          max={maxQuantity}
+                          value={item.quantity}
+                          onChange={(e) => {
+                            const newQuantity = parseInt(e.target.value) || 1;
+                            updateQuantity(item.id, Math.min(newQuantity, maxQuantity))
+                          }}
+                          className="h-8 w-14 text-center mx-2"
+                        />
+                        <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => updateQuantity(item.id, item.quantity + 1)} disabled={item.quantity >= maxQuantity}>
+                          <Plus className="h-4 w-4" />
+                        </Button>
+                      </div>
+                       {item.quantity >= maxQuantity && maxQuantity > 0 && <p className="text-xs text-destructive mt-1">Maximum stock reached</p>}
+                       {maxQuantity === 0 && <p className="text-xs text-destructive mt-1">This item is now out of stock.</p>}
                     </div>
-                  </div>
-                  <div className="ml-4 flex flex-col items-end">
-                     <p className="font-bold">₹{(item.price * item.quantity).toFixed(2)}</p>
-                      <Button variant="ghost" size="icon" className="mt-2 text-muted-foreground hover:text-destructive" onClick={() => removeFromCart(item.id)}>
-                        <Trash2 className="h-5 w-5" />
-                      </Button>
-                  </div>
-                </Card>
-              ))}
+                    <div className="ml-4 flex flex-col items-end">
+                       <p className="font-bold">₹{(item.price * item.quantity).toFixed(2)}</p>
+                        <Button variant="ghost" size="icon" className="mt-2 text-muted-foreground hover:text-destructive" onClick={() => removeFromCart(item.id)}>
+                          <Trash2 className="h-5 w-5" />
+                        </Button>
+                    </div>
+                  </Card>
+                )
+              })}
             </div>
           </div>
 
