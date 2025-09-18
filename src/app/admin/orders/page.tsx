@@ -20,6 +20,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Truck } from "lucide-react";
 import Image from "next/image";
+import React from "react";
 
 export default function OrdersPage() {
   const { orders, loading } = useOrders();
@@ -56,7 +57,7 @@ export default function OrdersPage() {
               <TableBody>
                 {orders.map((order) => (
                   <AccordionItem value={order.id} key={order.id} asChild>
-                     <tbody className="w-full">
+                     <React.Fragment>
                       <TableRow className="hover:bg-transparent">
                         <TableCell className="font-mono text-sm text-muted-foreground">{order.id.substring(0, 6)}...</TableCell>
                         <TableCell>{order.shippingInfo.name}</TableCell>
@@ -102,7 +103,7 @@ export default function OrdersPage() {
                           </TableCell>
                         </tr>
                       </AccordionContent>
-                      </tbody>
+                      </React.Fragment>
                   </AccordionItem>
                 ))}
               </TableBody>
@@ -113,4 +114,3 @@ export default function OrdersPage() {
     </div>
   );
 }
-
