@@ -42,21 +42,21 @@ export default function OrdersPage() {
         </div>
       ) : (
         <div className="rounded-lg border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-24">Order ID</TableHead>
-                <TableHead>Customer</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead className="text-right">Total</TableHead>
-                <TableHead className="w-16 text-center">Details</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              <Accordion type="single" collapsible className="w-full">
+          <Accordion type="single" collapsible className="w-full">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-24">Order ID</TableHead>
+                  <TableHead>Customer</TableHead>
+                  <TableHead>Date</TableHead>
+                  <TableHead className="text-right">Total</TableHead>
+                  <TableHead className="w-16 text-center">Details</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {orders.map((order) => (
                   <AccordionItem value={order.id} key={order.id} asChild>
-                    <>
+                     <tbody className="w-full">
                       <TableRow className="hover:bg-transparent">
                         <TableCell className="font-mono text-sm text-muted-foreground">{order.id.substring(0, 6)}...</TableCell>
                         <TableCell>{order.shippingInfo.name}</TableCell>
@@ -102,14 +102,15 @@ export default function OrdersPage() {
                           </TableCell>
                         </tr>
                       </AccordionContent>
-                    </>
+                      </tbody>
                   </AccordionItem>
                 ))}
-              </Accordion>
-            </TableBody>
-          </Table>
+              </TableBody>
+            </Table>
+          </Accordion>
         </div>
       )}
     </div>
   );
 }
+
