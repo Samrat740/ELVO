@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -46,12 +45,12 @@ export default function AdminPage() {
   
   useEffect(() => {
     if (!loading && (!currentUser || !isAdmin)) {
-      router.push('/admin/login');
+      router.push('/login');
     }
   }, [currentUser, isAdmin, loading, router]);
 
 
-  if (loading || !currentUser) {
+  if (loading || !currentUser || !isAdmin) {
     return <div className="container mx-auto py-12 px-4 text-center">Loading...</div>;
   }
 
