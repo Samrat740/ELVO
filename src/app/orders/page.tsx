@@ -19,6 +19,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { OrderStatus } from '@/lib/types';
+import Image from 'next/image';
 
 export default function OrdersPage() {
   const { orders, loading } = useOrders();
@@ -94,11 +95,20 @@ export default function OrdersPage() {
                         <TableCell>
                           {order.createdAt ? format(order.createdAt.toDate(), 'PPP') : 'N/A'}
                         </TableCell>
-                         <TableCell className="max-w-xs truncate">
-                           {order.items[0]?.name}
-                           {order.items.length > 1 && (
-                            <span className="text-muted-foreground"> + {order.items.length - 1} more</span>
-                           )}
+                         <TableCell>
+                          <div className="flex items-center gap-2">
+                            {order.items.map(item => (
+                              <Link href={`/products/${item.id}`} key={item.id}>
+                                  <Image
+                                    src={item.imageUrl}
+                                    alt={item.name}
+                                    width={40}
+                                    height={40}
+                                    className="rounded-md object-cover aspect-square"
+                                  />
+                              </Link>
+                            ))}
+                          </div>
                          </TableCell>
                          <TableCell>
                             <Badge variant={getStatusBadgeVariant(order.status)}>{order.status}</Badge>
