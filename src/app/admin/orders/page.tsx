@@ -10,7 +10,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
-import { Truck } from "lucide-react";
+import { Truck, ClipboardCopy } from "lucide-react";
 import Image from "next/image";
 import React from "react";
 import { OrderStatus } from "@/lib/types";
@@ -24,6 +24,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
 
 export default function OrdersPage() {
   const { orders, loading, updateOrderStatus } = useOrders();
@@ -45,6 +46,14 @@ export default function OrdersPage() {
       });
     }
   };
+  
+  const handleCopyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    toast({
+        title: "Copied to clipboard",
+        description: "Order ID has been copied."
+    })
+  }
 
   if (loading) {
     return <div className="p-8">Loading orders...</div>;
@@ -64,8 +73,8 @@ export default function OrdersPage() {
         </div>
       ) : (
         <div className="rounded-lg border">
-          <div className="hidden md:flex bg-muted/50 font-medium px-6 py-3 text-sm text-muted-foreground">
-            <div className="w-24 flex-shrink-0">Order ID</div>
+          <div className="hidden md:grid grid-cols-[1fr,1fr,1fr,1fr,auto,auto] items-center bg-muted/50 font-medium px-6 py-3 text-sm text-muted-foreground">
+            <div className="flex-shrink-0">Order ID</div>
             <div className="flex-1">Customer</div>
             <div className="flex-1">Date</div>
             <div className="flex-1">Status</div>
@@ -76,18 +85,18 @@ export default function OrdersPage() {
             {orders.map((order) => (
               <AccordionItem value={order.id} key={order.id} className="border-b">
                 <div className="flex items-center w-full px-6 py-4 hover:bg-muted/50 transition-colors">
-                  <div className="flex flex-col md:flex-row items-start md:items-center w-full">
-                    <div className="flex w-full md:w-auto items-center mb-2 md:mb-0 md:flex-1">
-                      <div className="md:w-24 md:flex-shrink-0 font-mono text-sm text-muted-foreground">{order.id.substring(0, 6)}...</div>
-                      <div className="flex-1 md:hidden text-right font-medium">₹{order.total.toFixed(2)}</div>
+                  <div className="hidden md:grid grid-cols-[1fr,1fr,1fr,1fr,auto] items-center w-full">
+                     <div className="flex items-center gap-2">
+                        <p className="font-mono text-xs text-muted-foreground truncate" title={order.id}>{order.id}</p>
+                        <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleCopyToClipboard(order.id)}>
+                            <ClipboardCopy className="h-4 w-4"/>
+                        </Button>
                     </div>
-                    <div className="flex-1 md:flex items-center w-full">
-                      <div className="md:flex-1 mb-2 md:mb-0">{order.shippingInfo.name}</div>
-                      <div className="md:flex-1 mb-2 md:mb-0">
-                        {order.createdAt ? format(order.createdAt.toDate(), 'PPP') : 'N/A'}
-                      </div>
+                    <div className="flex-1">{order.shippingInfo.name}</div>
+                    <div className="flex-1">
+                      {order.createdAt ? format(order.createdAt.toDate(), 'PPP') : 'N/A'}
                     </div>
-                    <div className="md:flex-1">
+                     <div className="flex-1">
                        <Select onValueChange={(value) => handleStatusChange(order.id, value as OrderStatus)} defaultValue={order.status}>
                         <SelectTrigger className="w-32 h-9">
                             <SelectValue placeholder="Set Status" />
@@ -99,9 +108,40 @@ export default function OrdersPage() {
                         </SelectContent>
                       </Select>
                     </div>
-                    <div className="w-32 text-right font-medium hidden md:block">₹{order.total.toFixed(2)}</div>
+                    <div className="w-32 text-right font-medium">₹{order.total.toFixed(2)}</div>
                   </div>
-                   <AccordionTrigger className="w-16 justify-center p-0 hover:no-underline pl-7">
+                  {/* Mobile view structure */}
+                  <div className="md:hidden flex flex-col w-full">
+                     <div className="flex justify-between items-start mb-2">
+                         <div>
+                            <div className="flex items-center gap-1">
+                                <p className="font-mono text-sm text-muted-foreground truncate">{order.id.substring(0, 8)}...</p>
+                                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleCopyToClipboard(order.id)}>
+                                    <ClipboardCopy className="h-3 w-3"/>
+                                </Button>
+                            </div>
+                            <p className="font-medium">{order.shippingInfo.name}</p>
+                            <p className="text-sm text-muted-foreground">
+                                {order.createdAt ? format(order.createdAt.toDate(), 'PPP') : 'N/A'}
+                            </p>
+                         </div>
+                         <div className="text-right">
+                             <p className="font-bold text-lg">₹{order.total.toFixed(2)}</p>
+                         </div>
+                     </div>
+                      <Select onValueChange={(value) => handleStatusChange(order.id, value as OrderStatus)} defaultValue={order.status}>
+                        <SelectTrigger className="w-36 h-9 mt-2">
+                            <SelectValue placeholder="Set Status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="Confirmed">Confirmed</SelectItem>
+                            <SelectItem value="Shipped">Shipped</SelectItem>
+                            <SelectItem value="Delivered">Delivered</SelectItem>
+                        </SelectContent>
+                      </Select>
+                  </div>
+                  
+                   <AccordionTrigger className="w-16 justify-center p-0 hover:no-underline pl-7 self-start md:self-center mt-2 md:mt-0">
                     {/* The trigger icon is now separate */}
                   </AccordionTrigger>
                 </div>
