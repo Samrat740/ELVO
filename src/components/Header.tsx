@@ -1,7 +1,8 @@
+
 "use client";
 
 import Link from "next/link";
-import { LogOut, ShoppingCart, UserCog, UserPlus } from "lucide-react";
+import { LogOut, ShoppingCart, UserCog, UserCircle, UserPlus } from "lucide-react";
 import { useCart } from "@/hooks/use-cart.tsx";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
@@ -11,16 +12,19 @@ const ElvoLogo = () => (
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 24 24"
     fill="currentColor"
-    className="h-6 w-6 text-primary"
+    className="h-7 w-7 text-primary"
   >
-    <path d="M6.75 3h-2.25L3 4.5v15l1.5 1.5h15l1.5-1.5v-15L19.5 3h-2.25V1.5h-9V3zM10.5 3h3V1.5h-3V3zm-5.25 3h13.5v13.5H5.25V6zM12 18a4.5 4.5 0 100-9 4.5 4.5 0 000 9zm0-1.5a3 3 0 110-6 3 3 0 010 6z" />
+    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-12h2v4h-2zm0 6h2v2h-2z" transform="scale(1.1)"/>
+    <path d="M7.5 12.5 L16.5 12.5" stroke="hsl(var(--primary))" strokeWidth="1.5" strokeLinecap="round" />
+    <path d="M12 7.5 L12 16.5" stroke="hsl(var(--primary))" strokeWidth="1.5" strokeLinecap="round" />
+     <text x="50%" y="55%" dominantBaseline="middle" textAnchor="middle" fontSize="11" fontWeight="bold" fill="hsl(var(--foreground))" fontFamily="sans-serif">E</text>
   </svg>
 );
 
 
 export default function Header() {
   const { cartCount } = useCart();
-  const { currentUser, logout } = useAuth();
+  const { currentUser, isAdmin, logout } = useAuth();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -39,24 +43,34 @@ export default function Header() {
         <div className="flex items-center justify-end space-x-1">
            {currentUser ? (
              <>
-              <Button variant="ghost" size="icon" asChild>
-                <Link href="/admin">
-                  <UserCog className="h-5 w-5" />
-                  <span className="sr-only">Admin Panel</span>
-                </Link>
-              </Button>
+              {isAdmin && (
+                <Button variant="ghost" size="icon" asChild>
+                  <Link href="/admin">
+                    <UserCog className="h-5 w-5" />
+                    <span className="sr-only">Admin Panel</span>
+                  </Link>
+                </Button>
+              )}
                <Button variant="ghost" size="icon" onClick={logout}>
                   <LogOut className="h-5 w-5" />
                   <span className="sr-only">Logout</span>
               </Button>
              </>
            ) : (
+             <>
+              <Button variant="ghost" size="icon" asChild>
+                <Link href="/login">
+                  <UserCircle className="h-5 w-5" />
+                   <span className="sr-only">Login</span>
+                </Link>
+              </Button>
               <Button variant="ghost" size="icon" asChild>
                 <Link href="/signup">
                   <UserPlus className="h-5 w-5" />
                    <span className="sr-only">Sign Up</span>
                 </Link>
               </Button>
+             </>
            )}
           <Button variant="ghost" size="icon" asChild>
             <Link href="/cart" className="relative">

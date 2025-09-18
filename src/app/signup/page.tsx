@@ -11,6 +11,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
+import { useAuth } from '@/hooks/use-auth';
+import { useState } from 'react';
 
 const signupSchema = z.object({
   email: z.string().email('Please enter a valid email address.'),
@@ -37,6 +39,8 @@ const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
 export default function SignupPage() {
   const router = useRouter();
   const { toast } = useToast();
+  const { signUpWithEmail, signInWithGoogle } = useAuth();
+  const [error, setError] = useState<string | null>(null);
 
   const form = useForm<SignupFormValues>({
     resolver: zodResolver(signupSchema),
@@ -48,15 +52,38 @@ export default function SignupPage() {
   });
 
   const onSubmit = async (data: SignupFormValues) => {
-    // Placeholder for signup logic
-    console.log('New user signup:', data.email);
-    toast({
-      title: 'Sign Up Successful!',
-      description: 'Welcome! You can now log in.',
-    });
-    // In a real app, you'd likely redirect to a user profile page or back to home
-    router.push('/login');
+    setError(null);
+    try {
+      await signUpWithEmail(data.email, data.password);
+      toast({
+        title: 'Sign Up Successful!',
+        description: 'Welcome to ELVO! You have been logged in.',
+      });
+      router.push('/');
+    } catch (err: any) {
+      console.error(err);
+      if (err.code === 'auth/email-already-in-use') {
+        setError('This email is already in use. Please log in.');
+      } else {
+        setError('An unexpected error occurred. Please try again.');
+      }
+    }
   };
+  
+  const handleGoogleSignUp = async () => {
+    setError(null);
+    try {
+      await signInWithGoogle();
+      toast({
+        title: 'Sign Up Successful!',
+        description: 'Welcome to ELVO!',
+      });
+      router.push('/');
+    } catch (err) {
+      console.error(err);
+      setError('Failed to sign up with Google. Please try again.');
+    }
+  }
 
   return (
     <div className="container mx-auto flex h-[calc(100vh-8rem)] items-center justify-center px-4">
@@ -107,6 +134,9 @@ export default function SignupPage() {
                   </FormItem>
                 )}
               />
+               {error && (
+                <p className="text-sm font-medium text-destructive">{error}</p>
+              )}
               <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
                 {form.formState.isSubmitting ? 'Creating Account...' : 'Create Account'}
               </Button>
@@ -124,7 +154,7 @@ export default function SignupPage() {
             </div>
           </div>
 
-          <Button variant="outline" className="w-full">
+          <Button variant="outline" className="w-full" onClick={handleGoogleSignUp}>
             <GoogleIcon className="mr-2 h-5 w-5" />
             Sign up with Google
           </Button>

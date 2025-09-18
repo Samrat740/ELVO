@@ -41,14 +41,14 @@ export default function AdminPage() {
   const { products, deleteProduct } = useProducts();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | undefined>(undefined);
-  const { currentUser, loading } = useAuth();
+  const { currentUser, isAdmin, loading } = useAuth();
   const router = useRouter();
   
   useEffect(() => {
-    if (!loading && !currentUser) {
+    if (!loading && (!currentUser || !isAdmin)) {
       router.push('/admin/login');
     }
-  }, [currentUser, loading, router]);
+  }, [currentUser, isAdmin, loading, router]);
 
 
   if (loading || !currentUser) {

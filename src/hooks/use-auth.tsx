@@ -2,72 +2,72 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
+import {
+  getAuth,
+  onAuthStateChanged,
+  User,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  GoogleAuthProvider,
+  signOut,
+} from 'firebase/auth';
+import { auth } from '@/lib/firebase';
 
-// Mock User type to avoid Firebase dependency for this simple auth
-interface MockUser {
-  uid: string;
-  email: string;
-}
+const ADMIN_EMAIL = 'nesttrend30@gmail.com';
 
 interface AuthContextType {
-  currentUser: MockUser | null;
+  currentUser: User | null;
+  isAdmin: boolean;
   loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  signUpWithEmail: (email: string, password: string) => Promise<any>;
+  loginWithEmail: (email: string, password: string) => Promise<any>;
+  signInWithGoogle: () => Promise<any>;
   logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Hardcoded credentials
-const ADMIN_EMAIL = 'nesttrend30@gmail.com';
-const ADMIN_PASSWORD = 'nesttrend@2025';
-const LOGGED_IN_STATE_KEY = 'ttrend-nest-admin-logged-in';
-
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [currentUser, setCurrentUser] = useState<MockUser | null>(null);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const pathname = usePathname();
+
+  const isAdmin = currentUser?.email === ADMIN_EMAIL;
 
   useEffect(() => {
-    try {
-      const isLoggedIn = localStorage.getItem(LOGGED_IN_STATE_KEY);
-      if (isLoggedIn === 'true') {
-        setCurrentUser({ uid: 'admin', email: ADMIN_EMAIL });
-      }
-    } catch (e) {
-      console.error("Could not access localStorage", e)
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  const login = useCallback(async (email: string, password: string) => {
-    if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-      const user: MockUser = { uid: 'admin', email: ADMIN_EMAIL };
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
       setCurrentUser(user);
-      try {
-        localStorage.setItem(LOGGED_IN_STATE_KEY, 'true');
-      } catch (e) {
-        console.error("Could not access localStorage", e)
-      }
-      return Promise.resolve();
-    } else {
-      return Promise.reject(new Error('Invalid credentials'));
-    }
+      setLoading(false);
+    });
+    return () => unsubscribe();
   }, []);
+  
+  const signUpWithEmail = (email: string, password: string) => {
+    return createUserWithEmailAndPassword(auth, email, password);
+  }
+
+  const loginWithEmail = (email: string, password: string) => {
+    return signInWithEmailAndPassword(auth, email, password);
+  }
+  
+  const signInWithGoogle = () => {
+    const provider = new GoogleAuthProvider();
+    return signInWithPopup(auth, provider);
+  }
 
   const logout = useCallback(async () => {
-    setCurrentUser(null);
-     try {
-        localStorage.removeItem(LOGGED_IN_STATE_KEY);
-      } catch (e) {
-        console.error("Could not access localStorage", e)
-      }
-    router.push('/admin/login');
-  }, [router]);
+    await signOut(auth);
+    if (pathname.startsWith('/admin')) {
+        router.push('/admin/login');
+    } else {
+        router.push('/login');
+    }
+  }, [router, pathname]);
 
-  const value = { currentUser, loading, login, logout };
+  const value = { currentUser, loading, isAdmin, signUpWithEmail, loginWithEmail, signInWithGoogle, logout };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
