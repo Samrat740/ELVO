@@ -1,5 +1,5 @@
 
-import { Mail, Phone, ShoppingCart, Truck, PackageCheck, HelpCircle, Lightbulb, Bug, Code } from "lucide-react";
+import { Mail, Phone, ShoppingCart, Truck, PackageCheck, HelpCircle, Lightbulb, Bug, Code, ArrowRight } from "lucide-react";
 import {
   Accordion,
   AccordionContent,
@@ -9,6 +9,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
 import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
 
 
 const contactInfo = [
@@ -32,13 +33,11 @@ const devDeskLinks = [
     {
         icon: Lightbulb,
         title: "Suggest a Feature",
-        content: "Have a great idea for a new feature? We'd love to hear it.",
         href: "mailto:nesttrend30@gmail.com?subject=Feature Suggestion"
     },
     {
         icon: Bug,
         title: "Report a Bug",
-        content: "Found something that's not working right? Let us know.",
         href: "mailto:nesttrend30@gmail.com?subject=Bug Report"
     }
 ]
@@ -95,34 +94,22 @@ export default function ContactPage() {
                     </Card>
                 ))}
             </div>
-
-            <Separator className="my-16" />
-
-            <div className="max-w-4xl mx-auto mb-16">
-                <div className="text-center mb-8">
-                    <h2 className="text-3xl font-headline flex items-center justify-center gap-3"><Code className="h-7 w-7" /> From the Developer's Desk</h2>
-                    <p className="mt-3 text-muted-foreground">Help us improve your experience.</p>
-                </div>
-                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    {devDeskLinks.map((info, index) => (
-                        <Card key={index} className="group hover:bg-muted/50 transition-colors">
-                            <Link href={info.href} target="_blank" rel="noopener noreferrer">
-                                <CardHeader className="flex flex-row items-center gap-4">
-                                    <div className="p-3 bg-primary/10 rounded-lg">
-                                        <info.icon className="h-6 w-6 text-primary" />
-                                    </div>
-                                    <div>
-                                        <CardTitle className="text-xl group-hover:text-primary transition-colors">{info.title}</CardTitle>
-                                    </div>
-                                </CardHeader>
-                                <CardContent>
-                                    <p className="text-muted-foreground">{info.content}</p>
-                                </CardContent>
-                            </Link>
-                        </Card>
+            
+            <div className="max-w-4xl mx-auto text-center border rounded-lg p-8 bg-muted/20 my-16">
+                <h2 className="text-2xl font-headline flex items-center justify-center gap-3"><Code className="h-6 w-6" /> From the Developer's Desk</h2>
+                <p className="mt-3 text-muted-foreground mb-6">Help us improve your experience by sharing your feedback.</p>
+                <div className="flex justify-center gap-4">
+                    {devDeskLinks.map((link, index) => (
+                        <Button asChild variant="outline" key={index}>
+                           <Link href={link.href} target="_blank" rel="noopener noreferrer">
+                                <link.icon className="mr-2 h-4 w-4" />
+                                {link.title}
+                           </Link>
+                        </Button>
                     ))}
                 </div>
             </div>
+
 
             <div className="max-w-3xl mx-auto">
                  <h2 className="text-3xl font-headline text-center mb-8">Frequently Asked Questions</h2>
