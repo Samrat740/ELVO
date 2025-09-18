@@ -58,7 +58,7 @@ export default function SignupPage() {
       await signUpWithEmail(data.email, data.password);
       toast({
         title: 'Sign Up Successful!',
-        description: 'Welcome to ELVO! You have been logged in.',
+        description: 'Welcome to TTREND NEST! You have been logged in.',
       });
 
       if (data.email === ADMIN_EMAIL) {
@@ -83,7 +83,7 @@ export default function SignupPage() {
       const result = await signInWithGoogle();
       toast({
         title: 'Sign Up Successful!',
-        description: 'Welcome to ELVO!',
+        description: 'Welcome to TTREND NEST!',
       });
       if (result.user.email === ADMIN_EMAIL) {
         router.push('/admin');

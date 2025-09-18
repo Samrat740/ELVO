@@ -15,6 +15,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "./ui/avatar";
+import { useEffect, useState } from "react";
 
 const ElvoLogo = () => (
   <svg
@@ -34,6 +35,11 @@ const ElvoLogo = () => (
 export default function Header() {
   const { cartCount } = useCart();
   const { currentUser, isAdmin, logout } = useAuth();
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const getInitials = (email?: string | null) => {
     if (!email) return 'U';
@@ -46,14 +52,15 @@ export default function Header() {
         <Link href="/" className="mr-6 flex items-center space-x-2">
           <ElvoLogo />
           <span className="font-bold sm:inline-block font-headline tracking-wider text-xl">
-            ELVO
+            TTREND NEST
           </span>
         </Link>
         <nav className="flex flex-1 items-center space-x-1">
            <Button variant="link" asChild className="text-foreground/80 hover:text-primary"><Link href="#featured">Collection</Link></Button>
         </nav>
         <div className="flex items-center justify-end space-x-1">
-           {currentUser ? (
+           {isClient && (<>
+            {currentUser ? (
               isAdmin ? (
                  <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -121,8 +128,10 @@ export default function Header() {
               <span className="sr-only">Shopping Cart</span>
             </Link>
           </Button>
+          </>)}
         </div>
       </div>
     </header>
   );
 }
+

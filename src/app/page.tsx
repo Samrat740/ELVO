@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from 'next/link';
@@ -59,7 +60,7 @@ export default function Home() {
             Carry More Than a Bag, Carry a Statement.
           </h1>
           <p className="mt-6 max-w-2xl mx-auto text-lg md:text-xl text-shadow leading-relaxed text-gray-200">
-            ELVO is not just about accessories; it's about identity. We craft premium, Pinterest-worthy bags, wallets, and more for the modern individual who values style, quality, and self-expression.
+            TTREND NEST is not just about accessories; it's about identity. We craft premium, Pinterest-worthy bags, wallets, and more for the modern individual who values style, quality, and self-expression.
           </p>
           <Button asChild size="lg" className="mt-8 group bg-primary text-primary-foreground hover:bg-primary/90">
             <Link href="#featured">
@@ -135,7 +136,7 @@ export default function Home() {
       {/* Footer CTA Section */}
       <section className="py-24 text-center">
         <div className="container mx-auto px-4">
-           <h2 className="text-3xl md:text-4xl font-headline">Join The #ELVOStyle</h2>
+           <h2 className="text-3xl md:text-4xl font-headline">Join The #TTRENDNESTStyle</h2>
             <p className="mt-4 max-w-xl mx-auto text-muted-foreground">Follow us on social media for style inspiration and new arrivals.</p>
             <div className="mt-8 flex justify-center gap-4">
               <Button variant="outline">Instagram</Button>

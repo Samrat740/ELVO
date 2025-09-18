@@ -76,7 +76,7 @@ export default function LoginPage() {
       const result = await signInWithGoogle();
       toast({
         title: 'Sign In Successful!',
-        description: 'Welcome to ELVO!',
+        description: 'Welcome to TTREND NEST!',
       });
        if (result.user.email === ADMIN_EMAIL) {
         router.push('/admin');
