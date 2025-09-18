@@ -23,6 +23,7 @@ const signupSchema = z.object({
   path: ["confirmPassword"],
 });
 
+const ADMIN_EMAIL = 'nesttrend30@gmail.com';
 
 type SignupFormValues = z.infer<typeof signupSchema>;
 
@@ -59,7 +60,13 @@ export default function SignupPage() {
         title: 'Sign Up Successful!',
         description: 'Welcome to ELVO! You have been logged in.',
       });
-      router.push('/');
+
+      if (data.email === ADMIN_EMAIL) {
+        router.push('/admin');
+      } else {
+        router.push('/');
+      }
+
     } catch (err: any) {
       console.error(err);
       if (err.code === 'auth/email-already-in-use') {
@@ -73,12 +80,16 @@ export default function SignupPage() {
   const handleGoogleSignUp = async () => {
     setError(null);
     try {
-      await signInWithGoogle();
+      const result = await signInWithGoogle();
       toast({
         title: 'Sign Up Successful!',
         description: 'Welcome to ELVO!',
       });
-      router.push('/');
+      if (result.user.email === ADMIN_EMAIL) {
+        router.push('/admin');
+      } else {
+        router.push('/');
+      }
     } catch (err) {
       console.error(err);
       setError('Failed to sign up with Google. Please try again.');
@@ -170,3 +181,4 @@ export default function SignupPage() {
     </div>
   );
 }
+

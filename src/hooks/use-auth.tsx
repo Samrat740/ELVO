@@ -63,7 +63,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (pathname.startsWith('/admin')) {
         router.push('/admin/login');
     } else {
-        router.push('/login');
+        // No need to force redirect on logout for customer pages
     }
   }, [router, pathname]);
 
