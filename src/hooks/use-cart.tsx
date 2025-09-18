@@ -19,7 +19,7 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-const CART_ID_STORAGE_KEY = 'elvo-cart-id';
+const CART_ID_STORAGE_KEY = 'cart-id';
 
 function getOrCreateCartId(): string {
   if (typeof window === 'undefined') return '';
