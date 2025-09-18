@@ -88,7 +88,9 @@ export default function OrdersPage() {
                                     {order.items.map(item => (
                                       <div key={item.id} className="flex justify-between items-center">
                                         <div className="flex items-center gap-3">
-                                            <Image src={item.imageUrl} alt={item.name} width={48} height={48} className="rounded-md object-cover"/>
+                                            {item.imageUrl && (
+                                              <Image src={item.imageUrl} alt={item.name} width={48} height={48} className="rounded-md object-cover"/>
+                                            )}
                                             <div>
                                                 <p className="font-medium">{item.name}</p>
                                                 <p className="text-sm text-muted-foreground">Qty: {item.quantity}</p>
