@@ -7,7 +7,7 @@ import { getInitialProducts } from '@/lib/products';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, doc, setDoc, deleteDoc, onSnapshot, writeBatch } from "firebase/firestore";
 
-type ProductFormData = Omit<Product, 'id' | 'imageUrl'> & { imageFile?: FileList, imageUrl?: string };
+type ProductFormData = Omit<Product, 'id'> & { imageFile?: FileList };
 
 
 interface ProductsContextType {
@@ -58,8 +58,8 @@ export const ProductsProvider = ({ children }: { children: ReactNode }) => {
 
   const uploadImage = async (file: File): Promise<string> => {
     // IMPORTANT: Replace with your Cloudinary cloud name and upload preset.
-    const CLOUDINARY_CLOUD_NAME = "YOUR_CLOUD_NAME";
-    const CLOUDINARY_UPLOAD_PRESET = "YOUR_UPLOAD_PRESET";
+    const CLOUDINARY_CLOUD_NAME = "dq2julnka";
+    const CLOUDINARY_UPLOAD_PRESET = "ecommerce_upload";
     
     const url = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`;
     
