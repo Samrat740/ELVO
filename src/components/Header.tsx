@@ -16,19 +16,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "./ui/avatar";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 
 const ElvoLogo = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 24 24"
-    fill="currentColor"
-    className="h-7 w-7 text-primary"
-  >
-    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-12h2v4h-2zm0 6h2v2h-2z" transform="scale(1.1)"/>
-    <path d="M7.5 12.5 L16.5 12.5" stroke="hsl(var(--primary))" strokeWidth="1.5" strokeLinecap="round" />
-    <path d="M12 7.5 L12 16.5" stroke="hsl(var(--primary))" strokeWidth="1.5" strokeLinecap="round" />
-     <text x="50%" y="55%" dominantBaseline="middle" textAnchor="middle" fontSize="11" fontWeight="bold" fill="hsl(var(--foreground))" fontFamily="sans-serif">E</text>
-  </svg>
+  <Image src="/logo.png" alt="ELVO Logo" width={28} height={28} />
 );
 
 
