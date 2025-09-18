@@ -83,7 +83,7 @@ export default function OrdersPage() {
                         </TableCell>
                          <TableCell>
                             <div className="flex -space-x-4">
-                                {order.items.slice(0,3).map(item => (
+                                {order.items.filter(item => item.imageUrl).slice(0,3).map(item => (
                                     <Image 
                                         key={item.id} 
                                         src={item.imageUrl} 
