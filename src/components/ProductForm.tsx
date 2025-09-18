@@ -46,7 +46,7 @@ const productSchema = z.object({
   featured: z.boolean(),
 });
 
-type ProductFormValues = Omit<z.infer<typeof productSchema>, 'imageFile' | 'imageHint'> & { imageUrl?: string, imageFile?: FileList, imageHint?: string };
+type ProductFormValues = Omit<z.infer<typeof productSchema>, 'imageFile'> & { imageUrl?: string, imageFile?: FileList, imageHint?: string };
 
 interface ProductFormProps {
   product?: Product;
@@ -93,20 +93,16 @@ export function ProductForm({ product, onFinished }: ProductFormProps) {
   }, [imageFile, product]);
   
   useEffect(() => {
-    if (product) {
-      form.reset({ ...defaultValues, ...product, imageFile: undefined });
-      setImagePreview(product.imageUrl);
-    } else {
-      form.reset(defaultValues);
-      setImagePreview(null);
-    }
+    const resetValues = product ? { ...defaultValues, ...product } : defaultValues;
+    form.reset({ ...resetValues, imageFile: undefined });
+    setImagePreview(product?.imageUrl || null);
   }, [product, form]);
 
   const onSubmit = async (data: ProductFormValues) => {
     try {
-        const productDataToSave = { ...data, imageHint: data.name.toLowerCase().split(' ').slice(0,2).join(' ')};
+        const productDataToSave = { ...data, imageUrl: imagePreview || '', imageHint: data.name.toLowerCase().split(' ').slice(0,2).join(' ')};
         if (product) {
-          await updateProduct(product.id, { ...productDataToSave, imageUrl: imagePreview || '' });
+          await updateProduct(product.id, productDataToSave);
           toast({ title: "Product Updated", description: `${data.name} has been successfully updated.` });
         } else {
           await addProduct(productDataToSave);
@@ -152,10 +148,10 @@ export function ProductForm({ product, onFinished }: ProductFormProps) {
                                             <p className="text-xs text-muted-foreground">PNG, JPG, up to 5MB</p>
                                         </div>
                                         <Input 
-                                        type="file" 
-                                        className="hidden" 
-                                        accept={ACCEPTED_IMAGE_TYPES.join(",")} 
-                                        onChange={(e) => field.onChange(e.target.files)}
+                                            type="file" 
+                                            className="hidden" 
+                                            accept={ACCEPTED_IMAGE_TYPES.join(",")} 
+                                            onChange={(e) => field.onChange(e.target.files)}
                                         />
                                     </label>
                                 )}

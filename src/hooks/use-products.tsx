@@ -74,7 +74,7 @@ export const ProductsProvider = ({ children }: { children: ReactNode }) => {
         throw new Error("Product image is required.");
     }
 
-    const { imageFile, ...restData } = productData;
+    const { imageFile, imageHint, ...restData } = productData;
 
     const newDocRef = doc(collection(db, "products"));
     const newProduct: Omit<Product, 'id'> = { 
@@ -91,10 +91,14 @@ export const ProductsProvider = ({ children }: { children: ReactNode }) => {
       imageUrl = await uploadImage(productData.imageFile[0]);
     }
     
-    const { imageFile, ...restData } = productData;
+    const { imageFile, imageHint, ...restData } = productData;
     
     const productRef = doc(db, "products", productId);
-    await setDoc(productRef, { ...restData, imageHint: restData.name.toLowerCase().split(' ').slice(0,2).join(' '), imageUrl }, { merge: true });
+    await setDoc(productRef, { 
+      ...restData, 
+      imageHint: restData.name.toLowerCase().split(' ').slice(0,2).join(' '),
+      imageUrl 
+    }, { merge: true });
   }, []);
 
   const deleteProduct = useCallback(async (productId: string) => {
