@@ -64,7 +64,7 @@ export function ProductForm({ product, onFinished }: ProductFormProps) {
 
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema),
-    defaultValues: product ? { ...product } : defaultValues,
+    defaultValues: product ? { ...defaultValues, ...product } : defaultValues,
   });
 
   const imageFile = form.watch('imageFile');
@@ -86,7 +86,7 @@ export function ProductForm({ product, onFinished }: ProductFormProps) {
   
   useEffect(() => {
     if (product) {
-      form.reset({ ...product, imageFile: undefined });
+      form.reset({ ...defaultValues, ...product, imageFile: undefined });
       setImagePreview(product.imageUrl);
     } else {
       form.reset(defaultValues);
@@ -319,3 +319,5 @@ export function ProductForm({ product, onFinished }: ProductFormProps) {
     </Form>
   );
 }
+
+    
