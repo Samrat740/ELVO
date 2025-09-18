@@ -75,19 +75,25 @@ export default function OrdersPage() {
           <Accordion type="single" collapsible className="w-full">
             {orders.map((order) => (
               <AccordionItem value={order.id} key={order.id} className="border-b">
-                <AccordionTrigger className="flex flex-col md:flex-row items-start md:items-center w-full px-6 py-4 text-left hover:no-underline hover:bg-muted/50 transition-colors">
-                  <div className="flex w-full md:w-auto items-center mb-2 md:mb-0">
-                    <div className="md:w-24 md:flex-shrink-0 font-mono text-sm text-muted-foreground">{order.id.substring(0, 6)}...</div>
-                    <div className="md:hidden flex-1 text-right font-medium">₹{order.total.toFixed(2)}</div>
-                  </div>
-                  <div className="flex-1 md:flex items-center w-full">
-                    <div className="md:flex-1 mb-2 md:mb-0">{order.shippingInfo.name}</div>
-                    <div className="md:flex-1 mb-2 md:mb-0">
-                      {order.createdAt ? format(order.createdAt.toDate(), 'PPP') : 'N/A'}
+                <div className="flex items-center w-full px-6 py-4 hover:bg-muted/50 transition-colors">
+                  <AccordionTrigger className="flex-1 p-0 hover:no-underline">
+                    <div className="flex flex-col md:flex-row items-start md:items-center w-full text-left">
+                      <div className="flex w-full md:w-auto items-center mb-2 md:mb-0">
+                        <div className="md:w-24 md:flex-shrink-0 font-mono text-sm text-muted-foreground">{order.id.substring(0, 6)}...</div>
+                        <div className="md:hidden flex-1 text-right font-medium">₹{order.total.toFixed(2)}</div>
+                      </div>
+                      <div className="flex-1 md:flex items-center w-full">
+                        <div className="md:flex-1 mb-2 md:mb-0">{order.shippingInfo.name}</div>
+                        <div className="md:flex-1 mb-2 md:mb-0">
+                          {order.createdAt ? format(order.createdAt.toDate(), 'PPP') : 'N/A'}
+                        </div>
+                      </div>
+                      <div className="w-32 text-right font-medium hidden md:block">₹{order.total.toFixed(2)}</div>
                     </div>
-                    <div className="md:flex-1">
+                  </AccordionTrigger>
+                   <div className="md:flex-1 md:pl-3">
                       <Select onValueChange={(value) => handleStatusChange(order.id, value as OrderStatus)} defaultValue={order.status}>
-                        <SelectTrigger className="w-32 h-9" onClick={(e) => e.stopPropagation()}>
+                        <SelectTrigger className="w-32 h-9">
                             <SelectValue placeholder="Set Status" />
                         </SelectTrigger>
                         <SelectContent>
@@ -96,13 +102,11 @@ export default function OrdersPage() {
                             <SelectItem value="Delivered">Delivered</SelectItem>
                         </SelectContent>
                       </Select>
-                    </div>
                   </div>
-                  <div className="w-32 text-right font-medium hidden md:block">₹{order.total.toFixed(2)}</div>
                   <div className="w-16 text-center hidden md:block pl-7">
                     {/* The trigger icon is now part of the AccordionTrigger */}
                   </div>
-                </AccordionTrigger>
+                </div>
                 <AccordionContent>
                     <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6 bg-muted/20">
                       <div className="space-y-4">
