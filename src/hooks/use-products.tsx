@@ -79,6 +79,7 @@ export const ProductsProvider = ({ children }: { children: ReactNode }) => {
     const newDocRef = doc(collection(db, "products"));
     const newProduct: Omit<Product, 'id'> = { 
         ...restData, 
+        imageHint: restData.name.toLowerCase().split(' ').slice(0,2).join(' '),
         imageUrl,
     };
     await setDoc(newDocRef, newProduct);
@@ -93,7 +94,7 @@ export const ProductsProvider = ({ children }: { children: ReactNode }) => {
     const { imageFile, ...restData } = productData;
     
     const productRef = doc(db, "products", productId);
-    await setDoc(productRef, { ...restData, imageUrl }, { merge: true });
+    await setDoc(productRef, { ...restData, imageHint: restData.name.toLowerCase().split(' ').slice(0,2).join(' '), imageUrl }, { merge: true });
   }, []);
 
   const deleteProduct = useCallback(async (productId: string) => {

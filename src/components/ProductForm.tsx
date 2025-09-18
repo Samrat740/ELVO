@@ -40,14 +40,13 @@ const productSchema = z.object({
       },
       ".jpg, .jpeg, .png and .webp files are accepted."
     ).optional(),
-  imageHint: z.string().min(2, 'Image hint must be at least 2 characters.').max(30, 'Image hint must be less than 30 characters.'),
   stock: z.coerce.number().min(0, 'Stock cannot be negative.'),
   category: z.enum(['Backpack', 'Handbags', 'Accessory']),
   audience: z.enum(['For Him', 'For Her']),
   featured: z.boolean(),
 });
 
-type ProductFormValues = Omit<z.infer<typeof productSchema>, 'imageFile'> & { imageUrl?: string, imageFile?: FileList };
+type ProductFormValues = Omit<z.infer<typeof productSchema>, 'imageFile' | 'imageHint'> & { imageUrl?: string, imageFile?: FileList, imageHint?: string };
 
 interface ProductFormProps {
   product?: Product;
@@ -105,11 +104,12 @@ export function ProductForm({ product, onFinished }: ProductFormProps) {
 
   const onSubmit = async (data: ProductFormValues) => {
     try {
+        const productDataToSave = { ...data, imageHint: data.name.toLowerCase().split(' ').slice(0,2).join(' ')};
         if (product) {
-          await updateProduct(product.id, { ...data, imageUrl: imagePreview || '' });
+          await updateProduct(product.id, { ...productDataToSave, imageUrl: imagePreview || '' });
           toast({ title: "Product Updated", description: `${data.name} has been successfully updated.` });
         } else {
-          await addProduct(data);
+          await addProduct(productDataToSave);
           toast({ title: "Product Added", description: `${data.name} has been successfully added.` });
         }
         onFinished();
@@ -122,207 +122,198 @@ export function ProductForm({ product, onFinished }: ProductFormProps) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 py-4">
-        <div className="grid grid-cols-1 gap-6">
-          <Card className="bg-muted/50">
-            <CardContent className="p-4">
-              <FormField
-                control={form.control}
-                name="imageFile"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Product Image</FormLabel>
-                    <FormControl>
-                        <div className="w-full">
-                            {imagePreview ? (
-                                <div className="relative aspect-square w-full rounded-md overflow-hidden">
-                                    <Image src={imagePreview} alt="Product preview" fill className="object-cover"/>
-                                    <Button type="button" size="icon" variant="destructive" className="absolute top-2 right-2 h-7 w-7" onClick={() => {
-                                        form.setValue('imageFile', undefined);
-                                        setImagePreview(null);
-                                    }}>
-                                        <X className="h-4 w-4"/>
-                                    </Button>
-                                </div>
-                            ) : (
-                                <label className="flex flex-col items-center justify-center w-full aspect-square border-2 border-dashed rounded-lg cursor-pointer hover:bg-muted">
-                                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                                        <ImageUp className="w-8 h-8 mb-4 text-muted-foreground" />
-                                        <p className="mb-2 text-sm text-muted-foreground"><span className="font-semibold">Click to upload</span> or drag and drop</p>
-                                        <p className="text-xs text-muted-foreground">SVG, PNG, JPG or GIF (MAX. 5MB)</p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="md:col-span-1">
+             <Card className="bg-muted/50">
+                <CardContent className="p-4">
+                <FormField
+                    control={form.control}
+                    name="imageFile"
+                    render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Product Image</FormLabel>
+                        <FormControl>
+                            <div className="w-full">
+                                {imagePreview ? (
+                                    <div className="relative aspect-square w-full rounded-md overflow-hidden">
+                                        <Image src={imagePreview} alt="Product preview" fill className="object-cover"/>
+                                        <Button type="button" size="icon" variant="destructive" className="absolute top-2 right-2 h-7 w-7" onClick={() => {
+                                            form.setValue('imageFile', undefined);
+                                            setImagePreview(null);
+                                        }}>
+                                            <X className="h-4 w-4"/>
+                                        </Button>
                                     </div>
-                                    <Input 
-                                      type="file" 
-                                      className="hidden" 
-                                      accept={ACCEPTED_IMAGE_TYPES.join(",")} 
-                                      onChange={(e) => field.onChange(e.target.files)}
-                                    />
-                                </label>
-                            )}
-                        </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </CardContent>
-          </Card>
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Product Name</FormLabel>
-                <FormControl>
-                  <Input placeholder="e.g. The Minimalist Tote" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="description"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Description</FormLabel>
-                <FormControl>
-                  <Textarea placeholder="A short description of the product." {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-           <FormField
-            control={form.control}
-            name="imageHint"
-            render={({ field }) => (
-                <FormItem>
-                <FormLabel>Image Hint</FormLabel>
-                <FormControl>
-                    <Input placeholder="modern handbag" {...field} />
-                </FormControl>
-                <FormMessage />
-                </FormItem>
-            )}
-            />
-          <div className="grid grid-cols-2 gap-4">
-              <FormField
-              control={form.control}
-              name="price"
-              render={({ field }) => (
-                  <FormItem>
-                  <FormLabel>Price</FormLabel>
-                  <FormControl>
-                      <Input type="number" step="0.01" placeholder="299.99" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                  </FormItem>
-              )}
-              />
-              <FormField
+                                ) : (
+                                    <label className="flex flex-col items-center justify-center w-full aspect-square border-2 border-dashed rounded-lg cursor-pointer hover:bg-muted">
+                                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                            <ImageUp className="w-8 h-8 mb-4 text-muted-foreground" />
+                                            <p className="mb-2 text-sm text-muted-foreground"><span className="font-semibold">Click to upload</span></p>
+                                            <p className="text-xs text-muted-foreground">PNG, JPG, up to 5MB</p>
+                                        </div>
+                                        <Input 
+                                        type="file" 
+                                        className="hidden" 
+                                        accept={ACCEPTED_IMAGE_TYPES.join(",")} 
+                                        onChange={(e) => field.onChange(e.target.files)}
+                                        />
+                                    </label>
+                                )}
+                            </div>
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                    )}
+                />
+                </CardContent>
+            </Card>
+          </div>
+          <div className="md:col-span-2 space-y-6">
+            <FormField
                 control={form.control}
-                name="stock"
+                name="name"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Stock</FormLabel>
+                <FormItem>
+                    <FormLabel>Product Name</FormLabel>
                     <FormControl>
-                      <div className="flex items-center gap-2">
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="icon"
-                          className="h-9 w-9 shrink-0"
-                          onClick={() => form.setValue('stock', Math.max(0, field.value - 1))}
-                          disabled={field.value <= 0}
-                        >
-                          <Minus className="h-4 w-4" />
-                        </Button>
-                        <Input
-                          {...field}
-                          type="number"
-                          min="0"
-                          className="h-9 text-center w-full"
-                        />
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="icon"
-                          className="h-9 w-9 shrink-0"
-                          onClick={() => form.setValue('stock', field.value + 1)}
-                        >
-                          <Plus className="h-4 w-4" />
-                        </Button>
-                      </div>
+                    <Input placeholder="e.g. The Minimalist Tote" {...field} />
                     </FormControl>
                     <FormMessage />
-                  </FormItem>
+                </FormItem>
                 )}
-              />
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <FormField
-              control={form.control}
-              name="category"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Category</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a category" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="Backpack">Backpack</SelectItem>
-                      <SelectItem value="Handbags">Handbags</SelectItem>
-                      <SelectItem value="Accessory">Accessory</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
             />
             <FormField
-              control={form.control}
-              name="audience"
-              render={({ field }) => (
+                control={form.control}
+                name="description"
+                render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Audience</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormLabel>Description</FormLabel>
                     <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select an audience" />
-                      </SelectTrigger>
+                    <Textarea placeholder="A short description of the product." {...field} />
                     </FormControl>
-                    <SelectContent>
-                      <SelectItem value="For Him">For Him</SelectItem>
-                      <SelectItem value="For Her">For Her</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
+                    <FormMessage />
                 </FormItem>
-              )}
+                )}
+            />
+            <div className="grid grid-cols-2 gap-4">
+                <FormField
+                control={form.control}
+                name="price"
+                render={({ field }) => (
+                    <FormItem>
+                    <FormLabel>Price</FormLabel>
+                    <FormControl>
+                        <Input type="number" step="0.01" placeholder="299.99" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                    </FormItem>
+                )}
+                />
+                <FormField
+                    control={form.control}
+                    name="stock"
+                    render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Stock</FormLabel>
+                        <FormControl>
+                        <div className="flex items-center gap-2">
+                            <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            className="h-9 w-9 shrink-0"
+                            onClick={() => form.setValue('stock', Math.max(0, field.value - 1))}
+                            disabled={field.value <= 0}
+                            >
+                            <Minus className="h-4 w-4" />
+                            </Button>
+                            <Input
+                            {...field}
+                            type="number"
+                            min="0"
+                            className="h-9 text-center w-full"
+                            />
+                            <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            className="h-9 w-9 shrink-0"
+                            onClick={() => form.setValue('stock', field.value + 1)}
+                            >
+                            <Plus className="h-4 w-4" />
+                            </Button>
+                        </div>
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                    )}
+                />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+                <FormField
+                control={form.control}
+                name="category"
+                render={({ field }) => (
+                    <FormItem>
+                    <FormLabel>Category</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                        <SelectTrigger>
+                            <SelectValue placeholder="Select a category" />
+                        </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                        <SelectItem value="Backpack">Backpack</SelectItem>
+                        <SelectItem value="Handbags">Handbags</SelectItem>
+                        <SelectItem value="Accessory">Accessory</SelectItem>
+                        </SelectContent>
+                    </Select>
+                    <FormMessage />
+                    </FormItem>
+                )}
+                />
+                <FormField
+                control={form.control}
+                name="audience"
+                render={({ field }) => (
+                    <FormItem>
+                    <FormLabel>Audience</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                        <SelectTrigger>
+                            <SelectValue placeholder="Select an audience" />
+                        </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                        <SelectItem value="For Him">For Him</SelectItem>
+                        <SelectItem value="For Her">For Her</SelectItem>
+                        </SelectContent>
+                    </Select>
+                    <FormMessage />
+                    </FormItem>
+                )}
+                />
+            </div>
+            
+            <FormField
+                control={form.control}
+                name="featured"
+                render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                    <div className="space-y-0.5">
+                    <FormLabel>Featured Product</FormLabel>
+                    <FormMessage />
+                    </div>
+                    <FormControl>
+                    <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                    />
+                    </FormControl>
+                </FormItem>
+                )}
             />
           </div>
-          
-          <FormField
-            control={form.control}
-            name="featured"
-            render={({ field }) => (
-              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                <div className="space-y-0.5">
-                  <FormLabel>Featured Product</FormLabel>
-                  <FormMessage />
-                </div>
-                <FormControl>
-                  <Switch
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
         </div>
         <div className="flex justify-end pt-4">
             <Button type="submit" disabled={form.formState.isSubmitting}>
