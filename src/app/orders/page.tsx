@@ -96,16 +96,17 @@ export default function OrdersPage() {
                           {order.createdAt ? format(order.createdAt.toDate(), 'PPP') : 'N/A'}
                         </TableCell>
                          <TableCell>
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-start flex-wrap gap-4">
                             {order.items.map(item => (
-                              <Link href={`/products/${item.id}`} key={item.id}>
+                              <Link href={`/products/${item.id}`} key={item.id} className="flex flex-col items-center text-center gap-1 group">
                                   <Image
                                     src={item.imageUrl}
                                     alt={item.name}
-                                    width={40}
-                                    height={40}
-                                    className="rounded-md object-cover aspect-square"
+                                    width={48}
+                                    height={48}
+                                    className="rounded-md object-cover aspect-square transition-transform group-hover:scale-105"
                                   />
+                                  <span className="text-xs text-muted-foreground w-16 truncate group-hover:text-primary">{item.name}</span>
                               </Link>
                             ))}
                           </div>
