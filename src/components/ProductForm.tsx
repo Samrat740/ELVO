@@ -25,10 +25,19 @@ const productSchema = z.object({
   description: z.string().min(10, 'Description must be at least 10 characters.'),
   price: z.coerce.number().min(0.01, 'Price must be greater than 0.'),
   imageFile: z.any()
-    .refine((files) => files?.length >= 1 || !!product, "Image is required.")
-    .refine((files) => !files || files?.[0]?.size <= 5000000, `Max file size is 5MB.`)
+    .refine((files) => {
+        if (files && files.length > 0) {
+            return files[0].size <= 5000000;
+        }
+        return true;
+    }, `Max file size is 5MB.`)
     .refine(
-      (files) => !files || ACCEPTED_IMAGE_TYPES.includes(files?.[0]?.type),
+      (files) => {
+          if (files && files.length > 0) {
+            return ACCEPTED_IMAGE_TYPES.includes(files[0].type);
+          }
+          return true;
+      },
       ".jpg, .jpeg, .png and .webp files are accepted."
     ).optional(),
   imageHint: z.string().min(2, 'Image hint must be at least 2 characters.').max(30, 'Image hint must be less than 30 characters.'),
@@ -97,7 +106,7 @@ export function ProductForm({ product, onFinished }: ProductFormProps) {
   const onSubmit = async (data: ProductFormValues) => {
     try {
         if (product) {
-          await updateProduct(product.id, { ...data, imageUrl: product.imageUrl });
+          await updateProduct(product.id, { ...data, imageUrl: imagePreview || '' });
           toast({ title: "Product Updated", description: `${data.name} has been successfully updated.` });
         } else {
           await addProduct(data);
@@ -141,7 +150,12 @@ export function ProductForm({ product, onFinished }: ProductFormProps) {
                                         <p className="mb-2 text-sm text-muted-foreground"><span className="font-semibold">Click to upload</span> or drag and drop</p>
                                         <p className="text-xs text-muted-foreground">SVG, PNG, JPG or GIF (MAX. 5MB)</p>
                                     </div>
-                                    <Input {...field} onChange={e => field.onChange(e.target.files)} type="file" className="hidden" accept={ACCEPTED_IMAGE_TYPES.join(",")} />
+                                    <Input 
+                                      type="file" 
+                                      className="hidden" 
+                                      accept={ACCEPTED_IMAGE_TYPES.join(",")} 
+                                      onChange={(e) => field.onChange(e.target.files)}
+                                    />
                                 </label>
                             )}
                         </div>
@@ -319,5 +333,3 @@ export function ProductForm({ product, onFinished }: ProductFormProps) {
     </Form>
   );
 }
-
-    

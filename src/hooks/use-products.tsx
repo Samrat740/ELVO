@@ -77,9 +77,8 @@ export const ProductsProvider = ({ children }: { children: ReactNode }) => {
     const { imageFile, ...restData } = productData;
 
     const newDocRef = doc(collection(db, "products"));
-    const newProduct: Product = { 
+    const newProduct: Omit<Product, 'id'> = { 
         ...restData, 
-        id: newDocRef.id,
         imageUrl,
     };
     await setDoc(newDocRef, newProduct);
