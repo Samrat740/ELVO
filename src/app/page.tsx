@@ -45,25 +45,25 @@ export default function Home() {
   return (
     <div className="bg-background text-foreground">
       {/* Hero Section */}
-      <section className="relative h-[60vh] md:h-[80vh] flex items-center justify-center text-center text-white overflow-hidden">
+      <section className="relative h-[70vh] md:h-[90vh] flex items-center justify-center text-center text-white overflow-hidden">
         <Image
           src="https://picsum.photos/seed/hero-bags/1800/1200"
           alt="Stylish bags collection"
           fill
-          className="object-cover object-center brightness-50"
-          data-ai-hint="fashionable handbags"
+          className="object-cover object-center brightness-[.4]"
+          data-ai-hint="classy handbags"
           priority
         />
-        <div className="relative z-10 p-4">
+        <div className="relative z-10 p-4 max-w-4xl mx-auto">
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-headline tracking-tight text-shadow-lg">
-            Effortless Style, Unpacked.
+            Carry More Than a Bag, Carry a Statement.
           </h1>
-          <p className="mt-4 max-w-2xl mx-auto text-lg md:text-xl text-shadow">
-            At Trend Nest, we believe that the perfect accessory can transform your look. We curate a collection of high-quality, Pinterest-worthy bags, wallets, and more, so you can carry your style with confidence.
+          <p className="mt-6 max-w-2xl mx-auto text-lg md:text-xl text-shadow leading-relaxed text-gray-200">
+            ELVO is not just about accessories; it's about identity. We craft premium, Pinterest-worthy bags, wallets, and more for the modern individual who values style, quality, and self-expression.
           </p>
-          <Button asChild size="lg" className="mt-8 group">
+          <Button asChild size="lg" className="mt-8 group bg-primary text-primary-foreground hover:bg-primary/90">
             <Link href="#featured">
-              Explore Collection <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+              Explore The Collection <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
             </Link>
           </Button>
         </div>
@@ -75,7 +75,7 @@ export default function Home() {
           <h2 className="text-3xl md:text-4xl font-headline text-center mb-12">Featured Collection</h2>
           <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
             {featuredProducts.map((product) => (
-              <Card key={product.id} className="group flex flex-col overflow-hidden rounded-lg border-none shadow-lg transition-all duration-300 hover:shadow-2xl hover:-translate-y-2">
+              <Card key={product.id} className="group flex flex-col overflow-hidden rounded-lg border-none bg-card shadow-lg transition-all duration-300 hover:shadow-2xl hover:-translate-y-2">
                 <div className="relative overflow-hidden">
                   <Link href={`/products/${product.id}`}>
                     <Image
@@ -88,7 +88,7 @@ export default function Home() {
                     />
                   </Link>
                    <div className="absolute top-3 right-3">
-                    <Button size="icon" className="rounded-full h-10 w-10 bg-white/80 text-foreground hover:bg-white backdrop-blur-sm" onClick={() => handleAddToCart(product)}>
+                    <Button size="icon" className="rounded-full h-10 w-10 bg-black/50 text-white hover:bg-primary hover:text-primary-foreground backdrop-blur-sm border-none" onClick={() => handleAddToCart(product)}>
                       <ShoppingBag className="h-5 w-5" />
                     </Button>
                   </div>
@@ -119,10 +119,10 @@ export default function Home() {
                       src={product.imageUrl}
                       alt={product.category}
                       fill
-                      className="object-cover transition-transform duration-500 group-hover:scale-110"
+                      className="object-cover transition-transform duration-500 group-hover:scale-110 brightness-75"
                       data-ai-hint={product.imageHint}
                     />
-                    <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors duration-300"></div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20 group-hover:bg-black/20 transition-colors duration-300"></div>
                     <div className="absolute bottom-0 left-0 p-6">
                       <h3 className="text-2xl font-headline text-white tracking-tight">{product.category}</h3>
                     </div>
@@ -135,7 +135,7 @@ export default function Home() {
       {/* Footer CTA Section */}
       <section className="py-24 text-center">
         <div className="container mx-auto px-4">
-           <h2 className="text-3xl md:text-4xl font-headline">Join The #TrendNest</h2>
+           <h2 className="text-3xl md:text-4xl font-headline">Join The #ELVOStyle</h2>
             <p className="mt-4 max-w-xl mx-auto text-muted-foreground">Follow us on social media for style inspiration and new arrivals.</p>
             <div className="mt-8 flex justify-center gap-4">
               <Button variant="outline">Instagram</Button>
