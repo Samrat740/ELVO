@@ -57,6 +57,7 @@ export default function Header() {
         </Link>
         <nav className="flex flex-1 items-center space-x-1">
            <Button variant="link" asChild className="text-foreground/80 hover:text-primary"><Link href="/products">Collection</Link></Button>
+           <Button variant="link" asChild className="text-foreground/80 hover:text-primary"><Link href="/contact">Contact</Link></Button>
         </nav>
         <div className="flex items-center justify-end space-x-1">
            {isClient && (<>
@@ -134,4 +135,3 @@ export default function Header() {
     </header>
   );
 }
-
