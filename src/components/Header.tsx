@@ -19,7 +19,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 
 const ElvoLogo = () => (
-  <Image src="https://res.cloudinary.com/dq2julnka/image/upload/v1758224893/gg_vhhwtl.png" alt="ELVO Logo" width={32} height={32} className="rounded-full" />
+  <Image src="https://res.cloudinary.com/dq2julnka/image/upload/v1758224893/gg_vhhwtl.png" alt="ELVO Logo" width={32} height={32} />
 );
 
 
