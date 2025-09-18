@@ -17,6 +17,8 @@ import { ShoppingBag, ArrowLeft } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import { Badge } from '@/components/ui/badge';
+import { OrderStatus } from '@/lib/types';
 
 export default function OrdersPage() {
   const { orders, loading } = useOrders();
@@ -29,6 +31,18 @@ export default function OrdersPage() {
     }
   }, [currentUser, authLoading, router]);
 
+  const getStatusBadgeVariant = (status: OrderStatus) => {
+    switch (status) {
+      case 'Confirmed':
+        return 'default';
+      case 'Shipped':
+        return 'secondary';
+      case 'Delivered':
+        return 'outline';
+      default:
+        return 'default';
+    }
+  };
 
   if (loading || authLoading) {
     return <div className="container mx-auto py-12 px-4 text-center">Loading your orders...</div>;
@@ -69,6 +83,7 @@ export default function OrdersPage() {
                   <TableHead className="w-32">Order ID</TableHead>
                   <TableHead>Date</TableHead>
                   <TableHead>Items</TableHead>
+                  <TableHead>Status</TableHead>
                   <TableHead className="text-right">Total</TableHead>
                 </TableRow>
               </TableHeader>
@@ -84,6 +99,9 @@ export default function OrdersPage() {
                            {order.items.length > 1 && (
                             <span className="text-muted-foreground"> + {order.items.length - 1} more</span>
                            )}
+                         </TableCell>
+                         <TableCell>
+                            <Badge variant={getStatusBadgeVariant(order.status)}>{order.status}</Badge>
                          </TableCell>
                         <TableCell className="text-right font-medium">₹{order.total.toFixed(2)}</TableCell>
                     </TableRow>

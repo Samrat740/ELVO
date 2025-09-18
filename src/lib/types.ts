@@ -7,6 +7,7 @@ export interface Product {
   description: string;
   price: number;
   imageUrl: string;
+  imageHint?: string;
   stock: number;
   category: 'Backpack' | 'Handbags' | 'Accessory';
   audience: 'For Him' | 'For Her';
@@ -16,6 +17,8 @@ export interface Product {
 export interface CartItem extends Product {
   quantity: number;
 }
+
+export type OrderStatus = 'Confirmed' | 'Shipped' | 'Delivered';
 
 export interface Order {
     id: string;
@@ -36,4 +39,5 @@ export interface Order {
     }[];
     total: number;
     createdAt: Timestamp;
+    status: OrderStatus;
 }

@@ -21,9 +21,49 @@ import { Badge } from "@/components/ui/badge";
 import { Truck } from "lucide-react";
 import Image from "next/image";
 import React from "react";
+import { OrderStatus } from "@/lib/types";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
 
 export default function OrdersPage() {
-  const { orders, loading } = useOrders();
+  const { orders, loading, updateOrderStatus } = useOrders();
+  const { toast } = useToast();
+
+  const handleStatusChange = async (orderId: string, newStatus: OrderStatus) => {
+    try {
+      await updateOrderStatus(orderId, newStatus);
+      toast({
+        title: "Status Updated",
+        description: `Order status changed to ${newStatus}.`,
+      });
+    } catch (error) {
+      console.error("Failed to update status:", error);
+      toast({
+        variant: "destructive",
+        title: "Update Failed",
+        description: "Could not update order status.",
+      });
+    }
+  };
+
+  const getStatusBadgeVariant = (status: OrderStatus) => {
+    switch (status) {
+      case 'Confirmed':
+        return 'default';
+      case 'Shipped':
+        return 'secondary';
+      case 'Delivered':
+        return 'outline';
+      default:
+        return 'default';
+    }
+  };
 
   if (loading) {
     return <div className="p-8">Loading orders...</div>;
@@ -50,6 +90,7 @@ export default function OrdersPage() {
                   <TableHead className="w-24">Order ID</TableHead>
                   <TableHead>Customer</TableHead>
                   <TableHead>Date</TableHead>
+                  <TableHead>Status</TableHead>
                   <TableHead className="text-right">Total</TableHead>
                   <TableHead className="w-16 text-center">Details</TableHead>
                 </TableRow>
@@ -64,13 +105,25 @@ export default function OrdersPage() {
                           <TableCell>
                             {order.createdAt ? format(order.createdAt.toDate(), 'PPP') : 'N/A'}
                           </TableCell>
+                          <TableCell>
+                             <Select onValueChange={(value) => handleStatusChange(order.id, value as OrderStatus)} defaultValue={order.status}>
+                                <SelectTrigger className="w-32 h-9">
+                                    <SelectValue placeholder="Set Status" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="Confirmed">Confirmed</SelectItem>
+                                    <SelectItem value="Shipped">Shipped</SelectItem>
+                                    <SelectItem value="Delivered">Delivered</SelectItem>
+                                </SelectContent>
+                             </Select>
+                          </TableCell>
                           <TableCell className="text-right font-medium">₹{order.total.toFixed(2)}</TableCell>
                           <TableCell className="text-center">
                             <AccordionTrigger className="p-2 [&>svg]:h-5 [&>svg]:w-5"></AccordionTrigger>
                           </TableCell>
                         </TableRow>
                         <TableRow>
-                          <TableCell colSpan={5} className="p-0">
+                          <TableCell colSpan={6} className="p-0">
                             <AccordionContent>
                                 <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6 bg-muted/50">
                                   <div className="space-y-4">

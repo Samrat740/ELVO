@@ -37,7 +37,7 @@ export default function CheckoutPage() {
     if (!authLoading && !currentUser) {
       router.push('/login');
     }
-    if (cartCount === 0) {
+    if (!authLoading && cartCount === 0) {
       router.replace('/cart');
     }
   }, [authLoading, currentUser, cartCount, router]);
@@ -91,6 +91,7 @@ export default function CheckoutPage() {
         })),
         total: totalPrice,
         createdAt: serverTimestamp(),
+        status: 'Confirmed',
       });
 
       // 2. Decrement stock for each item in the cart

@@ -1,15 +1,16 @@
 
 "use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { db } from '@/lib/firebase';
-import { collection, onSnapshot, query, where, orderBy } from "firebase/firestore";
-import { Order } from '@/lib/types';
+import { collection, onSnapshot, query, where, orderBy, doc, updateDoc } from "firebase/firestore";
+import { Order, OrderStatus } from '@/lib/types';
 import { useAuth } from './use-auth';
 
 interface OrdersContextType {
   orders: Order[];
   loading: boolean;
+  updateOrderStatus: (orderId: string, status: OrderStatus) => Promise<void>;
 }
 
 const OrdersContext = createContext<OrdersContextType | undefined>(undefined);
@@ -52,7 +53,16 @@ export const OrdersProvider = ({ children }: { children: ReactNode }) => {
     return () => unsubscribe();
   }, [currentUser, isAdmin]);
 
-  const value = { orders, loading };
+  const updateOrderStatus = useCallback(async (orderId: string, status: OrderStatus) => {
+    if (!isAdmin) {
+      console.error("Only admins can update order status.");
+      return;
+    }
+    const orderRef = doc(db, "orders", orderId);
+    await updateDoc(orderRef, { status });
+  }, [isAdmin]);
+
+  const value = { orders, loading, updateOrderStatus };
 
   return <OrdersContext.Provider value={value}>{children}</OrdersContext.Provider>;
 };
