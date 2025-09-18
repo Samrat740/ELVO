@@ -101,7 +101,7 @@ export default function Home() {
                   <p className="text-sm text-muted-foreground mt-1">{product.category}</p>
                 </CardContent>
                 <CardFooter className="flex items-center justify-between p-4 pt-0 bg-card">
-                  <p className="text-xl font-bold text-primary">${product.price.toFixed(2)}</p>
+                  <p className="text-xl font-bold text-primary">₹{product.price.toFixed(2)}</p>
                 </CardFooter>
               </Card>
             ))}

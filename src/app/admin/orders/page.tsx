@@ -64,7 +64,7 @@ export default function OrdersPage() {
                           <TableCell>
                             {order.createdAt ? format(order.createdAt.toDate(), 'PPP') : 'N/A'}
                           </TableCell>
-                          <TableCell className="text-right font-medium">${order.total.toFixed(2)}</TableCell>
+                          <TableCell className="text-right font-medium">₹{order.total.toFixed(2)}</TableCell>
                           <TableCell className="text-center">
                             <AccordionTrigger className="p-2 [&>svg]:h-5 [&>svg]:w-5"></AccordionTrigger>
                           </TableCell>
@@ -96,7 +96,7 @@ export default function OrdersPage() {
                                                   <p className="text-sm text-muted-foreground">Qty: {item.quantity}</p>
                                               </div>
                                           </div>
-                                          <p className="font-medium">${(item.price * item.quantity).toFixed(2)}</p>
+                                          <p className="font-medium">₹{(item.price * item.quantity).toFixed(2)}</p>
                                         </div>
                                       ))}
                                     </div>

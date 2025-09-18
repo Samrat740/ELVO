@@ -72,7 +72,7 @@ export default function ProductDetailPage({ params: { id } }: { params: { id: st
         </div>
         <div className="flex flex-col justify-center">
           <h1 className="text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">{product.name}</h1>
-          <p className="mt-4 text-3xl font-bold text-foreground">${product.price.toFixed(2)}</p>
+          <p className="mt-4 text-3xl font-bold text-foreground">₹{product.price.toFixed(2)}</p>
           <p className="mt-6 text-base text-muted-foreground">{product.description}</p>
           <div className="mt-8">
             <Button size="lg" className="w-full" onClick={handleAddToCart}>

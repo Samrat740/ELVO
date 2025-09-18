@@ -85,7 +85,7 @@ export default function OrdersPage() {
                             <span className="text-muted-foreground"> + {order.items.length - 1} more</span>
                            )}
                          </TableCell>
-                        <TableCell className="text-right font-medium">${order.total.toFixed(2)}</TableCell>
+                        <TableCell className="text-right font-medium">₹{order.total.toFixed(2)}</TableCell>
                     </TableRow>
                 ))}
               </TableBody>

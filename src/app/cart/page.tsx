@@ -1,3 +1,4 @@
+
 "use client";
 
 import Image from "next/image";
@@ -42,7 +43,7 @@ export default function CartPage() {
                   />
                   <div className="ml-4 flex-1">
                     <Link href={`/products/${item.id}`} className="font-semibold hover:text-primary">{item.name}</Link>
-                    <p className="text-sm text-muted-foreground">${item.price.toFixed(2)}</p>
+                    <p className="text-sm text-muted-foreground">₹{item.price.toFixed(2)}</p>
                     <div className="mt-2 flex items-center">
                       <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => updateQuantity(item.id, item.quantity - 1)}>
                         <Minus className="h-4 w-4" />
@@ -60,7 +61,7 @@ export default function CartPage() {
                     </div>
                   </div>
                   <div className="ml-4 flex flex-col items-end">
-                     <p className="font-bold">${(item.price * item.quantity).toFixed(2)}</p>
+                     <p className="font-bold">₹{(item.price * item.quantity).toFixed(2)}</p>
                       <Button variant="ghost" size="icon" className="mt-2 text-muted-foreground hover:text-destructive" onClick={() => removeFromCart(item.id)}>
                         <Trash2 className="h-5 w-5" />
                       </Button>
@@ -77,7 +78,7 @@ export default function CartPage() {
             <CardContent className="space-y-4">
               <div className="flex justify-between">
                 <span>Subtotal</span>
-                <span>${totalPrice.toFixed(2)}</span>
+                <span>₹{totalPrice.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
                 <span>Shipping</span>
@@ -86,7 +87,7 @@ export default function CartPage() {
                <Separator />
               <div className="flex justify-between font-bold text-lg">
                 <span>Total</span>
-                <span>${totalPrice.toFixed(2)}</span>
+                <span>₹{totalPrice.toFixed(2)}</span>
               </div>
             </CardContent>
             <CardFooter>
