@@ -61,7 +61,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const logout = useCallback(async () => {
     await signOut(auth);
     if (pathname.startsWith('/admin')) {
-        router.push('/admin/login');
+        router.push('/login');
     } else {
         // No need to force redirect on logout for customer pages
     }
