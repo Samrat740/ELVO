@@ -4,13 +4,17 @@
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { Product } from '@/lib/types';
 import { getInitialProducts } from '@/lib/products';
-import { db } from '@/lib/firebase';
+import { db, storage } from '@/lib/firebase';
 import { collection, getDocs, doc, setDoc, deleteDoc, onSnapshot, writeBatch } from "firebase/firestore";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+
+type ProductFormData = Omit<Product, 'id' | 'imageUrl'> & { imageFile?: FileList, imageUrl?: string };
+
 
 interface ProductsContextType {
   products: Product[];
-  addProduct: (product: Omit<Product, 'id'>) => Promise<void>;
-  updateProduct: (product: Product) => Promise<void>;
+  addProduct: (productData: ProductFormData) => Promise<void>;
+  updateProduct: (productId: string, productData: ProductFormData) => Promise<void>;
   deleteProduct: (productId: string) => Promise<void>;
   getProductById: (productId: string) => Product | undefined;
 }
@@ -38,7 +42,6 @@ export const ProductsProvider = ({ children }: { children: ReactNode }) => {
       }
 
       // After potentially seeding, set up the real-time listener.
-      // This will not re-seed the data when you delete all items.
       const unsubscribe = onSnapshot(productsCollection, (snapshot) => {
         const productsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Product));
         setProducts(productsData);
@@ -54,15 +57,44 @@ export const ProductsProvider = ({ children }: { children: ReactNode }) => {
     };
   }, []);
 
-  const addProduct = useCallback(async (productData: Omit<Product, 'id'>) => {
+  const uploadImage = async (file: File): Promise<string> => {
+    const storageRef = ref(storage, `products/${Date.now()}-${file.name}`);
+    await uploadBytes(storageRef, file);
+    const downloadUrl = await getDownloadURL(storageRef);
+    return downloadUrl;
+  };
+
+  const addProduct = useCallback(async (productData: ProductFormData) => {
+    let imageUrl = productData.imageUrl || '';
+    if (productData.imageFile && productData.imageFile.length > 0) {
+      imageUrl = await uploadImage(productData.imageFile[0]);
+    }
+    
+    if (!imageUrl) {
+        throw new Error("Product image is required.");
+    }
+
+    const { imageFile, ...restData } = productData;
+
     const newDocRef = doc(collection(db, "products"));
-    const newProduct: Product = { ...productData, id: newDocRef.id };
+    const newProduct: Product = { 
+        ...restData, 
+        id: newDocRef.id,
+        imageUrl,
+    };
     await setDoc(newDocRef, newProduct);
   }, []);
 
-  const updateProduct = useCallback(async (updatedProduct: Product) => {
-    const productRef = doc(db, "products", updatedProduct.id);
-    await setDoc(productRef, updatedProduct, { merge: true });
+  const updateProduct = useCallback(async (productId: string, productData: ProductFormData) => {
+    let imageUrl = productData.imageUrl || '';
+    if (productData.imageFile && productData.imageFile.length > 0) {
+      imageUrl = await uploadImage(productData.imageFile[0]);
+    }
+    
+    const { imageFile, ...restData } = productData;
+    
+    const productRef = doc(db, "products", productId);
+    await setDoc(productRef, { ...restData, imageUrl }, { merge: true });
   }, []);
 
   const deleteProduct = useCallback(async (productId: string) => {

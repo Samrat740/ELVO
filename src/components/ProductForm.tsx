@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useForm } from 'react-hook-form';
@@ -9,18 +10,27 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Product } from '@/lib/types';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { Minus, Plus } from 'lucide-react';
+import { ImageUp, Minus, Plus, X } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from './ui/switch';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { Card, CardContent } from './ui/card';
+import Image from 'next/image';
+
+const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
 
 const productSchema = z.object({
   name: z.string().min(3, 'Name must be at least 3 characters.'),
   description: z.string().min(10, 'Description must be at least 10 characters.'),
   price: z.coerce.number().min(0.01, 'Price must be greater than 0.'),
-  imageUrl: z.string().url('Must be a valid URL.'),
+  imageFile: z.any()
+    .refine((files) => files?.length >= 1 || !!product, "Image is required.")
+    .refine((files) => !files || files?.[0]?.size <= 5000000, `Max file size is 5MB.`)
+    .refine(
+      (files) => !files || ACCEPTED_IMAGE_TYPES.includes(files?.[0]?.type),
+      ".jpg, .jpeg, .png and .webp files are accepted."
+    ).optional(),
   imageHint: z.string().min(2, 'Image hint must be at least 2 characters.').max(30, 'Image hint must be less than 30 characters.'),
   stock: z.coerce.number().min(0, 'Stock cannot be negative.'),
   category: z.enum(['Backpack', 'Handbags', 'Accessory']),
@@ -28,14 +38,14 @@ const productSchema = z.object({
   featured: z.boolean(),
 });
 
-type ProductFormValues = z.infer<typeof productSchema>;
+type ProductFormValues = Omit<z.infer<typeof productSchema>, 'imageFile'> & { imageUrl?: string, imageFile?: FileList };
 
 interface ProductFormProps {
   product?: Product;
   onFinished: () => void;
 }
 
-const defaultValues = {
+const defaultValues: ProductFormValues = {
   name: '',
   description: '',
   price: 0,
@@ -50,35 +60,98 @@ const defaultValues = {
 export function ProductForm({ product, onFinished }: ProductFormProps) {
   const { addProduct, updateProduct } = useProducts();
   const { toast } = useToast();
+  const [imagePreview, setImagePreview] = useState<string | null>(product?.imageUrl || null);
 
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema),
-    defaultValues: product || defaultValues,
+    defaultValues: product ? { ...product } : defaultValues,
   });
+
+  const imageFile = form.watch('imageFile');
+
+  useEffect(() => {
+    if (imageFile && imageFile.length > 0) {
+      const file = imageFile[0];
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    } else if (product?.imageUrl) {
+        setImagePreview(product.imageUrl);
+    } else {
+        setImagePreview(null);
+    }
+  }, [imageFile, product]);
   
   useEffect(() => {
     if (product) {
-      form.reset(product);
+      form.reset({ ...product, imageFile: undefined });
+      setImagePreview(product.imageUrl);
     } else {
       form.reset(defaultValues);
+      setImagePreview(null);
     }
   }, [product, form]);
 
   const onSubmit = async (data: ProductFormValues) => {
-    if (product) {
-      await updateProduct({ ...product, ...data });
-      toast({ title: "Product Updated", description: `${data.name} has been successfully updated.` });
-    } else {
-      await addProduct(data);
-      toast({ title: "Product Added", description: `${data.name} has been successfully added.` });
+    try {
+        if (product) {
+          await updateProduct(product.id, { ...data, imageUrl: product.imageUrl });
+          toast({ title: "Product Updated", description: `${data.name} has been successfully updated.` });
+        } else {
+          await addProduct(data);
+          toast({ title: "Product Added", description: `${data.name} has been successfully added.` });
+        }
+        onFinished();
+    } catch (error) {
+        console.error("Failed to save product:", error);
+        toast({ variant: 'destructive', title: "Save Failed", description: "There was a problem saving the product." });
     }
-    onFinished();
   };
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 py-4">
         <div className="grid grid-cols-1 gap-6">
+          <Card className="bg-muted/50">
+            <CardContent className="p-4">
+              <FormField
+                control={form.control}
+                name="imageFile"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Product Image</FormLabel>
+                    <FormControl>
+                        <div className="w-full">
+                            {imagePreview ? (
+                                <div className="relative aspect-square w-full rounded-md overflow-hidden">
+                                    <Image src={imagePreview} alt="Product preview" fill className="object-cover"/>
+                                    <Button type="button" size="icon" variant="destructive" className="absolute top-2 right-2 h-7 w-7" onClick={() => {
+                                        form.setValue('imageFile', undefined);
+                                        setImagePreview(null);
+                                    }}>
+                                        <X className="h-4 w-4"/>
+                                    </Button>
+                                </div>
+                            ) : (
+                                <label className="flex flex-col items-center justify-center w-full aspect-square border-2 border-dashed rounded-lg cursor-pointer hover:bg-muted">
+                                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                        <ImageUp className="w-8 h-8 mb-4 text-muted-foreground" />
+                                        <p className="mb-2 text-sm text-muted-foreground"><span className="font-semibold">Click to upload</span> or drag and drop</p>
+                                        <p className="text-xs text-muted-foreground">SVG, PNG, JPG or GIF (MAX. 5MB)</p>
+                                    </div>
+                                    <Input {...field} onChange={e => field.onChange(e.target.files)} type="file" className="hidden" accept={ACCEPTED_IMAGE_TYPES.join(",")} />
+                                </label>
+                            )}
+                        </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </CardContent>
+          </Card>
           <FormField
             control={form.control}
             name="name"
@@ -105,6 +178,19 @@ export function ProductForm({ product, onFinished }: ProductFormProps) {
               </FormItem>
             )}
           />
+           <FormField
+            control={form.control}
+            name="imageHint"
+            render={({ field }) => (
+                <FormItem>
+                <FormLabel>Image Hint</FormLabel>
+                <FormControl>
+                    <Input placeholder="modern handbag" {...field} />
+                </FormControl>
+                <FormMessage />
+                </FormItem>
+            )}
+            />
           <div className="grid grid-cols-2 gap-4">
               <FormField
               control={form.control}
@@ -204,36 +290,7 @@ export function ProductForm({ product, onFinished }: ProductFormProps) {
               )}
             />
           </div>
-          <Card className="bg-muted/50">
-            <CardContent className="p-4 space-y-4">
-               <FormField
-                control={form.control}
-                name="imageUrl"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Image URL</FormLabel>
-                    <FormControl>
-                      <Input placeholder="https://picsum.photos/seed/..." {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="imageHint"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Image Hint</FormLabel>
-                    <FormControl>
-                      <Input placeholder="modern handbag" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </CardContent>
-          </Card>
+          
           <FormField
             control={form.control}
             name="featured"
