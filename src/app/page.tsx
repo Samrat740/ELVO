@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import type { Product } from '@/lib/types';
-import { ArrowRight, ShoppingBag, XCircle } from 'lucide-react';
+import { ArrowRight, ShoppingBag, XCircle, Instagram, Megaphone } from 'lucide-react';
 import { useMemo } from 'react';
 import { Badge } from '@/components/ui/badge';
 
@@ -141,15 +141,25 @@ export default function Home() {
       </section>
 
       {/* Footer CTA Section */}
-      <section className="py-24 text-center">
+       <section className="py-20 sm:py-24">
         <div className="container mx-auto px-4">
-           <h2 className="text-3xl md:text-4xl font-headline">Join The #ELVOStyle</h2>
-            <p className="mt-4 max-w-xl mx-auto text-muted-foreground">Follow us on social media for style inspiration and new arrivals.</p>
-            <div className="mt-8 flex justify-center gap-4">
-              <Button variant="outline">Instagram</Button>
-              <Button variant="outline">Pinterest</Button>
-              <Button variant="outline">Facebook</Button>
+          <div className="relative text-center bg-muted/40 rounded-2xl border border-border/50 px-6 py-12 overflow-hidden">
+             <div className="absolute -top-4 -right-4 h-24 w-24 text-primary/10">
+                <Megaphone className="h-full w-full" />
             </div>
+             <div className="absolute -bottom-6 -left-6 h-28 w-28 text-primary/10">
+                <Instagram className="h-full w-full" />
+            </div>
+            <div className="relative">
+                <h2 className="text-3xl md:text-4xl font-headline">Join The #ELVOStyle</h2>
+                <p className="mt-4 max-w-xl mx-auto text-muted-foreground">Follow our journey and be the first to see new arrivals, style inspiration, and behind-the-scenes content on our social media.</p>
+                <div className="mt-8 flex justify-center gap-4">
+                  <Button variant="outline" className="bg-background">Instagram</Button>
+                  <Button variant="outline" className="bg-background">Pinterest</Button>
+                  <Button variant="outline" className="bg-background">Facebook</Button>
+                </div>
+            </div>
+          </div>
         </div>
       </section>
     </div>
