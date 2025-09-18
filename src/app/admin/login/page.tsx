@@ -21,7 +21,7 @@ const loginSchema = z.object({
 type LoginFormValues = z.infer<typeof loginSchema>;
 
 export default function AdminLoginPage() {
-  const { loginWithEmail, isAdmin } = useAuth();
+  const { loginWithEmail } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
   const [error, setError] = useState<string | null>(null);
@@ -37,19 +37,12 @@ export default function AdminLoginPage() {
   const onSubmit = async (data: LoginFormValues) => {
     setError(null);
     try {
-      const userCredential = await loginWithEmail(data.email, data.password);
-      // After login, we must verify if the user is an admin.
-      if (userCredential.user?.email === 'nesttrend30@gmail.com') {
-        toast({
-            title: 'Admin Login Successful',
-            description: 'Welcome back!',
-        });
-        router.push('/admin');
-      } else {
-        setError('You are not authorized to access this page.');
-        // Log out the non-admin user
-        await fetch('/api/auth/logout', { method: 'POST' }); 
-      }
+      await loginWithEmail(data.email, data.password);
+      toast({
+          title: 'Login Successful',
+          description: 'Redirecting to admin panel...',
+      });
+      router.push('/admin');
     } catch (error) {
       console.error(error);
       setError('Invalid email or password. Please try again.');
