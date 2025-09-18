@@ -63,7 +63,7 @@ export default function AdminProductsPage() {
       </div>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="sm:max-w-3xl">
           <DialogHeader>
             <DialogTitle>{editingProduct ? 'Edit Product' : 'Add New Product'}</DialogTitle>
           </DialogHeader>
@@ -249,3 +249,5 @@ export default function AdminProductsPage() {
     </div>
   );
 }
+
+    
