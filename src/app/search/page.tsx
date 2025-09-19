@@ -11,17 +11,15 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import type { Product } from '@/lib/types';
-import { ShoppingBag, SearchX, Heart } from 'lucide-react';
+import { ShoppingBag, SearchX } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/hooks/use-auth';
-import { useWishlist } from '@/hooks/use-wishlist';
 
 function SearchResults() {
   const { products } = useProducts();
   const { addToCart } = useCart();
   const { toast } = useToast();
   const { currentUser } = useAuth();
-  const { wishlist, addToWishlist, removeFromWishlist } = useWishlist();
   const searchParams = useSearchParams();
   
   const searchQuery = searchParams.get('q');
@@ -50,21 +48,6 @@ function SearchResults() {
     });
   };
   
-  const handleWishlistToggle = (product: Product) => {
-    if (!currentUser) {
-      toast({ variant: "destructive", title: "Login Required", description: "You need to be logged in to manage your wishlist." });
-      return;
-    }
-    const isInWishlist = wishlist.some(item => item.id === product.id);
-    if (isInWishlist) {
-      removeFromWishlist(product.id);
-      toast({ title: "Removed from Wishlist", description: `${product.name} has been removed from your wishlist.` });
-    } else {
-      addToWishlist(product);
-      toast({ title: "Added to Wishlist", description: `${product.name} has been added to your wishlist.` });
-    }
-  };
-
   if (!searchQuery) {
     return (
         <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-border p-12 text-center h-[400px]">
@@ -85,9 +68,7 @@ function SearchResults() {
 
       {filteredProducts.length > 0 ? (
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
-          {filteredProducts.map((product) => {
-            const isInWishlist = wishlist.some(item => item.id === product.id);
-            return (
+          {filteredProducts.map((product) => (
             <Card key={product.id} className="group flex flex-col overflow-hidden rounded-lg border-none bg-card shadow-lg transition-all duration-300 hover:shadow-2xl hover:-translate-y-2">
               <div className="relative overflow-hidden">
                 <Link href={`/products/${product.id}`}>
@@ -101,11 +82,6 @@ function SearchResults() {
                   />
                 </Link>
                 <div className="absolute top-3 right-3 flex flex-col gap-2">
-                    {currentUser && (
-                    <Button size="icon" variant="secondary" className="rounded-full h-10 w-10 bg-black/50 text-white hover:bg-primary hover:text-primary-foreground backdrop-blur-sm border-none" onClick={() => handleWishlistToggle(product)}>
-                        <Heart className={`h-5 w-5 ${isInWishlist ? 'fill-red-500 text-red-500' : ''}`} />
-                    </Button>
-                    )}
                     {product.stock > 0 && (
                     <Button size="icon" className="rounded-full h-10 w-10 bg-black/50 text-white hover:bg-primary hover:text-primary-foreground backdrop-blur-sm border-none" onClick={() => handleAddToCart(product)}>
                         <ShoppingBag className="h-5 w-5" />
@@ -140,7 +116,7 @@ function SearchResults() {
                   )}
               </CardFooter>
             </Card>
-          )})}
+          ))}
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-border p-12 text-center h-[400px]">

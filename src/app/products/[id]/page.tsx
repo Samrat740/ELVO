@@ -10,11 +10,10 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 import { type Product } from '@/lib/types';
-import { ArrowLeft, Share2, Heart } from 'lucide-react';
+import { ArrowLeft, Share2 } from 'lucide-react';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/hooks/use-auth';
-import { useWishlist } from '@/hooks/use-wishlist';
 
 export default function ProductDetailPage() {
   const params = useParams();
@@ -23,7 +22,6 @@ export default function ProductDetailPage() {
   const { addToCart } = useCart();
   const { toast } = useToast();
   const { currentUser } = useAuth();
-  const { wishlist, addToWishlist, removeFromWishlist } = useWishlist();
   const [product, setProduct] = useState<Product | undefined | null>(undefined);
 
   useEffect(() => {
@@ -33,22 +31,6 @@ export default function ProductDetailPage() {
     }
   }, [getProductById, id]);
   
-  const isInWishlist = product ? wishlist.some(item => item.id === product.id) : false;
-
-  const handleWishlistToggle = () => {
-    if (!product) return;
-    if (!currentUser) {
-      toast({ variant: "destructive", title: "Login Required", description: "You need to be logged in to manage your wishlist." });
-      return;
-    }
-    if (isInWishlist) {
-      removeFromWishlist(product.id);
-      toast({ title: "Removed from Wishlist", description: `${product.name} has been removed from your wishlist.` });
-    } else {
-      addToWishlist(product);
-      toast({ title: "Added to Wishlist", description: `${product.name} has been added to your wishlist.` });
-    }
-  };
 
   const handleShare = async () => {
     if (product && navigator.share) {
@@ -152,12 +134,6 @@ export default function ProductDetailPage() {
             <Button size="lg" className="w-full" onClick={handleAddToCart} disabled={product.stock === 0}>
               {product.stock > 0 ? 'Add to Cart' : 'Out of Stock'}
             </Button>
-            {currentUser && (
-               <Button size="lg" variant="outline" onClick={handleWishlistToggle}>
-                  <Heart className={`mr-2 h-5 w-5 ${isInWishlist ? 'fill-red-500 text-red-500' : ''}`} />
-                  {isInWishlist ? 'Wishlisted' : 'Wishlist'}
-              </Button>
-            )}
              <Button size="lg" variant="outline" onClick={handleShare}>
                 <Share2 className="mr-2 h-5 w-5" />
                 Share
