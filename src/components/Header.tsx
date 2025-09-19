@@ -76,6 +76,7 @@ function MobileNav({ closeSheet }: { closeSheet: () => void }) {
   return (
     <div className="flex h-full flex-col">
        <SheetHeader className="p-4 border-b">
+         <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
          <Link href="/" className="flex items-center space-x-2" onClick={closeSheet}>
             <ElvoLogo />
             <span className="font-bold sm:inline-block font-headline tracking-wider text-xl">
