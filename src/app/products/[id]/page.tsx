@@ -38,7 +38,12 @@ export default function ProductDetailPage() {
           url: window.location.href,
         });
         toast({ title: "Shared successfully!" });
-      } catch (error) {
+      } catch (error: any) {
+        // Don't show an error if the user cancels the share dialog
+        if (error.name === 'AbortError') {
+          console.log('Share was aborted by the user.');
+          return;
+        }
         console.error('Error sharing:', error);
         toast({
           variant: "destructive",
