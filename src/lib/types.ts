@@ -21,7 +21,7 @@ export interface CartItem extends Product {
   quantity: number;
 }
 
-export type OrderStatus = 'Confirmed' | 'Shipped' | 'Delivered';
+export type OrderStatus = 'Confirmed' | 'Shipped' | 'Delivered' | 'Cancelled';
 
 export interface Order {
     id: string;

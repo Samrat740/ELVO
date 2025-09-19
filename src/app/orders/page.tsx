@@ -42,6 +42,8 @@ export default function OrdersPage() {
         return 'secondary';
       case 'Delivered':
         return 'outline';
+      case 'Cancelled':
+        return 'destructive';
       default:
         return 'default';
     }
