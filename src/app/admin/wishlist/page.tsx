@@ -16,10 +16,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Heart, Star, Users } from "lucide-react";
+import { Heart, Users } from "lucide-react";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 export default function AdminWishlistPage() {
