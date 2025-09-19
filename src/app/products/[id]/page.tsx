@@ -66,7 +66,7 @@ export default function ProductDetailPage() {
         </Button>
       </div>
       <div className="grid grid-cols-1 gap-8 md:grid-cols-2 md:gap-12">
-        <div className="overflow-hidden rounded-lg shadow-lg">
+        <div className="relative overflow-hidden rounded-lg shadow-lg">
           <Image
             src={product.imageUrl}
             alt={product.name}
@@ -75,11 +75,23 @@ export default function ProductDetailPage() {
             className="aspect-square w-full object-cover"
             data-ai-hint={product.imageHint}
           />
+           {product.hasDiscount && (
+            <div className="absolute top-4 left-4">
+                <Badge className="text-lg font-bold uppercase tracking-wider bg-destructive text-destructive-foreground">Sale</Badge>
+            </div>
+            )}
         </div>
         <div className="flex flex-col justify-center">
           <h1 className="text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">{product.name}</h1>
           <div className="mt-4 flex items-center gap-4">
-            <p className="text-3xl font-bold text-foreground">₹{product.price.toFixed(2)}</p>
+             {product.hasDiscount && product.originalPrice ? (
+                <div className="flex items-baseline gap-3">
+                    <p className="text-3xl font-bold text-destructive">₹{product.price.toFixed(2)}</p>
+                    <p className="text-xl font-medium text-muted-foreground line-through">₹{product.originalPrice.toFixed(2)}</p>
+                </div>
+            ) : (
+                <p className="text-3xl font-bold text-foreground">₹{product.price.toFixed(2)}</p>
+            )}
             {product.stock === 0 && (
                 <Badge variant="destructive" className="text-base font-medium">Out of Stock</Badge>
             )}

@@ -24,6 +24,8 @@ const productSchema = z.object({
   name: z.string().min(3, 'Name must be at least 3 characters.'),
   description: z.string().min(10, 'Description must be at least 10 characters.'),
   price: z.coerce.number().min(0.01, 'Price must be greater than 0.'),
+  originalPrice: z.coerce.number().optional(),
+  hasDiscount: z.boolean(),
   imageFile: z.any()
     .refine((files) => {
         if (files && files.length > 0) {
@@ -44,6 +46,14 @@ const productSchema = z.object({
   category: z.enum(['Backpack', 'Handbags', 'Accessory']),
   audience: z.enum(['For Him', 'For Her']),
   featured: z.boolean(),
+}).refine(data => {
+    if (data.hasDiscount) {
+        return data.originalPrice !== undefined && data.originalPrice > data.price;
+    }
+    return true;
+}, {
+    message: "Discounted price must be less than the original price.",
+    path: ["price"],
 });
 
 type ProductFormValues = Omit<z.infer<typeof productSchema>, 'imageFile'> & { imageUrl?: string, imageFile?: FileList };
@@ -57,6 +67,8 @@ const defaultValues: ProductFormValues = {
   name: '',
   description: '',
   price: 0,
+  originalPrice: undefined,
+  hasDiscount: false,
   imageUrl: '',
   stock: 0,
   category: 'Handbags' as const,
@@ -75,6 +87,7 @@ export function ProductForm({ product, onFinished }: ProductFormProps) {
   });
 
   const imageFile = form.watch('imageFile');
+  const hasDiscount = form.watch('hasDiscount');
 
   useEffect(() => {
     if (imageFile && imageFile.length > 0) {
@@ -99,7 +112,13 @@ export function ProductForm({ product, onFinished }: ProductFormProps) {
 
   const onSubmit = async (data: ProductFormValues) => {
     try {
-        const productDataToSave = { ...data, imageUrl: imagePreview || '' };
+        const { originalPrice, ...restData } = data;
+        const productDataToSave = { 
+            ...restData, 
+            imageUrl: imagePreview || '',
+            originalPrice: data.hasDiscount ? originalPrice : undefined,
+        };
+
         if (product) {
           await updateProduct(product.id, productDataToSave);
           toast({ title: "Product Updated", description: `${data.name} has been successfully updated.` });
@@ -191,60 +210,97 @@ export function ProductForm({ product, onFinished }: ProductFormProps) {
                 </FormItem>
                 )}
             />
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <FormField
+
+            <FormField
                 control={form.control}
-                name="price"
+                name="hasDiscount"
                 render={({ field }) => (
-                    <FormItem>
-                    <FormLabel>Price (₹)</FormLabel>
-                    <FormControl>
-                        <Input type="number" step="0.01" placeholder="299.99" {...field} />
-                    </FormControl>
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                    <div className="space-y-0.5">
+                    <FormLabel>Enable Discount</FormLabel>
                     <FormMessage />
-                    </FormItem>
+                    </div>
+                    <FormControl>
+                    <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                    />
+                    </FormControl>
+                </FormItem>
                 )}
-                />
+            />
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {hasDiscount && (
+                    <FormField
+                        control={form.control}
+                        name="originalPrice"
+                        render={({ field }) => (
+                            <FormItem>
+                            <FormLabel>Original Price (₹)</FormLabel>
+                            <FormControl>
+                                <Input type="number" step="0.01" placeholder="399.99" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                )}
                 <FormField
                     control={form.control}
-                    name="stock"
+                    name="price"
                     render={({ field }) => (
-                    <FormItem>
-                        <FormLabel>Stock</FormLabel>
+                        <FormItem>
+                        <FormLabel>{hasDiscount ? "Discounted Price (₹)" : "Price (₹)"}</FormLabel>
                         <FormControl>
-                        <div className="flex items-center gap-2">
-                            <Button
-                            type="button"
-                            variant="outline"
-                            size="icon"
-                            className="h-9 w-9 shrink-0"
-                            onClick={() => form.setValue('stock', Math.max(0, (Number(field.value) || 0) - 1))}
-                            disabled={field.value <= 0}
-                            >
-                            <Minus className="h-4 w-4" />
-                            </Button>
-                            <Input
-                            {...field}
-                            type="number"
-                            min="0"
-                            className="h-9 text-center w-full"
-                            />
-                            <Button
-                            type="button"
-                            variant="outline"
-                            size="icon"
-                            className="h-9 w-9 shrink-0"
-                            onClick={() => form.setValue('stock', (Number(field.value) || 0) + 1)}
-                            >
-                            <Plus className="h-4 w-4" />
-                            </Button>
-                        </div>
+                            <Input type="number" step="0.01" placeholder="299.99" {...field} />
                         </FormControl>
                         <FormMessage />
-                    </FormItem>
+                        </FormItem>
                     )}
                 />
             </div>
+
+            <FormField
+                control={form.control}
+                name="stock"
+                render={({ field }) => (
+                <FormItem>
+                    <FormLabel>Stock</FormLabel>
+                    <FormControl>
+                    <div className="flex items-center gap-2">
+                        <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        className="h-9 w-9 shrink-0"
+                        onClick={() => form.setValue('stock', Math.max(0, (Number(field.value) || 0) - 1))}
+                        disabled={field.value <= 0}
+                        >
+                        <Minus className="h-4 w-4" />
+                        </Button>
+                        <Input
+                        {...field}
+                        type="number"
+                        min="0"
+                        className="h-9 text-center w-full"
+                        />
+                        <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        className="h-9 w-9 shrink-0"
+                        onClick={() => form.setValue('stock', (Number(field.value) || 0) + 1)}
+                        >
+                        <Plus className="h-4 w-4" />
+                        </Button>
+                    </div>
+                    </FormControl>
+                    <FormMessage />
+                </FormItem>
+                )}
+            />
+            
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <FormField
                 control={form.control}

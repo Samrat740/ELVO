@@ -100,6 +100,11 @@ export default function Home() {
                        <Badge variant="destructive" className="text-base font-bold uppercase tracking-wider">Out of Stock</Badge>
                     </div>
                   )}
+                  {product.hasDiscount && (
+                    <div className="absolute top-3 left-3">
+                       <Badge className="text-base font-bold uppercase tracking-wider bg-destructive text-destructive-foreground">Sale</Badge>
+                    </div>
+                  )}
                 </div>
                 <CardContent className="flex-1 p-4 bg-card">
                   <Link href={`/products/${product.id}`}>
@@ -108,7 +113,14 @@ export default function Home() {
                   <p className="text-sm text-muted-foreground mt-1">{product.category}</p>
                 </CardContent>
                 <CardFooter className="flex items-center justify-between p-4 pt-0 bg-card">
-                  <p className="text-xl font-bold text-primary">₹{product.price.toFixed(2)}</p>
+                   {product.hasDiscount && product.originalPrice ? (
+                        <div className="flex items-baseline gap-2">
+                            <p className="text-xl font-bold text-destructive">₹{product.price.toFixed(2)}</p>
+                            <p className="text-sm font-medium text-muted-foreground line-through">₹{product.originalPrice.toFixed(2)}</p>
+                        </div>
+                    ) : (
+                        <p className="text-xl font-bold text-primary">₹{product.price.toFixed(2)}</p>
+                    )}
                 </CardFooter>
               </Card>
             ))}
@@ -151,7 +163,7 @@ export default function Home() {
                 <Instagram className="h-full w-full" />
             </div>
             <div className="relative">
-                <h2 className="text-3xl md:text-4xl font-headline">Join The #ELVOStyle</h2>
+                <h2 className="text-3xl md:text-4xl font-headline flex items-center justify-center gap-2">Join The #ELVOStyle</h2>
                 <p className="mt-4 max-w-xl mx-auto text-muted-foreground">Follow our journey and be the first to see new arrivals, style inspiration, and behind-the-scenes content on our social media.</p>
                 <div className="mt-8 flex justify-center gap-4">
                   <Button variant="outline" className="bg-background">Instagram</Button>

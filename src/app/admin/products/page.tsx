@@ -106,7 +106,16 @@ export default function AdminProductsPage() {
                   <TableCell className="font-medium">{product.name}</TableCell>
                   <TableCell><Badge variant="secondary">{product.category}</Badge></TableCell>
                   <TableCell><Badge variant="outline">{product.audience}</Badge></TableCell>
-                  <TableCell>₹{product.price.toFixed(2)}</TableCell>
+                  <TableCell>
+                    {product.hasDiscount && product.originalPrice ? (
+                        <div className="flex flex-col">
+                            <span className="text-destructive font-semibold">₹{product.price.toFixed(2)}</span>
+                            <span className="text-xs text-muted-foreground line-through">₹{product.originalPrice.toFixed(2)}</span>
+                        </div>
+                    ) : (
+                        `₹${product.price.toFixed(2)}`
+                    )}
+                  </TableCell>
                   <TableCell>{product.stock}</TableCell>
                   <TableCell>
                     {product.featured ? (
@@ -219,7 +228,14 @@ export default function AdminProductsPage() {
                  <div className="flex justify-between items-center text-sm">
                     <div>
                       <p className="text-muted-foreground">Price</p>
-                      <p className="font-medium">₹{product.price.toFixed(2)}</p>
+                       {product.hasDiscount && product.originalPrice ? (
+                            <div className="flex items-baseline gap-2">
+                                <span className="text-destructive font-semibold text-base">₹{product.price.toFixed(2)}</span>
+                                <span className="text-xs text-muted-foreground line-through">₹{product.originalPrice.toFixed(2)}</span>
+                            </div>
+                        ) : (
+                            <p className="font-medium">₹{product.price.toFixed(2)}</p>
+                        )}
                     </div>
                      <div>
                       <p className="text-muted-foreground">Stock</p>
@@ -249,5 +265,3 @@ export default function AdminProductsPage() {
     </div>
   );
 }
-
-    
