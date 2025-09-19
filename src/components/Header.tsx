@@ -28,7 +28,7 @@ function SearchBar() {
     const router = useRouter();
     const [query, setQuery] = useState('');
 
-    const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
         if (query.trim()) {
             router.push(`/search?q=${encodeURIComponent(query.trim())}`);
@@ -36,14 +36,17 @@ function SearchBar() {
     };
 
     return (
-        <form onSubmit={handleSearch} className="relative w-full max-w-sm">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-                placeholder="Search products..."
-                className="pl-10"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-            />
+        <form onSubmit={handleSearch} className="flex w-full max-w-sm items-center space-x-2">
+            <div className="relative w-full">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                  placeholder="Search products..."
+                  className="pl-10"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+              />
+            </div>
+            <Button type="submit" size="sm">Search</Button>
         </form>
     );
 }
