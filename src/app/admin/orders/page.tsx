@@ -64,7 +64,7 @@ const OrderList = ({
                   </div>
                     <div className="flex-1">
                       {listType === 'cancelled' || listType === 'delivered' ? (
-                          <Badge variant={listType === 'cancelled' ? 'destructive' : 'outline'}>{order.status}</Badge>
+                          <Badge variant={listType === 'cancelled' ? 'destructive' : 'success'}>{order.status}</Badge>
                       ) : (
                         <Select onValueChange={(value) => handleStatusChange(order.id, value as OrderStatus)} defaultValue={order.status}>
                           <SelectTrigger className="w-36 h-9">
@@ -137,7 +137,7 @@ const OrderList = ({
                         </div>
                     </div>
                      {listType === 'cancelled' || listType === 'delivered' ? (
-                          <Badge variant={listType === 'cancelled' ? 'destructive' : 'outline'} className="w-fit">{order.status}</Badge>
+                          <Badge variant={listType === 'cancelled' ? 'destructive' : 'success'} className="w-fit">{order.status}</Badge>
                       ) : (
                         <Select onValueChange={(value) => handleStatusChange(order.id, value as OrderStatus)} defaultValue={order.status}>
                           <SelectTrigger className="w-40 h-9 mt-2">
