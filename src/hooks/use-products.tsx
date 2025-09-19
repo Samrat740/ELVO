@@ -12,6 +12,7 @@ export type ProductFormData = Omit<Product, 'id'> & { imageFile?: FileList };
 
 interface ProductsContextType {
   products: Product[];
+  loading: boolean;
   addProduct: (productData: ProductFormData) => Promise<void>;
   updateProduct: (productId: string, productData: ProductFormData) => Promise<void>;
   deleteProduct: (productId: string) => Promise<void>;
@@ -22,11 +23,13 @@ const ProductsContext = createContext<ProductsContextType | undefined>(undefined
 
 export const ProductsProvider = ({ children }: { children: ReactNode }) => {
   const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
   
   useEffect(() => {
     const productsCollection = collection(db, "products");
 
     const initializeAndSubscribe = async () => {
+      setLoading(true);
       // First, check if the collection is empty to decide whether to seed.
       const initialSnapshot = await getDocs(productsCollection);
       if (initialSnapshot.empty) {
@@ -44,6 +47,10 @@ export const ProductsProvider = ({ children }: { children: ReactNode }) => {
       const unsubscribe = onSnapshot(productsCollection, (snapshot) => {
         const productsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Product));
         setProducts(productsData);
+        setLoading(false);
+      }, (error) => {
+        console.error("Error fetching products:", error);
+        setLoading(false);
       });
 
       return unsubscribe;
@@ -144,7 +151,7 @@ export const ProductsProvider = ({ children }: { children: ReactNode }) => {
     return products.find(p => p.id === productId);
   }, [products]);
   
-  const value = { products, addProduct, updateProduct, deleteProduct, getProductById };
+  const value = { products, loading, addProduct, updateProduct, deleteProduct, getProductById };
 
   return <ProductsContext.Provider value={value}>{children}</ProductsContext.Provider>;
 };
