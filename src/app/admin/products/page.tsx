@@ -81,6 +81,7 @@ export default function AdminProductsPage() {
             <TableRow>
               <TableHead className="w-[100px]">Image</TableHead>
               <TableHead>Name</TableHead>
+              <TableHead>Product ID</TableHead>
               <TableHead>Category</TableHead>
               <TableHead>Audience</TableHead>
               <TableHead>Price</TableHead>
@@ -104,6 +105,9 @@ export default function AdminProductsPage() {
                     />
                   </TableCell>
                   <TableCell className="font-medium">{product.name}</TableCell>
+                  <TableCell>
+                    <p className="font-mono text-xs text-muted-foreground" title={product.id}>{product.id}</p>
+                  </TableCell>
                   <TableCell><Badge variant="secondary">{product.category}</Badge></TableCell>
                   <TableCell><Badge variant="outline">{product.audience}</Badge></TableCell>
                   <TableCell>
@@ -154,7 +158,7 @@ export default function AdminProductsPage() {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={8} className="h-48 text-center">
+                <TableCell colSpan={9} className="h-48 text-center">
                   <div className="flex flex-col items-center gap-4">
                     <PackageOpen className="h-12 w-12 text-muted-foreground" />
                     <h3 className="text-xl font-semibold">Empty Inventory</h3>
@@ -185,7 +189,8 @@ export default function AdminProductsPage() {
                       />
                     <div>
                       <CardTitle className="text-lg">{product.name}</CardTitle>
-                      <div className="flex gap-2 mt-1">
+                      <p className="font-mono text-xs text-muted-foreground pt-1" title={product.id}>{product.id}</p>
+                      <div className="flex gap-2 mt-2">
                         <Badge variant="secondary">{product.category}</Badge>
                         <Badge variant="outline">{product.audience}</Badge>
                       </div>

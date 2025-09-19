@@ -218,6 +218,7 @@ const OrderList = ({
                                 )}
                                 <div>
                                     <p className="font-medium">{item.name}</p>
+                                    <p className="font-mono text-xs text-muted-foreground" title={item.id}>ID: {item.id}</p>
                                     <p className="text-sm text-muted-foreground">Qty: {item.quantity}</p>
                                 </div>
                             </div>
