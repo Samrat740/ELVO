@@ -13,7 +13,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from '@/components/ui/button';
-import { ShoppingBag, ArrowLeft } from 'lucide-react';
+import { ShoppingBag, ArrowLeft, XCircle } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
@@ -22,17 +22,37 @@ import { OrderStatus } from '@/lib/types';
 import Image from 'next/image';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { useToast } from '@/hooks/use-toast';
 
 export default function OrdersPage() {
-  const { orders, loading } = useOrders();
+  const { orders, loading, updateOrderStatus } = useOrders();
   const { currentUser, loading: authLoading } = useAuth();
   const router = useRouter();
+  const { toast } = useToast();
 
   useEffect(() => {
     if (!authLoading && !currentUser) {
       router.push('/login');
     }
   }, [currentUser, authLoading, router]);
+  
+  const handleCancelOrder = async (orderId: string) => {
+    try {
+      await updateOrderStatus(orderId, 'Cancelled');
+      toast({
+        title: "Order Cancelled",
+        description: "Your order has been successfully cancelled.",
+      });
+    } catch (error) {
+      console.error("Failed to cancel order:", error);
+      toast({
+        variant: "destructive",
+        title: "Cancellation Failed",
+        description: "Could not cancel the order. Please contact support.",
+      });
+    }
+  };
 
   const getStatusBadgeVariant = (status: OrderStatus) => {
     switch (status) {
@@ -99,6 +119,30 @@ export default function OrdersPage() {
                                 <span>{order.createdAt ? format(order.createdAt.toDate(), 'PPP') : 'N/A'}</span>
                             </div>
                             <Separator />
+                             {order.status === 'Confirmed' && (
+                                <div className="pt-2">
+                                  <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                      <Button variant="outline" size="sm" className="w-full">
+                                        <XCircle className="mr-2 h-4 w-4" />
+                                        Cancel Order
+                                      </Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                      <AlertDialogHeader>
+                                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                          This will cancel your order. This action cannot be undone.
+                                        </AlertDialogDescription>
+                                      </AlertDialogHeader>
+                                      <AlertDialogFooter>
+                                        <AlertDialogCancel>Back</AlertDialogCancel>
+                                        <AlertDialogAction onClick={() => handleCancelOrder(order.id)} className="bg-destructive hover:bg-destructive/90">Yes, Cancel</AlertDialogAction>
+                                      </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                  </AlertDialog>
+                                </div>
+                            )}
                             <div>
                                 <h4 className="font-semibold mb-3">Items</h4>
                                 <div className="flex items-start flex-wrap gap-4">
@@ -135,6 +179,7 @@ export default function OrdersPage() {
                     <TableHead>Items</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead className="text-right">Total</TableHead>
+                    <TableHead className="text-center w-36">Actions</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -164,6 +209,29 @@ export default function OrdersPage() {
                                 <Badge variant={getStatusBadgeVariant(order.status)}>{order.status}</Badge>
                             </TableCell>
                             <TableCell className="text-right font-medium">₹{order.total.toFixed(2)}</TableCell>
+                            <TableCell className="text-center">
+                                {order.status === 'Confirmed' && (
+                                  <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                      <Button variant="outline" size="sm">
+                                        Cancel Order
+                                      </Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                      <AlertDialogHeader>
+                                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                          This will cancel your order. This action cannot be undone.
+                                        </AlertDialogDescription>
+                                      </AlertDialogHeader>
+                                      <AlertDialogFooter>
+                                        <AlertDialogCancel>Back</AlertDialogCancel>
+                                        <AlertDialogAction onClick={() => handleCancelOrder(order.id)} className="bg-destructive hover:bg-destructive/90">Yes, Cancel</AlertDialogAction>
+                                      </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                  </AlertDialog>
+                                )}
+                            </TableCell>
                         </TableRow>
                     ))}
                 </TableBody>

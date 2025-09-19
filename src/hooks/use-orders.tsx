@@ -54,13 +54,13 @@ export const OrdersProvider = ({ children }: { children: ReactNode }) => {
   }, [currentUser, isAdmin]);
 
   const updateOrderStatus = useCallback(async (orderId: string, status: OrderStatus) => {
-    if (!isAdmin) {
-      console.error("Only admins can update order status.");
-      return;
-    }
+    // Allow both admins and users to update status.
+    // In a real-world scenario, you'd have Firestore security rules
+    // to enforce that users can only cancel their own 'Confirmed' orders,
+    // while admins can change any status.
     const orderRef = doc(db, "orders", orderId);
     await updateDoc(orderRef, { status });
-  }, [isAdmin]);
+  }, []);
 
   const value = { orders, loading, updateOrderStatus };
 
