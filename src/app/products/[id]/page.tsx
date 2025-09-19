@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 import { type Product } from '@/lib/types';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Share2 } from 'lucide-react';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 
@@ -28,6 +28,30 @@ export default function ProductDetailPage() {
       setProduct(foundProduct ?? null);
     }
   }, [getProductById, id]);
+
+  const handleShare = async () => {
+    if (product && navigator.share) {
+      try {
+        await navigator.share({
+          title: product.name,
+          text: `Check out this product: ${product.name}`,
+          url: window.location.href,
+        });
+        toast({ title: "Shared successfully!" });
+      } catch (error) {
+        console.error('Error sharing:', error);
+        toast({
+          variant: "destructive",
+          title: "Could not share",
+          description: "Something went wrong while trying to share.",
+        });
+      }
+    } else {
+        navigator.clipboard.writeText(window.location.href);
+        toast({ title: "Link Copied!", description: "Product link copied to clipboard." });
+    }
+  };
+
 
   if (product === undefined) {
     return <ProductDetailSkeleton />;
@@ -98,9 +122,13 @@ export default function ProductDetailPage() {
             )}
           </div>
           <p className="mt-6 text-base text-muted-foreground">{product.description}</p>
-          <div className="mt-8">
+          <div className="mt-8 flex gap-2">
             <Button size="lg" className="w-full" onClick={handleAddToCart} disabled={product.stock === 0}>
               {product.stock > 0 ? 'Add to Cart' : 'Out of Stock'}
+            </Button>
+             <Button size="lg" variant="outline" onClick={handleShare}>
+                <Share2 className="mr-2 h-5 w-5" />
+                Share
             </Button>
           </div>
         </div>
