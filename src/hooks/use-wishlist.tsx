@@ -27,62 +27,59 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     let unsubscribe: () => void = () => {};
-
-    const fetchAdminData = async () => {
-      if (!productsLoading) {
-        try {
-          const allWishlistsSnapshot = await getDocs(collection(db, "wishlists"));
-          const productWishlistCounts: { [productId: string]: number } = {};
-
-          await Promise.all(allWishlistsSnapshot.docs.map(async (userWishlistDoc) => {
-            const itemsCollectionRef = collection(db, "wishlists", userWishlistDoc.id, "items");
-            const itemsSnapshot = await getDocs(itemsCollectionRef);
-            itemsSnapshot.forEach((itemDoc) => {
-              const productId = itemDoc.id;
-              productWishlistCounts[productId] = (productWishlistCounts[productId] || 0) + 1;
-            });
-          }));
-
-          const sortedWishedFor = Object.entries(productWishlistCounts)
-            .map(([productId, wishlistCount]) => {
-              const productDetails = allProducts.find(p => p.id === productId);
-              return productDetails ? { productId, wishlistCount, productDetails } : null;
-            })
-            .filter((item): item is MostWishedForItem => item !== null)
-            .sort((a, b) => b.wishlistCount - a.wishlistCount);
-          
-          setMostWishedFor(sortedWishedFor);
-        } catch (err) {
-          console.error("Error fetching most wanted products:", err);
-          setMostWishedFor([]);
-        } finally {
-          setLoading(false);
-        }
-      }
-    };
-    
-    const fetchCustomerData = () => {
-        if (!currentUser) return;
-        const wishlistCollectionRef = collection(db, "wishlists", currentUser.uid, "items");
-        unsubscribe = onSnapshot(wishlistCollectionRef, (snapshot) => {
-            const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as WishlistItem));
-            setWishlist(items);
-            setLoading(false);
-        }, (error) => {
-            console.error("Error fetching wishlist: ", error);
-            setWishlist([]);
-            setLoading(false);
-        });
-    };
-
     setLoading(true);
 
     if (isAdmin) {
-      setWishlist([]);
-      fetchAdminData();
+      // Admin Logic: Fetch "Most Wished For"
+      if (!productsLoading) { // Only run if products are loaded
+        const fetchAdminData = async () => {
+          try {
+            const allWishlistsSnapshot = await getDocs(collection(db, "wishlists"));
+            const productWishlistCounts: { [productId: string]: number } = {};
+
+            await Promise.all(allWishlistsSnapshot.docs.map(async (userWishlistDoc) => {
+              const itemsCollectionRef = collection(db, "wishlists", userWishlistDoc.id, "items");
+              const itemsSnapshot = await getDocs(itemsCollectionRef);
+              itemsSnapshot.forEach((itemDoc) => {
+                const productId = itemDoc.id;
+                productWishlistCounts[productId] = (productWishlistCounts[productId] || 0) + 1;
+              });
+            }));
+
+            const sortedWishedFor = Object.entries(productWishlistCounts)
+              .map(([productId, wishlistCount]) => {
+                const productDetails = allProducts.find(p => p.id === productId);
+                return productDetails ? { productId, wishlistCount, productDetails } : null;
+              })
+              .filter((item): item is MostWishedForItem => item !== null)
+              .sort((a, b) => b.wishlistCount - a.wishlistCount);
+            
+            setMostWishedFor(sortedWishedFor);
+          } catch (err) {
+            console.error("Error fetching most wanted products:", err);
+            setMostWishedFor([]);
+          } finally {
+            setLoading(false);
+          }
+        };
+        fetchAdminData();
+      }
+      // if products are still loading, we wait for the next re-render.
+      // setLoading(true) is already set at the start.
+      
     } else if (currentUser) {
-      setMostWishedFor([]);
-      fetchCustomerData();
+      // Customer Logic: Fetch personal wishlist
+      const wishlistCollectionRef = collection(db, "wishlists", currentUser.uid, "items");
+      unsubscribe = onSnapshot(wishlistCollectionRef, (snapshot) => {
+          const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as WishlistItem));
+          setWishlist(items);
+          setLoading(false);
+      }, (error) => {
+          console.error("Error fetching wishlist: ", error);
+          setWishlist([]);
+          setLoading(false);
+      });
+
     } else {
       // Not logged in
       setWishlist([]);
@@ -90,7 +87,11 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
       setLoading(false);
     }
 
-    return () => unsubscribe();
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
   }, [currentUser, isAdmin, allProducts, productsLoading]);
 
 
