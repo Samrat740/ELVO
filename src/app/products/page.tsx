@@ -32,13 +32,24 @@ export default function ProductsPage() {
   const pathname = usePathname();
   
   const selectedCategory = searchParams.get('category');
+  const searchQuery = searchParams.get('q');
 
   const filteredProducts = useMemo(() => {
-    if (!selectedCategory) {
-      return products;
+    let tempProducts = products;
+    
+    if (selectedCategory) {
+      tempProducts = tempProducts.filter(p => p.category === selectedCategory);
     }
-    return products.filter(p => p.category === selectedCategory);
-  }, [products, selectedCategory]);
+
+    if (searchQuery) {
+      tempProducts = tempProducts.filter(p => 
+        p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        p.description.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+    
+    return tempProducts;
+  }, [products, selectedCategory, searchQuery]);
 
   const categories = useMemo(() => {
     return [...new Set(products.map(p => p.category))];
@@ -112,7 +123,7 @@ export default function ProductsPage() {
                    <Badge variant="destructive" className="text-base font-bold uppercase tracking-wider">Out of Stock</Badge>
                 </div>
               )}
-               {product.hasDiscount && product.discountPercentage && product.stock > 0 && (
+               {product.stock > 0 && product.hasDiscount && product.discountPercentage && (
                 <div className="absolute top-3 left-3">
                     <Badge className="text-base font-bold uppercase tracking-wider bg-destructive text-destructive-foreground">{Math.round(product.discountPercentage)}% OFF</Badge>
                 </div>
@@ -146,3 +157,4 @@ export default function ProductsPage() {
     </div>
   );
 }
+
