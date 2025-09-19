@@ -19,7 +19,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { Input } from "./ui/input";
 import { useRouter } from "next/navigation";
-import { Sheet, SheetClose, SheetContent, SheetHeader, SheetTrigger } from "./ui/sheet";
+import { Sheet, SheetClose, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "./ui/sheet";
 import { Separator } from "./ui/separator";
 
 const ElvoLogo = () => (
@@ -29,23 +29,32 @@ const ElvoLogo = () => (
 function SearchBar() {
     const router = useRouter();
     const [query, setQuery] = useState('');
+    const [isSheetOpen, setIsSheetOpen] = useState(true);
 
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
         if (query.trim()) {
             router.push(`/search?q=${encodeURIComponent(query.trim())}`);
+            const parentSheet = (e.target as HTMLElement).closest('[data-radix-dialog-content]');
+            if (parentSheet) {
+              const closeButton = parentSheet.querySelector('[data-radix-dialog-close]') as HTMLElement;
+              closeButton?.click();
+            }
         }
     };
 
     return (
-        <form onSubmit={handleSearch} className="relative w-full">
+        <form onSubmit={handleSearch} className="relative flex w-full">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
               placeholder="Search products..."
-              className="pl-10"
+              className="pl-10 flex-1"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
           />
+           <Button type="submit" variant="ghost" size="icon" className="absolute right-0 top-1/2 -translate-y-1/2">
+                <Search className="h-4 w-4"/>
+           </Button>
         </form>
     );
 }
@@ -190,7 +199,7 @@ export default function Header() {
                 </SheetTrigger>
                 <SheetContent side="top">
                     <SheetHeader>
-                        <h2 className="text-lg font-semibold">Search Products</h2>
+                        <SheetTitle>Search Products</SheetTitle>
                     </SheetHeader>
                     <div className="py-4">
                       <SearchBar />
@@ -277,3 +286,5 @@ export default function Header() {
     </header>
   );
 }
+
+    
