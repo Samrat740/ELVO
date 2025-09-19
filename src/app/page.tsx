@@ -64,7 +64,7 @@ export default function Home() {
             ELVO is not just about accessories; it's about identity. We craft premium, Pinterest-worthy bags, wallets, and more for the modern individual who values style, quality, and self-expression.
           </p>
           <Button asChild size="lg" className="mt-8 group bg-primary text-primary-foreground hover:bg-primary/90">
-            <Link href="#featured">
+            <Link href="/products">
               Explore The Collection <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
             </Link>
           </Button>
