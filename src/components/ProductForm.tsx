@@ -136,12 +136,17 @@ export function ProductForm({ product, onFinished }: ProductFormProps) {
 
   const onSubmit = async (data: ProductFormValues) => {
     try {
-        const productDataToSave = { 
+        const productDataToSave: ProductFormData = { 
             ...data, 
             imageUrl: imagePreview || '',
             originalPrice: data.hasDiscount ? data.originalPrice : undefined,
             discountPercentage: data.hasDiscount ? data.discountPercentage : undefined,
         };
+
+        if (!productDataToSave.hasDiscount) {
+            delete productDataToSave.originalPrice;
+            delete productDataToSave.discountPercentage;
+        }
 
         if (product) {
           await updateProduct(product.id, productDataToSave);

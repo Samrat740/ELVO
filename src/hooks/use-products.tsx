@@ -7,7 +7,7 @@ import { getInitialProducts } from '@/lib/products';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, doc, setDoc, deleteDoc, onSnapshot, writeBatch } from "firebase/firestore";
 
-type ProductFormData = Omit<Product, 'id'> & { imageFile?: FileList };
+export type ProductFormData = Omit<Product, 'id'> & { imageFile?: FileList };
 
 
 interface ProductsContextType {
@@ -98,6 +98,10 @@ export const ProductsProvider = ({ children }: { children: ReactNode }) => {
         imageHint: restData.name.toLowerCase().split(' ').slice(0,2).join(' '),
         imageUrl,
     };
+     if (!newProduct.hasDiscount) {
+        delete newProduct.originalPrice;
+        delete newProduct.discountPercentage;
+    }
     await setDoc(newDocRef, newProduct);
   }, []);
 
@@ -117,11 +121,18 @@ export const ProductsProvider = ({ children }: { children: ReactNode }) => {
     const { imageFile, ...restData } = productData;
     
     const productRef = doc(db, "products", productId);
-    await setDoc(productRef, { 
-      ...restData,
-      imageHint: restData.name.toLowerCase().split(' ').slice(0,2).join(' '),
-      imageUrl 
-    }, { merge: true });
+    const productToUpdate = {
+        ...restData,
+        imageHint: restData.name.toLowerCase().split(' ').slice(0,2).join(' '),
+        imageUrl 
+    };
+
+    if (!productToUpdate.hasDiscount) {
+        delete productToUpdate.originalPrice;
+        delete productToUpdate.discountPercentage;
+    }
+
+    await setDoc(productRef, productToUpdate, { merge: true });
   }, [products]);
 
   const deleteProduct = useCallback(async (productId: string) => {
