@@ -3,7 +3,7 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { db } from '@/lib/firebase';
-import { collection, onSnapshot, query, where, orderBy, doc, updateDoc } from "firebase/firestore";
+import { collection, onSnapshot, query, where, orderBy, doc, updateDoc, writeBatch, increment } from "firebase/firestore";
 import { Order, OrderStatus } from '@/lib/types';
 import { useAuth } from './use-auth';
 
@@ -54,13 +54,33 @@ export const OrdersProvider = ({ children }: { children: ReactNode }) => {
   }, [currentUser, isAdmin]);
 
   const updateOrderStatus = useCallback(async (orderId: string, status: OrderStatus) => {
-    // Allow both admins and users to update status.
-    // In a real-world scenario, you'd have Firestore security rules
-    // to enforce that users can only cancel their own 'Confirmed' orders,
-    // while admins can change any status.
     const orderRef = doc(db, "orders", orderId);
-    await updateDoc(orderRef, { status });
-  }, []);
+
+    if (status === 'Cancelled') {
+      const orderToCancel = orders.find(o => o.id === orderId);
+      if (!orderToCancel) {
+        throw new Error("Order not found");
+      }
+
+      const batch = writeBatch(db);
+
+      // 1. Restock items
+      for (const item of orderToCancel.items) {
+        const productRef = doc(db, "products", item.id);
+        batch.update(productRef, { stock: increment(item.quantity) });
+      }
+      
+      // 2. Update order status
+      batch.update(orderRef, { status });
+
+      // 3. Commit batch
+      await batch.commit();
+
+    } else {
+        // For other status updates, just update the status
+        await updateDoc(orderRef, { status });
+    }
+  }, [orders]);
 
   const value = { orders, loading, updateOrderStatus };
 
