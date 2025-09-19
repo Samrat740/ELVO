@@ -73,7 +73,25 @@ const OrderList = ({
                           <SelectContent>
                               <SelectItem value="Confirmed">Confirmed</SelectItem>
                               <SelectItem value="Shipped">Shipped</SelectItem>
-                              <SelectItem value="Delivered">Delivered</SelectItem>
+                               <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                     <div className="relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-2 pr-8 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50">
+                                      Mark as Delivered
+                                    </div>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      Marking this order as delivered is a final action. Please ensure the order has been successfully delivered before proceeding.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Back</AlertDialogCancel>
+                                    <AlertDialogAction onClick={() => handleStatusChange(order.id, 'Delivered')}>Yes, Mark as Delivered</AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
                                <AlertDialog>
                                 <AlertDialogTrigger asChild>
                                     <div className="relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-2 pr-8 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 text-destructive focus:text-destructive">
@@ -128,7 +146,25 @@ const OrderList = ({
                           <SelectContent>
                               <SelectItem value="Confirmed">Confirmed</SelectItem>
                               <SelectItem value="Shipped">Shipped</SelectItem>
-                              <SelectItem value="Delivered">Delivered</SelectItem>
+                               <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                     <div className="relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-2 pr-8 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50">
+                                      Mark as Delivered
+                                    </div>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                       Marking this order as delivered is a final action. Please ensure the order has been successfully delivered before proceeding.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Back</AlertDialogCancel>
+                                    <AlertDialogAction onClick={() => handleStatusChange(order.id, 'Delivered')}>Yes, Mark as Delivered</AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
                               <AlertDialog>
                                 <AlertDialogTrigger asChild>
                                     <div className="relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-2 pr-8 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 text-destructive focus:text-destructive">
