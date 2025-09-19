@@ -9,9 +9,9 @@ export default function Footer() {
           © {new Date().getFullYear() + 1} ELVO. All rights reserved.
         </p>
         <nav className="flex flex-wrap items-center justify-center gap-4 md:gap-6">
-          <Link href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">Privacy Policy</Link>
-          <Link href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">Terms & Conditions</Link>
-          <Link href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">Return & Refund Policy</Link>
+          <Link href="/privacy-policy" className="text-sm text-muted-foreground hover:text-primary transition-colors">Privacy Policy</Link>
+          <Link href="/terms-and-conditions" className="text-sm text-muted-foreground hover:text-primary transition-colors">Terms & Conditions</Link>
+          <Link href="/return-policy" className="text-sm text-muted-foreground hover:text-primary transition-colors">Return & Refund Policy</Link>
           <Link href="/contact" className="text-sm text-muted-foreground hover:text-primary transition-colors">Contact / Support</Link>
         </nav>
       </div>
