@@ -23,9 +23,10 @@ const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/web
 const productSchema = z.object({
   name: z.string().min(3, 'Name must be at least 3 characters.'),
   description: z.string().min(10, 'Description must be at least 10 characters.'),
-  price: z.coerce.number().min(0.01, 'Price must be greater than 0.'),
+  price: z.coerce.number(),
   originalPrice: z.coerce.number().optional(),
   hasDiscount: z.boolean(),
+  discountPercentage: z.coerce.number().min(0).max(100).optional(),
   imageFile: z.any()
     .refine((files) => {
         if (files && files.length > 0) {
@@ -48,13 +49,22 @@ const productSchema = z.object({
   featured: z.boolean(),
 }).refine(data => {
     if (data.hasDiscount) {
-        return data.originalPrice !== undefined && data.originalPrice > data.price;
+        return data.originalPrice !== undefined && data.originalPrice > 0;
     }
     return true;
 }, {
-    message: "Discounted price must be less than the original price.",
-    path: ["price"],
+    message: "Original price is required for a discount.",
+    path: ["originalPrice"],
+}).refine(data => {
+    if (data.hasDiscount) {
+        return data.price < (data.originalPrice ?? 0);
+    }
+    return true;
+}, {
+    message: "Discounted price must be less than original price.",
+    path: ["price"]
 });
+
 
 type ProductFormValues = Omit<z.infer<typeof productSchema>, 'imageFile'> & { imageUrl?: string, imageFile?: FileList };
 
@@ -69,6 +79,7 @@ const defaultValues: ProductFormValues = {
   price: 0,
   originalPrice: undefined,
   hasDiscount: false,
+  discountPercentage: undefined,
   imageUrl: '',
   stock: 0,
   category: 'Handbags' as const,
@@ -88,6 +99,19 @@ export function ProductForm({ product, onFinished }: ProductFormProps) {
 
   const imageFile = form.watch('imageFile');
   const hasDiscount = form.watch('hasDiscount');
+  const originalPrice = form.watch('originalPrice');
+  const discountPercentage = form.watch('discountPercentage');
+
+  useEffect(() => {
+    if (hasDiscount && originalPrice && discountPercentage !== undefined) {
+      const discountedPrice = originalPrice - (originalPrice * (discountPercentage / 100));
+      form.setValue('price', parseFloat(discountedPrice.toFixed(2)));
+    } else if (!hasDiscount) {
+        const currentPrice = form.getValues('originalPrice') || form.getValues('price');
+        form.setValue('price', currentPrice);
+    }
+  }, [hasDiscount, originalPrice, discountPercentage, form]);
+
 
   useEffect(() => {
     if (imageFile && imageFile.length > 0) {
@@ -112,11 +136,11 @@ export function ProductForm({ product, onFinished }: ProductFormProps) {
 
   const onSubmit = async (data: ProductFormValues) => {
     try {
-        const { originalPrice, ...restData } = data;
         const productDataToSave = { 
-            ...restData, 
+            ...data, 
             imageUrl: imagePreview || '',
-            originalPrice: data.hasDiscount ? originalPrice : undefined,
+            originalPrice: data.hasDiscount ? data.originalPrice : undefined,
+            discountPercentage: data.hasDiscount ? data.discountPercentage : undefined,
         };
 
         if (product) {
@@ -230,30 +254,52 @@ export function ProductForm({ product, onFinished }: ProductFormProps) {
                 )}
             />
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className={`grid grid-cols-1 ${hasDiscount ? 'sm:grid-cols-3' : 'sm:grid-cols-1'} gap-4`}>
                 {hasDiscount && (
-                    <FormField
-                        control={form.control}
-                        name="originalPrice"
-                        render={({ field }) => (
-                            <FormItem>
-                            <FormLabel>Original Price (₹)</FormLabel>
-                            <FormControl>
-                                <Input type="number" step="0.01" placeholder="399.99" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                            </FormItem>
-                        )}
-                    />
+                    <>
+                        <FormField
+                            control={form.control}
+                            name="originalPrice"
+                            render={({ field }) => (
+                                <FormItem>
+                                <FormLabel>Original Price (₹)</FormLabel>
+                                <FormControl>
+                                    <Input type="number" step="0.01" placeholder="399.99" {...field} onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)} />
+                                </FormControl>
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="discountPercentage"
+                            render={({ field }) => (
+                                <FormItem>
+                                <FormLabel>Discount (%)</FormLabel>
+                                <FormControl>
+                                    <Input type="number" step="1" placeholder="10" {...field} onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)} />
+                                </FormControl>
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    </>
                 )}
                 <FormField
                     control={form.control}
                     name="price"
                     render={({ field }) => (
                         <FormItem>
-                        <FormLabel>{hasDiscount ? "Discounted Price (₹)" : "Price (₹)"}</FormLabel>
+                        <FormLabel>{hasDiscount ? "Final Price (₹)" : "Price (₹)"}</FormLabel>
                         <FormControl>
-                            <Input type="number" step="0.01" placeholder="299.99" {...field} />
+                            <Input 
+                                type="number" 
+                                step="0.01" 
+                                placeholder="299.99" 
+                                {...field}
+                                disabled={hasDiscount} 
+                                onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                            />
                         </FormControl>
                         <FormMessage />
                         </FormItem>

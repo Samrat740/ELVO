@@ -8,6 +8,7 @@ export interface Product {
   price: number;
   originalPrice?: number;
   hasDiscount?: boolean;
+  discountPercentage?: number;
   imageUrl: string;
   imageHint?: string;
   stock: number;
