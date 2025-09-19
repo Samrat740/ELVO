@@ -37,7 +37,7 @@ function SearchBar() {
             router.push(`/search?q=${encodeURIComponent(query.trim())}`);
             const parentSheet = (e.target as HTMLElement).closest('[data-radix-dialog-content]');
             if (parentSheet) {
-              const closeButton = parentSheet.querySelector('[data-radix-dialog-close]') as HTMLElement;
+              const closeButton = parentSheet.querySelector('button[aria-label="Close"]') as HTMLElement;
               closeButton?.click();
             }
         }
@@ -162,7 +162,7 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center">
+      <div className="container relative flex h-16 items-center">
         {/* Mobile Nav */}
         <div className="md:hidden mr-2">
           <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
@@ -192,15 +192,13 @@ export default function Header() {
             </nav>
         </div>
 
-        {/* Center Section: Search Bar */}
-        <div className="flex-1 flex justify-center px-4">
-            <div className="hidden md:block w-full max-w-sm">
-                <SearchBar />
-            </div>
+        {/* Center Section: Search Bar (Desktop) */}
+        <div className="hidden md:block absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-sm">
+            <SearchBar />
         </div>
 
         {/* Right Section: Icons & Auth */}
-        <div className="flex items-center justify-end space-x-1">
+        <div className="flex-1 flex items-center justify-end space-x-1">
            {/* Mobile Search Icon */}
             <div className="md:hidden">
               <Sheet>
