@@ -100,7 +100,7 @@ export default function Home() {
                        <Badge variant="destructive" className="text-base font-bold uppercase tracking-wider">Out of Stock</Badge>
                     </div>
                   )}
-                  {product.hasDiscount && product.discountPercentage && (
+                  {product.hasDiscount && product.discountPercentage && product.stock > 0 && (
                     <div className="absolute top-3 left-3">
                        <Badge className="text-base font-bold uppercase tracking-wider bg-destructive text-destructive-foreground">{Math.round(product.discountPercentage)}% OFF</Badge>
                     </div>
