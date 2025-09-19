@@ -46,3 +46,11 @@ export interface Order {
     createdAt: Timestamp;
     status: OrderStatus;
 }
+
+export interface WishlistItem extends Product {}
+
+export interface MostWishedForItem {
+    productId: string;
+    wishlistCount: number;
+    productDetails: Product;
+}

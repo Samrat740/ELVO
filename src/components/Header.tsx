@@ -2,7 +2,7 @@
 "use client";
 
 import Link from "next/link";
-import { LogOut, ShoppingCart, UserCog, UserCircle, Package, User, Search, Menu, Home, Phone, X } from "lucide-react";
+import { LogOut, ShoppingCart, UserCog, UserCircle, Package, User, Search, Menu, Home, Phone, X, Heart } from "lucide-react";
 import { useCart } from "@/hooks/use-cart.tsx";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
@@ -94,11 +94,21 @@ function MobileNav({ closeSheet }: { closeSheet: () => void }) {
             <Phone className="h-5 w-5" />
             Contact
           </Link>
-          {currentUser && !isAdmin && (
-            <Link href="/orders" className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary" onClick={closeSheet}>
-               <ShoppingCart className="h-5 w-5" />
-               My Orders
-            </Link>
+          {currentUser && (
+            <>
+               {!isAdmin && (
+                <>
+                    <Link href="/orders" className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary" onClick={closeSheet}>
+                        <ShoppingCart className="h-5 w-5" />
+                        My Orders
+                    </Link>
+                    <Link href="/wishlist" className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary" onClick={closeSheet}>
+                        <Heart className="h-5 w-5" />
+                        Wishlist
+                    </Link>
+                </>
+              )}
+            </>
           )}
         </nav>
        </div>
@@ -123,9 +133,13 @@ function MobileNav({ closeSheet }: { closeSheet: () => void }) {
                     <>
                       <DropdownMenuItem onClick={() => handleNavigation('/admin/products')}><Package className="mr-2 h-4 w-4" /> Products</DropdownMenuItem>
                       <DropdownMenuItem onClick={() => handleNavigation('/admin/orders')}><ShoppingCart className="mr-2 h-4 w-4" /> Orders</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleNavigation('/admin/wishlist')}><Heart className="mr-2 h-4 w-4" /> Most Wanted</DropdownMenuItem>
                     </>
                   ) : (
-                    <DropdownMenuItem onClick={() => handleNavigation('/orders')}><Package className="mr-2 h-4 w-4" /> My Orders</DropdownMenuItem>
+                    <>
+                      <DropdownMenuItem onClick={() => handleNavigation('/orders')}><ShoppingCart className="mr-2 h-4 w-4" /> My Orders</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleNavigation('/wishlist')}><Heart className="mr-2 h-4 w-4" /> My Wishlist</DropdownMenuItem>
+                    </>
                   )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout}>
@@ -241,6 +255,9 @@ export default function Header() {
                          <DropdownMenuItem asChild>
                           <Link href="/admin/orders"><ShoppingCart className="mr-2 h-4 w-4" /> Orders</Link>
                         </DropdownMenuItem>
+                         <DropdownMenuItem asChild>
+                          <Link href="/admin/wishlist"><Heart className="mr-2 h-4 w-4" /> Most Wanted</Link>
+                        </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem onClick={logout}>
                           <LogOut className="mr-2 h-4 w-4" />
@@ -261,7 +278,10 @@ export default function Header() {
                         <DropdownMenuLabel>My Account</DropdownMenuLabel>
                         <DropdownMenuSeparator />
                          <DropdownMenuItem asChild>
-                          <Link href="/orders"><Package className="mr-2 h-4 w-4" /> My Orders</Link>
+                          <Link href="/orders"><ShoppingCart className="mr-2 h-4 w-4" /> My Orders</Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link href="/wishlist"><Heart className="mr-2 h-4 w-4" /> My Wishlist</Link>
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem onClick={logout}>
