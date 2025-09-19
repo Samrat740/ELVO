@@ -61,7 +61,7 @@ export default function OrdersPage() {
       case 'Shipped':
         return 'secondary';
       case 'Delivered':
-        return 'outline';
+        return 'success';
       case 'Cancelled':
         return 'destructive';
       default:
