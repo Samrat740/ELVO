@@ -163,7 +163,8 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center">
-        <div className="md:hidden mr-4">
+        {/* Mobile Nav */}
+        <div className="md:hidden mr-2">
           <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
             <SheetTrigger asChild>
                <Button variant="ghost" size="icon">
@@ -176,21 +177,32 @@ export default function Header() {
             </SheetContent>
           </Sheet>
         </div>
-        <Link href="/" className="mr-6 flex items-center space-x-2">
-          <ElvoLogo />
-          <span className="font-bold sm:inline-block font-headline tracking-wider text-xl">
-            ELVO
-          </span>
-        </Link>
-        <nav className="hidden md:flex flex-1 items-center space-x-1">
-           <Button variant="link" asChild className="text-foreground/80 hover:text-primary"><Link href="/products">Collection</Link></Button>
-           <Button variant="link" asChild className="text-foreground/80 hover:text-primary"><Link href="/contact">Contact</Link></Button>
-        </nav>
-        <div className="flex flex-1 items-center justify-end space-x-2 md:justify-center md:px-4">
-          <div className="hidden md:block w-full max-w-sm">
-            <SearchBar />
-          </div>
-          <div className="md:hidden">
+
+        {/* Left Section: Logo & Nav Links */}
+        <div className="flex items-center">
+            <Link href="/" className="mr-6 flex items-center space-x-2">
+            <ElvoLogo />
+            <span className="font-bold sm:inline-block font-headline tracking-wider text-xl">
+                ELVO
+            </span>
+            </Link>
+            <nav className="hidden md:flex items-center space-x-1">
+            <Button variant="link" asChild className="text-foreground/80 hover:text-primary"><Link href="/products">Collection</Link></Button>
+            <Button variant="link" asChild className="text-foreground/80 hover:text-primary"><Link href="/contact">Contact</Link></Button>
+            </nav>
+        </div>
+
+        {/* Center Section: Search Bar */}
+        <div className="flex-1 flex justify-center px-4">
+            <div className="hidden md:block w-full max-w-sm">
+                <SearchBar />
+            </div>
+        </div>
+
+        {/* Right Section: Icons & Auth */}
+        <div className="flex items-center justify-end space-x-1">
+           {/* Mobile Search Icon */}
+            <div className="md:hidden">
               <Sheet>
                 <SheetTrigger asChild>
                   <Button variant="ghost" size="icon">
@@ -208,8 +220,8 @@ export default function Header() {
                 </SheetContent>
               </Sheet>
           </div>
-        </div>
-        <div className="flex items-center justify-end space-x-1">
+
+          {/* User Auth & Cart */}
            {isClient && (<>
             <div className="hidden md:block">
               {currentUser ? (
@@ -287,5 +299,3 @@ export default function Header() {
     </header>
   );
 }
-
-    
