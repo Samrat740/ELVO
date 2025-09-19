@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { useOrders } from "@/hooks/use-orders";
@@ -122,7 +123,7 @@ const OrderList = ({
                     <div className="flex justify-between items-start mb-2">
                         <div>
                           <div className="flex items-center gap-1">
-                              <p className="font-mono text-sm text-muted-foreground truncate">{order.id.substring(0, 8)}...</p>
+                              <p className="font-mono text-xs text-muted-foreground break-all">{order.id}</p>
                               <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleCopyToClipboard(order.id)}>
                                   <ClipboardCopy className="h-3 w-3"/>
                               </Button>

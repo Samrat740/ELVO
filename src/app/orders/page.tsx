@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import Link from 'next/link';
@@ -109,7 +110,7 @@ export default function OrdersPage() {
                         <CardHeader className="flex flex-row justify-between items-start pb-4">
                             <div>
                                 <p className="font-semibold">Order ID</p>
-                                <p className="font-mono text-sm text-muted-foreground break-all">{order.id}</p>
+                                <p className="font-mono text-xs text-muted-foreground break-all">{order.id}</p>
                             </div>
                              <Badge variant={getStatusBadgeVariant(order.status)}>{order.status}</Badge>
                         </CardHeader>
@@ -185,7 +186,7 @@ export default function OrdersPage() {
                 <TableBody>
                     {orders.map((order) => (
                         <TableRow key={order.id}>
-                            <TableCell className="font-mono text-sm text-muted-foreground">{order.id}</TableCell>
+                            <TableCell className="font-mono text-xs text-muted-foreground break-all">{order.id}</TableCell>
                             <TableCell>
                             {order.createdAt ? format(order.createdAt.toDate(), 'PPP') : 'N/A'}
                             </TableCell>
