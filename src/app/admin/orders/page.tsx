@@ -9,7 +9,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Truck, ClipboardCopy, XCircle, Package } from "lucide-react";
+import { Truck, ClipboardCopy, XCircle, Package, CheckCircle } from "lucide-react";
 import Image from "next/image";
 import React, { useMemo } from "react";
 import { Order, OrderStatus } from "@/lib/types";
@@ -30,12 +30,12 @@ const OrderList = ({
   orders,
   handleStatusChange,
   handleCopyToClipboard,
-  isCancelledList = false,
+  listType = 'active',
 }: {
   orders: Order[];
   handleStatusChange: (orderId: string, newStatus: OrderStatus) => void;
   handleCopyToClipboard: (text: string) => void;
-  isCancelledList?: boolean;
+  listType?: 'active' | 'shipped' | 'delivered' | 'cancelled';
 }) => {
   return (
     <div className="rounded-lg border">
@@ -63,8 +63,8 @@ const OrderList = ({
                     {order.createdAt ? format(order.createdAt.toDate(), 'PPP') : 'N/A'}
                   </div>
                     <div className="flex-1">
-                      {isCancelledList ? (
-                          <Badge variant="destructive">{order.status}</Badge>
+                      {listType === 'cancelled' || listType === 'delivered' ? (
+                          <Badge variant={listType === 'cancelled' ? 'destructive' : 'outline'}>{order.status}</Badge>
                       ) : (
                         <Select onValueChange={(value) => handleStatusChange(order.id, value as OrderStatus)} defaultValue={order.status}>
                           <SelectTrigger className="w-36 h-9">
@@ -118,8 +118,8 @@ const OrderList = ({
                             <p className="font-bold text-lg">₹{order.total.toFixed(2)}</p>
                         </div>
                     </div>
-                     {isCancelledList ? (
-                          <Badge variant="destructive" className="w-fit">{order.status}</Badge>
+                     {listType === 'cancelled' || listType === 'delivered' ? (
+                          <Badge variant={listType === 'cancelled' ? 'destructive' : 'outline'} className="w-fit">{order.status}</Badge>
                       ) : (
                         <Select onValueChange={(value) => handleStatusChange(order.id, value as OrderStatus)} defaultValue={order.status}>
                           <SelectTrigger className="w-40 h-9 mt-2">
@@ -239,15 +239,29 @@ export default function OrdersPage() {
     })
   }
 
-  const { activeOrders, cancelledOrders } = useMemo(() => {
+  const { confirmedOrders, shippedOrders, deliveredOrders, cancelledOrders } = useMemo(() => {
     return orders.reduce((acc, order) => {
-      if (order.status === 'Cancelled') {
-        acc.cancelledOrders.push(order);
-      } else {
-        acc.activeOrders.push(order);
+      switch (order.status) {
+        case 'Confirmed':
+          acc.confirmedOrders.push(order);
+          break;
+        case 'Shipped':
+          acc.shippedOrders.push(order);
+          break;
+        case 'Delivered':
+          acc.deliveredOrders.push(order);
+          break;
+        case 'Cancelled':
+          acc.cancelledOrders.push(order);
+          break;
       }
       return acc;
-    }, { activeOrders: [] as Order[], cancelledOrders: [] as Order[] });
+    }, { 
+      confirmedOrders: [] as Order[], 
+      shippedOrders: [] as Order[],
+      deliveredOrders: [] as Order[],
+      cancelledOrders: [] as Order[] 
+    });
   }, [orders]);
 
 
@@ -259,23 +273,39 @@ export default function OrdersPage() {
     <div className="container mx-auto py-12 px-4 md:px-6">
       <h1 className="text-3xl font-bold tracking-tight mb-8">Customer Orders</h1>
       
-      <Tabs defaultValue="active">
-        <TabsList className="mb-6">
-          <TabsTrigger value="active">Active ({activeOrders.length})</TabsTrigger>
+      <Tabs defaultValue="new">
+        <TabsList className="mb-6 grid w-full grid-cols-4">
+          <TabsTrigger value="new">New ({confirmedOrders.length})</TabsTrigger>
+          <TabsTrigger value="shipped">Shipped ({shippedOrders.length})</TabsTrigger>
+          <TabsTrigger value="delivered">Delivered ({deliveredOrders.length})</TabsTrigger>
           <TabsTrigger value="cancelled">Cancelled ({cancelledOrders.length})</TabsTrigger>
         </TabsList>
-        <TabsContent value="active">
-          {activeOrders.length === 0 ? (
-            <EmptyState icon={Truck} title="No active orders" description="New orders from customers will appear here." />
+        <TabsContent value="new">
+          {confirmedOrders.length === 0 ? (
+            <EmptyState icon={Package} title="No new orders" description="New confirmed orders will appear here." />
           ) : (
-            <OrderList orders={activeOrders} handleStatusChange={handleStatusChange} handleCopyToClipboard={handleCopyToClipboard} />
+            <OrderList orders={confirmedOrders} handleStatusChange={handleStatusChange} handleCopyToClipboard={handleCopyToClipboard} listType="active" />
+          )}
+        </TabsContent>
+         <TabsContent value="shipped">
+          {shippedOrders.length === 0 ? (
+            <EmptyState icon={Truck} title="No shipped orders" description="Orders marked as shipped will be listed here." />
+          ) : (
+            <OrderList orders={shippedOrders} handleStatusChange={handleStatusChange} handleCopyToClipboard={handleCopyToClipboard} listType="shipped" />
+          )}
+        </TabsContent>
+         <TabsContent value="delivered">
+          {deliveredOrders.length === 0 ? (
+            <EmptyState icon={CheckCircle} title="No delivered orders" description="Completed orders will be shown here." />
+          ) : (
+            <OrderList orders={deliveredOrders} handleStatusChange={handleStatusChange} handleCopyToClipboard={handleCopyToClipboard} listType="delivered" />
           )}
         </TabsContent>
         <TabsContent value="cancelled">
            {cancelledOrders.length === 0 ? (
             <EmptyState icon={XCircle} title="No cancelled orders" description="Cancelled orders will be listed here." />
           ) : (
-            <OrderList orders={cancelledOrders} handleStatusChange={handleStatusChange} handleCopyToClipboard={handleCopyToClipboard} isCancelledList={true} />
+            <OrderList orders={cancelledOrders} handleStatusChange={handleStatusChange} handleCopyToClipboard={handleCopyToClipboard} listType="cancelled" />
           )}
         </TabsContent>
       </Tabs>
