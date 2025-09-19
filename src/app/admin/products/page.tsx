@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useProducts } from '@/hooks/use-products.tsx';
 import { Button } from '@/components/ui/button';
@@ -36,11 +36,23 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { useSearchParams } from 'next/navigation';
 
 export default function AdminProductsPage() {
-  const { products, deleteProduct } = useProducts();
+  const { products, deleteProduct, getProductById } = useProducts();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | undefined>(undefined);
+  const searchParams = useSearchParams();
+  const editId = searchParams.get('edit_id');
+
+  useEffect(() => {
+    if (editId) {
+      const productToEdit = getProductById(editId);
+      if (productToEdit) {
+        handleEdit(productToEdit);
+      }
+    }
+  }, [editId, getProductById]);
   
   const handleAddNew = () => {
     setEditingProduct(undefined);

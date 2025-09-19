@@ -19,13 +19,20 @@ import {
 import { Heart, Star, Users } from "lucide-react";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function AdminWishlistPage() {
   const { mostWishedFor, loading } = useWishlist();
+  const router = useRouter();
 
   if (loading) {
     return <div className="p-8">Loading most wanted products...</div>;
   }
+  
+  const handleRowClick = (productId: string) => {
+    router.push(`/admin/products?edit_id=${productId}`);
+  };
   
   return (
     <div className="container mx-auto py-12 px-4">
@@ -56,7 +63,7 @@ export default function AdminWishlistPage() {
                 </TableHeader>
                 <TableBody>
                     {mostWishedFor.map((item) => (
-                    <TableRow key={item.productId}>
+                    <TableRow key={item.productId} onClick={() => handleRowClick(item.productId)} className="cursor-pointer">
                         <TableCell>
                         <Image
                             src={item.productDetails.imageUrl}
@@ -82,7 +89,7 @@ export default function AdminWishlistPage() {
             {/* Mobile Cards */}
             <div className="md:hidden grid gap-4">
                 {mostWishedFor.map((item, index) => (
-                    <Card key={item.productId}>
+                    <Card key={item.productId} onClick={() => handleRowClick(item.productId)} className="cursor-pointer">
                         <CardHeader className="flex flex-row items-center gap-4">
                              <div className="flex items-center justify-center h-10 w-10 rounded-full bg-primary/10 text-primary font-bold text-lg">
                                 {index + 1}
@@ -114,4 +121,3 @@ export default function AdminWishlistPage() {
     </div>
   );
 }
-
