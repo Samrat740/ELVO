@@ -109,7 +109,7 @@ export default function OrdersPage() {
                         <CardHeader className="flex flex-row justify-between items-start pb-4">
                             <div>
                                 <p className="font-semibold">Order ID</p>
-                                <p className="font-mono text-sm text-muted-foreground">{order.id.substring(0, 8)}...</p>
+                                <p className="font-mono text-sm text-muted-foreground break-all">{order.id}</p>
                             </div>
                              <Badge variant={getStatusBadgeVariant(order.status)}>{order.status}</Badge>
                         </CardHeader>
@@ -174,7 +174,7 @@ export default function OrdersPage() {
                 <Table>
                 <TableHeader>
                     <TableRow>
-                    <TableHead className="w-32">Order ID</TableHead>
+                    <TableHead>Order ID</TableHead>
                     <TableHead>Date</TableHead>
                     <TableHead>Items</TableHead>
                     <TableHead>Status</TableHead>
@@ -185,7 +185,7 @@ export default function OrdersPage() {
                 <TableBody>
                     {orders.map((order) => (
                         <TableRow key={order.id}>
-                            <TableCell className="font-mono text-sm text-muted-foreground">{order.id.substring(0, 8)}...</TableCell>
+                            <TableCell className="font-mono text-sm text-muted-foreground">{order.id}</TableCell>
                             <TableCell>
                             {order.createdAt ? format(order.createdAt.toDate(), 'PPP') : 'N/A'}
                             </TableCell>
