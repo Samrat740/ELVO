@@ -27,10 +27,16 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
 
   // Effect for fetching the current user's wishlist
   useEffect(() => {
-    if (!currentUser || isAdmin) {
-      setWishlist([]);
-      if (!isAdmin) setLoading(false);
-      return;
+    if (isAdmin) {
+        // Admins don't have personal wishlists, so we can skip this.
+        setWishlist([]);
+        return;
+    };
+    
+    if (!currentUser) {
+        setWishlist([]);
+        setLoading(false);
+        return;
     }
 
     setLoading(true);
@@ -51,7 +57,12 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     if (!isAdmin || allProducts.length === 0) {
       setMostWishedFor([]);
-      if(currentUser) setLoading(false);
+      // Only set loading to false if we are not in an admin context or if there are no products
+      if (currentUser && !isAdmin) {
+          setLoading(false)
+      } else if (!currentUser) {
+          setLoading(false);
+      }
       return;
     };
 
