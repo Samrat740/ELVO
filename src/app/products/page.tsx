@@ -112,9 +112,9 @@ export default function ProductsPage() {
                    <Badge variant="destructive" className="text-base font-bold uppercase tracking-wider">Out of Stock</Badge>
                 </div>
               )}
-               {product.hasDiscount && (
+               {product.hasDiscount && product.discountPercentage && (
                 <div className="absolute top-3 left-3">
-                    <Badge className="text-base font-bold uppercase tracking-wider bg-destructive text-destructive-foreground">Sale</Badge>
+                    <Badge className="text-base font-bold uppercase tracking-wider bg-destructive text-destructive-foreground">{Math.round(product.discountPercentage)}% OFF</Badge>
                 </div>
                 )}
             </div>
