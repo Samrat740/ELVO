@@ -312,7 +312,7 @@ export default function OrdersPage() {
       <h1 className="text-3xl font-bold tracking-tight mb-8">Customer Orders</h1>
       
       <Tabs defaultValue="new">
-        <TabsList className="mb-6 grid w-full grid-cols-4">
+        <TabsList className="mb-6 grid w-full grid-cols-1 md:grid-cols-4 h-auto md:h-10">
           <TabsTrigger value="new">New ({confirmedOrders.length})</TabsTrigger>
           <TabsTrigger value="shipped">Shipped ({shippedOrders.length})</TabsTrigger>
           <TabsTrigger value="delivered">Delivered ({deliveredOrders.length})</TabsTrigger>
