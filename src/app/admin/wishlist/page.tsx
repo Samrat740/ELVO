@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/card";
 import { BarChart as BarChartIcon, Heart, TrendingUp } from "lucide-react";
 import {
+  ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
@@ -28,6 +29,13 @@ import { useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
+
+const chartConfig = {
+  count: {
+    label: "Wishlist Count",
+    color: "hsl(var(--primary))",
+  },
+} satisfies ChartConfig;
 
 export default function AdminWishlistPage() {
   const { products, loading } = useProducts();
@@ -93,25 +101,25 @@ export default function AdminWishlistPage() {
             </CardHeader>
             <CardContent className="pl-2">
                 <div className="h-[350px]">
-                <ResponsiveContainer width="100%" height="100%">
-                     <BarChart data={chartData} layout="vertical" margin={{ left: 120 }}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis type="number" />
-                        <YAxis 
-                            dataKey="name" 
-                            type="category" 
-                            tickLine={false} 
-                            axisLine={false}
-                            tick={{ fontSize: 12 }}
-                            width={200}
-                        />
-                        <ChartTooltip
-                            cursor={false}
-                            content={<ChartTooltipContent indicator="dot" />}
-                        />
-                        <Bar dataKey="count" fill="hsl(var(--primary))" radius={4} />
-                    </BarChart>
-                </ResponsiveContainer>
+                <ChartContainer config={chartConfig} className="w-full h-full">
+                  <BarChart accessibilityLayer data={chartData} layout="vertical" margin={{ left: 120 }}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis type="number" dataKey="count" />
+                      <YAxis 
+                          dataKey="name" 
+                          type="category" 
+                          tickLine={false} 
+                          axisLine={false}
+                          tick={{ fontSize: 12 }}
+                          width={200}
+                      />
+                      <ChartTooltip
+                          cursor={false}
+                          content={<ChartTooltipContent indicator="dot" />}
+                      />
+                      <Bar dataKey="count" fill="var(--color-count)" radius={4} />
+                  </BarChart>
+              </ChartContainer>
                 </div>
             </CardContent>
         </Card>
