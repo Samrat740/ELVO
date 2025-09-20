@@ -142,26 +142,31 @@ export default function Home() {
       </section>
 
       {/* Categories Section */}
-      <section className="py-16 md:py-24 bg-secondary/50">
+      <section className="py-16 md:py-24 bg-muted/30">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl md:text-4xl font-headline text-center mb-12">Shop by Category</h2>
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+          <div className="flex flex-wrap justify-center gap-x-8 gap-y-8 sm:gap-x-12">
             {categories.map((cat) => (
-               <Link href={`/products?${cat.type}=${cat.name}`} key={cat.name} className="relative aspect-square md:aspect-[4/5] group overflow-hidden rounded-xl shadow-md">
-                    {cat.product && (
-                        <Image
-                        src={cat.product.imageUrl}
-                        alt={cat.name}
-                        fill
-                        className="object-cover transition-transform duration-500 group-hover:scale-110 brightness-75"
-                        data-ai-hint={cat.product.imageHint}
-                        />
-                    )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20 group-hover:bg-black/20 transition-colors duration-300"></div>
-                    <div className="absolute bottom-0 left-0 p-6">
-                      <h3 className="text-2xl font-headline text-white tracking-tight">{cat.name}</h3>
-                    </div>
-                </Link>
+              <Link
+                href={`/products?${cat.type}=${cat.name}`}
+                key={cat.name}
+                className="group flex flex-col items-center gap-3 text-center w-24"
+              >
+                {cat.product && (
+                  <div className="relative h-24 w-24 overflow-hidden rounded-full border-2 border-transparent group-hover:border-primary transition-all duration-300 group-hover:scale-105">
+                    <Image
+                      src={cat.product.imageUrl}
+                      alt={cat.name}
+                      fill
+                      className="object-cover"
+                      data-ai-hint={cat.product.imageHint}
+                    />
+                  </div>
+                )}
+                <span className="font-medium text-foreground group-hover:text-primary transition-colors">
+                  {cat.name}
+                </span>
+              </Link>
             ))}
           </div>
         </div>
