@@ -168,7 +168,6 @@ export default function Home() {
             <div className="relative">
                 <h2 className="text-3xl md:text-4xl font-headline flex items-center justify-center gap-2">
                     Join The #ELVOStyle
-                    <Megaphone className="h-8 w-8 text-primary" />
                 </h2>
                 <p className="mt-4 max-w-xl mx-auto text-muted-foreground">Follow our journey and be the first to see new arrivals, style inspiration, and behind-the-scenes content on our social media.</p>
                 <div className="mt-8 flex justify-center gap-4">
