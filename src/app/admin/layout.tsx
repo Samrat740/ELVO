@@ -3,7 +3,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Package, ShoppingCart, Home, Menu, X } from "lucide-react";
+import { Package, ShoppingCart, Home, Menu, X, Heart } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 const navItems = [
   { href: "/admin/products", icon: Package, label: "Products" },
   { href: "/admin/orders", icon: ShoppingCart, label: "Orders" },
+  { href: "/admin/wishlist", icon: Heart, label: "Wishlist Insights" },
 ];
 
 function AdminNav({ onLinkClick }: { onLinkClick?: () => void }) {
