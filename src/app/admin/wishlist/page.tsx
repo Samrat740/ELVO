@@ -17,13 +17,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { BarChart, Heart, TrendingUp } from "lucide-react";
+import { BarChart as BarChartIcon, Heart, TrendingUp } from "lucide-react";
 import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from "recharts";
+import { Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, BarChart } from "recharts";
 import { useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
