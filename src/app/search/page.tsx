@@ -67,7 +67,7 @@ function SearchResults() {
       </h1>
 
       {filteredProducts.length > 0 ? (
-        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-4 sm:gap-8 sm:grid-cols-2 lg:grid-cols-4">
           {filteredProducts.map((product) => (
             <Card key={product.id} className="group flex flex-col overflow-hidden rounded-lg border-none bg-card shadow-lg transition-all duration-300 hover:shadow-2xl hover:-translate-y-2">
               <div className="relative overflow-hidden">
