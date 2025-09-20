@@ -34,6 +34,7 @@ export default function ProductsPage() {
   const pathname = usePathname();
   
   const selectedCategory = searchParams.get('category');
+  const selectedAudience = searchParams.get('audience');
   const searchQuery = searchParams.get('q');
 
   const filteredProducts = useMemo(() => {
@@ -41,6 +42,11 @@ export default function ProductsPage() {
     
     if (selectedCategory) {
       tempProducts = tempProducts.filter(p => p.category === selectedCategory);
+    }
+    
+    if (selectedAudience) {
+      const audienceFilter = selectedAudience === 'Men' ? 'For Him' : 'For Her';
+      tempProducts = tempProducts.filter(p => p.audience === audienceFilter);
     }
 
     if (searchQuery) {
@@ -51,18 +57,26 @@ export default function ProductsPage() {
     }
     
     return tempProducts;
-  }, [products, selectedCategory, searchQuery]);
+  }, [products, selectedCategory, selectedAudience, searchQuery]);
 
   const categories = useMemo(() => {
     return [...new Set(products.map(p => p.category))];
   }, [products]);
+  
+  const audiences = useMemo(() => {
+     const audienceSet = new Set(products.map(p => p.audience === 'For Him' ? 'Men' : 'Women'));
+     return [...audienceSet];
+  }, [products]);
 
-  const handleCategoryChange = (category: string) => {
+  const handleFilterChange = (type: 'category' | 'audience', value: string) => {
     const params = new URLSearchParams(searchParams);
-    if (category === 'all') {
-        params.delete('category');
+    if (value === 'all') {
+        params.delete(type);
     } else {
-        params.set('category', category);
+        // Clear other filter when applying a new one
+        if (type === 'category') params.delete('audience');
+        if (type === 'audience') params.delete('category');
+        params.set(type, value);
     }
     router.push(`${pathname}?${params.toString()}`);
   }
@@ -80,27 +94,48 @@ export default function ProductsPage() {
     });
   };
 
+  const getPageTitle = () => {
+    if (selectedCategory) return selectedCategory;
+    if (selectedAudience) return selectedAudience;
+    return 'All Products';
+  }
+
   return (
     <div className="container mx-auto py-12 px-4">
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
             <h1 className="text-3xl md:text-4xl font-headline tracking-tight">
-                {selectedCategory ? `${selectedCategory}` : 'All Products'}
+                {getPageTitle()}
             </h1>
-            <div className="w-48">
-                <Select onValueChange={handleCategoryChange} defaultValue={selectedCategory || 'all'}>
-                    <SelectTrigger>
-                        <SelectValue placeholder="Filter by category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="all">All Categories</SelectItem>
-                        {categories.map(category => (
-                            <SelectItem key={category} value={category}>{category}</SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
+            <div className="flex gap-4">
+                 <div className="w-40">
+                    <Select onValueChange={(value) => handleFilterChange('category', value)} value={selectedCategory || 'all'}>
+                        <SelectTrigger>
+                            <SelectValue placeholder="Category" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">All Categories</SelectItem>
+                            {categories.map(category => (
+                                <SelectItem key={category} value={category}>{category}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </div>
+                 <div className="w-40">
+                    <Select onValueChange={(value) => handleFilterChange('audience', value)} value={selectedAudience || 'all'}>
+                        <SelectTrigger>
+                            <SelectValue placeholder="For" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">For Everyone</SelectItem>
+                            {audiences.map(audience => (
+                                <SelectItem key={audience} value={audience}>{audience}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </div>
             </div>
         </div>
-      <div className="grid grid-cols-2 gap-4 sm:gap-8 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 sm:gap-8 lg:grid-cols-4">
         {filteredProducts.map((product) => (
           <Card key={product.id} className="group flex flex-col overflow-hidden rounded-lg border-none bg-card shadow-lg transition-all duration-300 hover:shadow-2xl hover:-translate-y-2">
             <div className="relative overflow-hidden">

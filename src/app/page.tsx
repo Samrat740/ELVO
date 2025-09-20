@@ -22,17 +22,6 @@ export default function Home() {
 
   const featuredProducts = products.filter(p => p.featured);
   
-  const categories = useMemo(() => {
-    return [...new Set(products.map(p => p.category))];
-  }, [products]);
-
-  const categoryProducts = useMemo(() => {
-    return categories.map(category => {
-      return products.find(p => p.category === category);
-    }).filter((p): p is Product => p !== undefined);
-  }, [products, categories]);
-
-
   const handleAddToCart = (product: Product) => {
     addToCart(product);
     toast({
@@ -45,6 +34,27 @@ export default function Home() {
       )
     });
   };
+
+  const categories = useMemo(() => {
+    const productCategories = ['Backpack', 'Handbags', 'Accessory'];
+    const audienceCategories = ['Men', 'Women'];
+    
+    const categoryData = [
+      ...productCategories.map(cat => ({
+        name: cat,
+        type: 'category' as const,
+        product: products.find(p => p.category === cat)
+      })),
+      ...audienceCategories.map(aud => ({
+        name: aud,
+        type: 'audience' as const,
+        product: products.find(p => p.audience === (aud === 'Men' ? 'For Him' : 'For Her'))
+      }))
+    ];
+
+    return categoryData.filter(c => c.product);
+
+  }, [products]);
 
   return (
     <div className="bg-background text-foreground">
@@ -77,7 +87,7 @@ export default function Home() {
       <section id="featured" className="py-16 md:py-24">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl md:text-4xl font-headline text-center mb-12">Featured Collection</h2>
-          <div className="grid grid-cols-2 gap-4 sm:gap-8 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-4 sm:gap-8 lg:grid-cols-4">
             {featuredProducts.map((product) => (
               <Card key={product.id} className="group flex flex-col overflow-hidden rounded-lg border-none bg-card shadow-lg transition-all duration-300 hover:shadow-2xl hover:-translate-y-2">
                 <div className="relative overflow-hidden">
@@ -135,19 +145,21 @@ export default function Home() {
       <section className="py-16 md:py-24 bg-secondary/50">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl md:text-4xl font-headline text-center mb-12">Shop by Category</h2>
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {categoryProducts.map((product) => (
-               <Link href={`/products?category=${product.category}`} key={product.id} className="relative aspect-square md:aspect-[4/5] group overflow-hidden rounded-xl shadow-md">
-                    <Image
-                      src={product.imageUrl}
-                      alt={product.category}
-                      fill
-                      className="object-cover transition-transform duration-500 group-hover:scale-110 brightness-75"
-                      data-ai-hint={product.imageHint}
-                    />
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+            {categories.map((cat) => (
+               <Link href={`/products?${cat.type}=${cat.name}`} key={cat.name} className="relative aspect-square md:aspect-[4/5] group overflow-hidden rounded-xl shadow-md">
+                    {cat.product && (
+                        <Image
+                        src={cat.product.imageUrl}
+                        alt={cat.name}
+                        fill
+                        className="object-cover transition-transform duration-500 group-hover:scale-110 brightness-75"
+                        data-ai-hint={cat.product.imageHint}
+                        />
+                    )}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20 group-hover:bg-black/20 transition-colors duration-300"></div>
                     <div className="absolute bottom-0 left-0 p-6">
-                      <h3 className="text-2xl font-headline text-white tracking-tight">{product.category}</h3>
+                      <h3 className="text-2xl font-headline text-white tracking-tight">{cat.name}</h3>
                     </div>
                 </Link>
             ))}
