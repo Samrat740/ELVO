@@ -39,22 +39,18 @@ export default function Home() {
     const productCategories = ['Backpack', 'Handbags', 'Accessory'];
     const audienceCategories = ['Men', 'Women'];
     
-    const categoryData = [
+    return [
       ...productCategories.map(cat => ({
         name: cat,
         type: 'category' as const,
-        product: products.find(p => p.category === cat)
       })),
       ...audienceCategories.map(aud => ({
         name: aud,
         type: 'audience' as const,
-        product: products.find(p => p.audience === (aud === 'Men' ? 'For Him' : 'For Her'))
       }))
     ];
 
-    return categoryData.filter(c => c.product);
-
-  }, [products]);
+  }, []);
 
   return (
     <div className="bg-background text-foreground">
@@ -145,28 +141,15 @@ export default function Home() {
       <section className="py-16 md:py-24 bg-muted/30">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl md:text-4xl font-headline text-center mb-12">Shop by Category</h2>
-          <div className="flex flex-wrap justify-center gap-x-8 gap-y-8 sm:gap-x-12">
+          <div className="flex flex-wrap justify-center items-center gap-3">
             {categories.map((cat) => (
-              <Link
-                href={`/products?${cat.type}=${cat.name}`}
-                key={cat.name}
-                className="group flex flex-col items-center gap-3 text-center w-24"
-              >
-                {cat.product && (
-                  <div className="relative h-24 w-24 overflow-hidden rounded-full border-2 border-transparent group-hover:border-primary transition-all duration-300 group-hover:scale-105">
-                    <Image
-                      src={cat.product.imageUrl}
-                      alt={cat.name}
-                      fill
-                      className="object-cover"
-                      data-ai-hint={cat.product.imageHint}
-                    />
-                  </div>
-                )}
-                <span className="font-medium text-foreground group-hover:text-primary transition-colors">
+              <Button key={cat.name} variant="outline" size="lg" asChild className="transition-all duration-200 hover:bg-primary hover:text-primary-foreground hover:shadow-lg hover:-translate-y-1">
+                <Link
+                  href={`/products?${cat.type}=${cat.name}`}
+                >
                   {cat.name}
-                </span>
-              </Link>
+                </Link>
+              </Button>
             ))}
           </div>
         </div>
