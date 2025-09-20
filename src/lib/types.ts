@@ -15,7 +15,10 @@ export interface Product {
   category: 'Backpack' | 'Handbags' | 'Accessory';
   audience: 'For Him' | 'For Her';
   featured: boolean;
+  wishlistCount?: number;
 }
+
+export interface WishlistItem extends Product {}
 
 export interface CartItem extends Product {
   quantity: number;

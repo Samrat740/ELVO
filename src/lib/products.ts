@@ -1,3 +1,4 @@
+
 import { Product } from '@/lib/types';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
@@ -16,6 +17,7 @@ const initialProducts: Product[] = [
     category: 'Handbags',
     audience: 'For Her',
     featured: true,
+    wishlistCount: 0,
   },
   {
     id: '2',
@@ -28,6 +30,7 @@ const initialProducts: Product[] = [
     category: 'Accessory',
     audience: 'For Him',
     featured: true,
+    wishlistCount: 0,
   },
   {
     id: '3',
@@ -40,6 +43,7 @@ const initialProducts: Product[] = [
     category: 'Backpack',
     audience: 'For Him',
     featured: true,
+    wishlistCount: 0,
   },
   {
     id: '4',
@@ -55,6 +59,7 @@ const initialProducts: Product[] = [
     category: 'Handbags',
     audience: 'For Her',
     featured: true,
+    wishlistCount: 0,
   },
   {
     id: '5',
@@ -67,6 +72,7 @@ const initialProducts: Product[] = [
     category: 'Backpack',
     audience: 'For Him',
     featured: false,
+    wishlistCount: 0,
   },
   {
     id: '6',
@@ -79,6 +85,7 @@ const initialProducts: Product[] = [
     category: 'Handbags',
     audience: 'For Her',
     featured: false,
+    wishlistCount: 0,
   },
   {
     id: '7',
@@ -91,6 +98,7 @@ const initialProducts: Product[] = [
     category: 'Accessory',
     audience: 'For Him',
     featured: false,
+    wishlistCount: 0,
   },
   {
     id: '8',
@@ -103,6 +111,7 @@ const initialProducts: Product[] = [
     category: 'Handbags',
     audience: 'For Her',
     featured: false,
+    wishlistCount: 0,
   },
 ];
 

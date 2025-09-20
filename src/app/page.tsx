@@ -9,16 +9,18 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import type { Product } from '@/lib/types';
-import { ArrowRight, ShoppingBag, XCircle, Instagram, Megaphone, Backpack, Briefcase, Sparkles, User } from 'lucide-react';
+import { ArrowRight, ShoppingBag, XCircle, Instagram, Megaphone, Backpack, Briefcase, Sparkles, User, Heart } from 'lucide-react';
 import { useMemo } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/hooks/use-auth';
+import { useWishlist } from '@/hooks/use-wishlist';
 
 export default function Home() {
   const { products } = useProducts();
   const { addToCart } = useCart();
   const { toast } = useToast();
   const { currentUser } = useAuth();
+  const { isInWishlist, toggleWishlist } = useWishlist();
 
   const featuredProducts = products.filter(p => p.featured).slice(0, 6);
   
@@ -106,6 +108,11 @@ export default function Home() {
                         />
                       </Link>
                        <div className="absolute top-3 right-3 flex flex-col gap-2">
+                          {currentUser && (
+                            <Button size="icon" variant="ghost" className={`rounded-full h-10 w-10 bg-black/50 text-white hover:bg-primary backdrop-blur-sm border-none ${isInWishlist(product.id) ? 'text-red-500 hover:text-red-600' : 'hover:text-primary-foreground'}`} onClick={() => toggleWishlist(product)}>
+                                <Heart className={`h-5 w-5 ${isInWishlist(product.id) ? 'fill-current' : ''}`} />
+                            </Button>
+                          )}
                           {product.stock > 0 && (
                             <Button size="icon" className="rounded-full h-10 w-10 bg-black/50 text-white hover:bg-primary hover:text-primary-foreground backdrop-blur-sm border-none" onClick={() => handleAddToCart(product)} disabled={product.stock === 0}>
                               <ShoppingBag className="h-5 w-5" />

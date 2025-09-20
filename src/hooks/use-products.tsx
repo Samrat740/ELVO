@@ -104,6 +104,7 @@ export const ProductsProvider = ({ children }: { children: ReactNode }) => {
         ...restData,
         imageHint: restData.name.toLowerCase().split(' ').slice(0,2).join(' '),
         imageUrl,
+        wishlistCount: 0,
     };
      if (!newProduct.hasDiscount) {
         delete newProduct.originalPrice;

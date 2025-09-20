@@ -21,7 +21,7 @@ import {
 } from '@/components/ui/dialog';
 import { ProductForm } from '@/components/ProductForm';
 import { Product } from '@/lib/types';
-import { Edit, PlusCircle, Trash2, CheckCircle, XCircle, PackageOpen, MoreVertical } from 'lucide-react';
+import { Edit, PlusCircle, Trash2, CheckCircle, XCircle, PackageOpen, MoreVertical, Heart } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -97,11 +97,16 @@ export default function AdminProductsPage() {
             <TableRow>
               <TableHead className="w-[100px]">Image</TableHead>
               <TableHead>Name</TableHead>
-              <TableHead>Product ID</TableHead>
               <TableHead>Category</TableHead>
               <TableHead>Audience</TableHead>
               <TableHead>Price</TableHead>
               <TableHead>Stock</TableHead>
+              <TableHead>
+                <div className="flex items-center gap-1">
+                    <Heart className="h-4 w-4" />
+                    <span>Adds</span>
+                </div>
+              </TableHead>
               <TableHead>Featured</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
@@ -121,9 +126,6 @@ export default function AdminProductsPage() {
                     />
                   </TableCell>
                   <TableCell className="font-medium">{product.name}</TableCell>
-                  <TableCell>
-                    <p className="font-mono text-xs text-muted-foreground" title={product.id}>{product.id}</p>
-                  </TableCell>
                   <TableCell><Badge variant="secondary">{product.category}</Badge></TableCell>
                   <TableCell><Badge variant="outline">{getAudienceDisplay(product.audience)}</Badge></TableCell>
                   <TableCell>
@@ -137,6 +139,7 @@ export default function AdminProductsPage() {
                     )}
                   </TableCell>
                   <TableCell>{product.stock}</TableCell>
+                  <TableCell>{product.wishlistCount ?? 0}</TableCell>
                   <TableCell>
                     {product.featured ? (
                       <CheckCircle className="h-5 w-5 text-green-500" />
@@ -205,11 +208,14 @@ export default function AdminProductsPage() {
                       />
                     <div>
                       <CardTitle className="text-lg">{product.name}</CardTitle>
-                      <p className="font-mono text-xs text-muted-foreground pt-1" title={product.id}>{product.id}</p>
                       <div className="flex gap-2 mt-2">
                         <Badge variant="secondary">{product.category}</Badge>
                         <Badge variant="outline">{getAudienceDisplay(product.audience)}</Badge>
                       </div>
+                       <div className="flex items-center gap-1 text-sm text-muted-foreground mt-2">
+                        <Heart className="h-4 w-4" />
+                        <span>{product.wishlistCount ?? 0}</span>
+                       </div>
                     </div>
                   </div>
                   <DropdownMenu>

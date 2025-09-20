@@ -102,6 +102,10 @@ function MobileNav({ closeSheet }: { closeSheet: () => void }) {
                         <ShoppingCart className="h-5 w-5" />
                         My Orders
                     </Link>
+                     <Link href="/wishlist" className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary" onClick={closeSheet}>
+                        <Heart className="h-5 w-5" />
+                        Wishlist
+                    </Link>
                 </>
               )}
             </>
@@ -129,10 +133,12 @@ function MobileNav({ closeSheet }: { closeSheet: () => void }) {
                     <>
                       <DropdownMenuItem onClick={() => handleNavigation('/admin/products')}><Package className="mr-2 h-4 w-4" /> Products</DropdownMenuItem>
                       <DropdownMenuItem onClick={() => handleNavigation('/admin/orders')}><ShoppingCart className="mr-2 h-4 w-4" /> Orders</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleNavigation('/admin/wishlist')}><Heart className="mr-2 h-4 w-4" /> Wishlist Insights</DropdownMenuItem>
                     </>
                   ) : (
                     <>
                       <DropdownMenuItem onClick={() => handleNavigation('/orders')}><ShoppingCart className="mr-2 h-4 w-4" /> My Orders</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleNavigation('/wishlist')}><Heart className="mr-2 h-4 w-4" /> My Wishlist</DropdownMenuItem>
                     </>
                   )}
                 <DropdownMenuSeparator />
@@ -229,6 +235,14 @@ export default function Header() {
 
           {/* User Auth & Cart */}
            {isClient && (<>
+            {currentUser && !isAdmin && (
+              <Button variant="ghost" size="icon" asChild>
+                <Link href="/wishlist">
+                  <Heart className="h-5 w-5" />
+                  <span className="sr-only">Wishlist</span>
+                </Link>
+              </Button>
+            )}
             <div className="hidden md:block">
               {currentUser ? (
                 isAdmin ? (
@@ -248,6 +262,9 @@ export default function Header() {
                         </DropdownMenuItem>
                          <DropdownMenuItem asChild>
                           <Link href="/admin/orders"><ShoppingCart className="mr-2 h-4 w-4" /> Orders</Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link href="/admin/wishlist"><Heart className="mr-2 h-4 w-4" /> Wishlist Insights</Link>
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem onClick={logout}>
@@ -270,6 +287,9 @@ export default function Header() {
                         <DropdownMenuSeparator />
                          <DropdownMenuItem asChild>
                           <Link href="/orders"><ShoppingCart className="mr-2 h-4 w-4" /> My Orders</Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link href="/wishlist"><Heart className="mr-2 h-4 w-4" /> My Wishlist</Link>
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem onClick={logout}>

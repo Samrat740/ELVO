@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import type { Product } from '@/lib/types';
-import { ShoppingBag } from 'lucide-react';
+import { ShoppingBag, Heart } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import {
   Select,
@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/select"
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
+import { useWishlist } from '@/hooks/use-wishlist';
 
 
 export default function ProductsPage() {
@@ -29,6 +30,7 @@ export default function ProductsPage() {
   const { addToCart } = useCart();
   const { toast } = useToast();
   const { currentUser } = useAuth();
+  const { isInWishlist, toggleWishlist } = useWishlist();
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -147,6 +149,11 @@ export default function ProductsPage() {
                 />
               </Link>
               <div className="absolute top-3 right-3 flex flex-col gap-2">
+                {currentUser && (
+                  <Button size="icon" variant="ghost" className={`rounded-full h-10 w-10 bg-black/50 text-white hover:bg-primary backdrop-blur-sm border-none ${isInWishlist(product.id) ? 'text-red-500 hover:text-red-600' : 'hover:text-primary-foreground'}`} onClick={() => toggleWishlist(product)}>
+                      <Heart className={`h-5 w-5 ${isInWishlist(product.id) ? 'fill-current' : ''}`} />
+                  </Button>
+                )}
                 {product.stock > 0 && (
                   <Button size="icon" className="rounded-full h-10 w-10 bg-black/50 text-white hover:bg-primary hover:text-primary-foreground backdrop-blur-sm border-none" onClick={() => handleAddToCart(product)} disabled={product.stock === 0}>
                     <ShoppingBag className="h-5 w-5" />
