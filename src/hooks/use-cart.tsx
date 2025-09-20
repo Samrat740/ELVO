@@ -7,6 +7,7 @@ import { collection, doc, onSnapshot, writeBatch, getDoc, getDocs } from "fireba
 import { CartItem, Product } from '@/lib/types';
 import { useToast } from './use-toast';
 import { useAuth } from './use-auth';
+import { useRouter } from 'next/navigation';
 
 interface CartContextType {
   cartItems: CartItem[];
@@ -44,6 +45,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
   const { currentUser, loading: authLoading } = useAuth();
+  const router = useRouter();
 
   const mergeAnonymousCart = useCallback(async (userId: string) => {
     const anonymousCartId = localStorage.getItem(ANONYMOUS_CART_ID_STORAGE_KEY);
@@ -89,6 +91,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         mergeAnonymousCart(currentUser.uid);
         activeCartId = currentUser.uid;
     } else {
+        // We still need to listen to the anonymous cart to display count if needed,
+        // but adding to it will trigger a login redirect.
         activeCartId = getOrCreateAnonymousCartId();
     }
     setCartId(activeCartId);
@@ -112,6 +116,11 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   }, [currentUser, authLoading, mergeAnonymousCart]);
 
   const addToCart = useCallback(async (product: Product) => {
+    if (!currentUser) {
+        router.push('/login');
+        return;
+    }
+    
     if (!cartId) return;
 
     const productRef = doc(db, "products", product.id);
@@ -143,16 +152,28 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     
     const { id, ...productDetails } = product;
 
-    const itemPayload = { ...productDetails, quantity: newQuantity };
-
-    if (!itemPayload.hasDiscount) {
-        delete itemPayload.originalPrice;
-        delete itemPayload.discountPercentage;
-    }
+    const itemPayload = { 
+      ...productDetails, 
+      quantity: newQuantity,
+      price: product.price,
+      name: product.name,
+      imageUrl: product.imageUrl
+    };
     
-    await writeBatch(db).set(itemRef, itemPayload, { merge: true }).commit();
+    if (product.hasDiscount && product.originalPrice) {
+      itemPayload.originalPrice = product.originalPrice;
+      itemPayload.discountPercentage = product.discountPercentage;
+    }
 
-  }, [cartId, cartItems, toast]);
+
+    await writeBatch(db).set(itemRef, itemPayload, { merge: true }).commit();
+    
+    toast({
+      title: "Added to cart",
+      description: `${product.name} has been added to your cart.`,
+    });
+
+  }, [cartId, cartItems, toast, currentUser, router]);
 
   const removeFromCart = useCallback(async (productId: string) => {
     if (!cartId) return;
