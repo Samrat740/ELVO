@@ -73,9 +73,6 @@ export default function ProductsPage() {
     if (value === 'all') {
         params.delete(type);
     } else {
-        // Clear other filter when applying a new one
-        if (type === 'category') params.delete('audience');
-        if (type === 'audience') params.delete('category');
         params.set(type, value);
     }
     router.push(`${pathname}?${params.toString()}`);
