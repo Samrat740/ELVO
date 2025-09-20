@@ -143,8 +143,7 @@ function ProductsGrid() {
   );
 }
 
-
-export default function ProductsPage() {
+function ProductsPageContents() {
   const { products } = useProducts();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -179,8 +178,8 @@ export default function ProductsPage() {
   }
 
   return (
-    <div className="container mx-auto py-12 px-4">
-        <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+    <>
+      <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
             <h1 className="text-3xl md:text-4xl font-headline tracking-tight">
                 {getPageTitle()}
             </h1>
@@ -214,10 +213,19 @@ export default function ProductsPage() {
             </div>
         </div>
       <div className="grid grid-cols-2 gap-4 sm:gap-8 lg:grid-cols-4">
-        <Suspense fallback={<div>Loading products...</div>}>
-          <ProductsGrid />
-        </Suspense>
+        <ProductsGrid />
       </div>
+    </>
+  );
+}
+
+
+export default function ProductsPage() {
+  return (
+    <div className="container mx-auto py-12 px-4">
+      <Suspense fallback={<div>Loading...</div>}>
+        <ProductsPageContents />
+      </Suspense>
     </div>
   );
 }

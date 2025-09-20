@@ -19,7 +19,6 @@ function SearchResults() {
   const { products } = useProducts();
   const { addToCart } = useCart();
   const { toast } = useToast();
-  const { currentUser } = useAuth();
   const searchParams = useSearchParams();
   
   const searchQuery = searchParams.get('q');
