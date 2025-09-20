@@ -83,7 +83,7 @@ function SearchResults() {
                 </Link>
                 <div className="absolute top-3 right-3 flex flex-col gap-2">
                     {product.stock > 0 && (
-                    <Button size="icon" className="rounded-full h-10 w-10 bg-black/50 text-white hover:bg-primary hover:text-primary-foreground backdrop-blur-sm border-none" onClick={() => handleAddToCart(product)}>
+                    <Button size="icon" className="rounded-full h-10 w-10 bg-black/50 text-white hover:bg-primary hover:text-primary-foreground backdrop-blur-sm border-none" onClick={() => handleAddToCart(product)} disabled={product.stock === 0}>
                         <ShoppingBag className="h-5 w-5" />
                     </Button>
                     )}

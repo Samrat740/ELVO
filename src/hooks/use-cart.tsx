@@ -3,8 +3,9 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { db } from '@/lib/firebase';
-import { collection, doc, onSnapshot, writeBatch } from "firebase/firestore";
+import { collection, doc, onSnapshot, writeBatch, getDoc } from "firebase/firestore";
 import { CartItem, Product } from '@/lib/types';
+import { useToast } from './use-toast';
 
 interface CartContextType {
   cartItems: CartItem[];
@@ -41,6 +42,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [cartId] = useState<string>(getOrCreateCartId);
   const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
   useEffect(() => {
     if (!cartId) {
@@ -60,13 +62,36 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   const addToCart = useCallback(async (product: Product) => {
     if (!cartId) return;
+
+    const productRef = doc(db, "products", product.id);
+    const productSnap = await getDoc(productRef);
+
+    if (!productSnap.exists() || productSnap.data().stock === 0) {
+        toast({
+            variant: "destructive",
+            title: "Out of Stock",
+            description: `${product.name} is currently unavailable.`,
+        });
+        return;
+    }
+    
+    const currentStock = productSnap.data().stock;
     const existingItem = cartItems.find(item => item.id === product.id);
     const newQuantity = (existingItem?.quantity || 0) + 1;
+
+    if (newQuantity > currentStock) {
+        toast({
+            variant: "destructive",
+            title: "Stock Limit Reached",
+            description: `You cannot add more of ${product.name}.`,
+        });
+        return;
+    }
     
     const itemRef = doc(db, "carts", cartId, "items", product.id);
     await writeBatch(db).set(itemRef, { ...product, quantity: newQuantity }).commit();
 
-  }, [cartId, cartItems]);
+  }, [cartId, cartItems, toast]);
 
   const removeFromCart = useCallback(async (productId: string) => {
     if (!cartId) return;
