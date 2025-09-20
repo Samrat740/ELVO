@@ -20,7 +20,7 @@ export default function Home() {
   const { toast } = useToast();
   const { currentUser } = useAuth();
 
-  const featuredProducts = products.filter(p => p.featured);
+  const featuredProducts = products.filter(p => p.featured).slice(0, 6);
   
   const handleAddToCart = (product: Product) => {
     addToCart(product);
@@ -87,62 +87,64 @@ export default function Home() {
       </section>
 
       {/* Featured Products Section */}
-      <section id="featured" className="py-16 md:py-24">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl md:text-4xl font-headline text-center mb-12">Featured Collection</h2>
-          <div className="grid grid-cols-2 gap-4 sm:gap-8 lg:grid-cols-4">
-            {featuredProducts.map((product) => (
-              <Card key={product.id} className="group flex flex-col overflow-hidden rounded-lg border-none bg-card shadow-lg transition-all duration-300 hover:shadow-2xl hover:-translate-y-2">
-                <div className="relative overflow-hidden">
-                  <Link href={`/products/${product.id}`}>
-                    <Image
-                      src={product.imageUrl}
-                      alt={product.name}
-                      width={600}
-                      height={600}
-                      className="aspect-square w-full object-cover transition-transform duration-500 group-hover:scale-110"
-                      data-ai-hint={product.imageHint}
-                    />
-                  </Link>
-                   <div className="absolute top-3 right-3 flex flex-col gap-2">
-                      {product.stock > 0 && (
-                        <Button size="icon" className="rounded-full h-10 w-10 bg-black/50 text-white hover:bg-primary hover:text-primary-foreground backdrop-blur-sm border-none" onClick={() => handleAddToCart(product)} disabled={product.stock === 0}>
-                          <ShoppingBag className="h-5 w-5" />
-                        </Button>
+      {featuredProducts.length >= 2 && (
+          <section id="featured" className="py-16 md:py-24">
+            <div className="container mx-auto px-4">
+              <h2 className="text-3xl md:text-4xl font-headline text-center mb-12">Featured Collection</h2>
+              <div className="grid grid-cols-2 gap-4 sm:gap-8 lg:grid-cols-4">
+                {featuredProducts.map((product) => (
+                  <Card key={product.id} className="group flex flex-col overflow-hidden rounded-lg border-none bg-card shadow-lg transition-all duration-300 hover:shadow-2xl hover:-translate-y-2">
+                    <div className="relative overflow-hidden">
+                      <Link href={`/products/${product.id}`}>
+                        <Image
+                          src={product.imageUrl}
+                          alt={product.name}
+                          width={600}
+                          height={600}
+                          className="aspect-square w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                          data-ai-hint={product.imageHint}
+                        />
+                      </Link>
+                       <div className="absolute top-3 right-3 flex flex-col gap-2">
+                          {product.stock > 0 && (
+                            <Button size="icon" className="rounded-full h-10 w-10 bg-black/50 text-white hover:bg-primary hover:text-primary-foreground backdrop-blur-sm border-none" onClick={() => handleAddToCart(product)} disabled={product.stock === 0}>
+                              <ShoppingBag className="h-5 w-5" />
+                            </Button>
+                          )}
+                        </div>
+                        {product.stock <= 0 && (
+                          <div className="absolute top-3 left-3">
+                            <Badge variant="destructive" className="text-base font-bold uppercase tracking-wider">Out of Stock</Badge>
+                          </div>
+                        )}
+                      {product.hasDiscount && product.discountPercentage && product.stock > 0 && (
+                        <div className="absolute top-3 left-3">
+                           <Badge className="text-base font-bold uppercase tracking-wider bg-destructive text-destructive-foreground">{Math.round(product.discountPercentage)}% OFF</Badge>
+                        </div>
                       )}
                     </div>
-                    {product.stock <= 0 && (
-                      <div className="absolute top-3 left-3">
-                        <Badge variant="destructive" className="text-base font-bold uppercase tracking-wider">Out of Stock</Badge>
-                      </div>
-                    )}
-                  {product.hasDiscount && product.discountPercentage && product.stock > 0 && (
-                    <div className="absolute top-3 left-3">
-                       <Badge className="text-base font-bold uppercase tracking-wider bg-destructive text-destructive-foreground">{Math.round(product.discountPercentage)}% OFF</Badge>
-                    </div>
-                  )}
-                </div>
-                <CardContent className="flex-1 p-4 bg-card">
-                  <Link href={`/products/${product.id}`}>
-                    <h3 className="text-lg font-semibold leading-tight hover:text-primary transition-colors">{product.name}</h3>
-                  </Link>
-                  <p className="text-sm text-muted-foreground mt-1">{product.category}</p>
-                </CardContent>
-                <CardFooter className="flex items-center justify-between p-4 pt-0 bg-card">
-                   {product.hasDiscount && product.originalPrice ? (
-                        <div className="flex items-baseline gap-2">
-                            <p className="text-xl font-bold text-destructive">₹{product.price.toFixed(2)}</p>
-                            <p className="text-sm font-medium text-muted-foreground line-through">₹{product.originalPrice.toFixed(2)}</p>
-                        </div>
-                    ) : (
-                        <p className="text-xl font-bold text-primary">₹{product.price.toFixed(2)}</p>
-                    )}
-                </CardFooter>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
+                    <CardContent className="flex-1 p-4 bg-card">
+                      <Link href={`/products/${product.id}`}>
+                        <h3 className="text-lg font-semibold leading-tight hover:text-primary transition-colors">{product.name}</h3>
+                      </Link>
+                      <p className="text-sm text-muted-foreground mt-1">{product.category}</p>
+                    </CardContent>
+                    <CardFooter className="flex items-center justify-between p-4 pt-0 bg-card">
+                       {product.hasDiscount && product.originalPrice ? (
+                            <div className="flex items-baseline gap-2">
+                                <p className="text-xl font-bold text-destructive">₹{product.price.toFixed(2)}</p>
+                                <p className="text-sm font-medium text-muted-foreground line-through">₹{product.originalPrice.toFixed(2)}</p>
+                            </div>
+                        ) : (
+                            <p className="text-xl font-bold text-primary">₹{product.price.toFixed(2)}</p>
+                        )}
+                    </CardFooter>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          </section>
+      )}
 
       {/* Categories Section */}
       <section className="py-16 md:py-24 bg-muted/30">
