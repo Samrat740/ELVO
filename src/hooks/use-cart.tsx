@@ -6,7 +6,6 @@ import { db } from '@/lib/firebase';
 import { collection, doc, onSnapshot, writeBatch, getDoc } from "firebase/firestore";
 import { CartItem, Product } from '@/lib/types';
 import { useToast } from './use-toast';
-import { useProducts } from './use-products';
 
 interface CartContextType {
   cartItems: CartItem[];
@@ -46,15 +45,14 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const { toast } = useToast();
 
   useEffect(() => {
-    // This effect runs only on the client-side
     const id = getOrCreateCartId();
     setCartId(id);
 
     if (!id) {
         setLoading(false);
         return;
-    };
-    
+    }
+
     const cartItemsCollection = collection(db, "carts", id, "items");
     const unsubscribe = onSnapshot(cartItemsCollection, (snapshot) => {
       const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as CartItem));
@@ -97,22 +95,18 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     }
     
     const itemRef = doc(db, "carts", cartId, "items", product.id);
-    const itemPayload = {
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      imageUrl: product.imageUrl,
-      imageHint: product.imageHint,
+    
+    const { id, ...productDetails } = product;
+
+    const itemPayload: Omit<CartItem, 'id'> = {
+      ...productDetails,
       quantity: newQuantity,
-      category: product.category,
-      audience: product.audience,
-      featured: product.featured,
-      description: product.description,
-      stock: product.stock,
-      hasDiscount: product.hasDiscount,
-      originalPrice: product.originalPrice,
-      discountPercentage: product.discountPercentage,
     };
+
+    if (!itemPayload.hasDiscount || itemPayload.originalPrice === undefined) {
+      delete itemPayload.originalPrice;
+      delete itemPayload.discountPercentage;
+    }
     
     await writeBatch(db).set(itemRef, itemPayload, { merge: true }).commit();
 
