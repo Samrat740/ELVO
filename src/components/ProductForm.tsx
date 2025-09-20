@@ -388,8 +388,8 @@ export function ProductForm({ product, onFinished }: ProductFormProps) {
                         </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                        <SelectItem value="For Him">For Him</SelectItem>
-                        <SelectItem value="For Her">For Her</SelectItem>
+                        <SelectItem value="For Him">Men</SelectItem>
+                        <SelectItem value="For Her">Women</SelectItem>
                         </SelectContent>
                     </Select>
                     <FormMessage />

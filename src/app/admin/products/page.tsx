@@ -64,6 +64,10 @@ export default function AdminProductsPage() {
     setIsDialogOpen(true);
   };
   
+  const getAudienceDisplay = (audience: 'For Him' | 'For Her') => {
+    return audience === 'For Him' ? 'Men' : 'Women';
+  }
+
   return (
     <div className="container mx-auto py-12 px-4">
       <div className="flex justify-between items-center mb-8">
@@ -121,7 +125,7 @@ export default function AdminProductsPage() {
                     <p className="font-mono text-xs text-muted-foreground" title={product.id}>{product.id}</p>
                   </TableCell>
                   <TableCell><Badge variant="secondary">{product.category}</Badge></TableCell>
-                  <TableCell><Badge variant="outline">{product.audience}</Badge></TableCell>
+                  <TableCell><Badge variant="outline">{getAudienceDisplay(product.audience)}</Badge></TableCell>
                   <TableCell>
                     {product.hasDiscount && product.originalPrice ? (
                         <div className="flex flex-col">
@@ -204,7 +208,7 @@ export default function AdminProductsPage() {
                       <p className="font-mono text-xs text-muted-foreground pt-1" title={product.id}>{product.id}</p>
                       <div className="flex gap-2 mt-2">
                         <Badge variant="secondary">{product.category}</Badge>
-                        <Badge variant="outline">{product.audience}</Badge>
+                        <Badge variant="outline">{getAudienceDisplay(product.audience)}</Badge>
                       </div>
                     </div>
                   </div>
