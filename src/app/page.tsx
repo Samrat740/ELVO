@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import type { Product } from '@/lib/types';
-import { ArrowRight, ShoppingBag, XCircle, Instagram, Megaphone } from 'lucide-react';
+import { ArrowRight, ShoppingBag, XCircle, Instagram, Megaphone, Backpack, Briefcase, Sparkles, User } from 'lucide-react';
 import { useMemo } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/hooks/use-auth';
@@ -36,16 +36,23 @@ export default function Home() {
   };
 
   const categories = useMemo(() => {
-    const productCategories = ['Backpack', 'Handbags', 'Accessory'];
-    const audienceCategories = ['Men', 'Women'];
+    const productCategories = [
+        { name: 'Backpack', icon: Backpack },
+        { name: 'Handbags', icon: Briefcase },
+        { name: 'Accessory', icon: Sparkles }
+    ];
+    const audienceCategories = [
+        { name: 'Men', icon: User },
+        { name: 'Women', icon: User }
+    ];
     
     return [
       ...productCategories.map(cat => ({
-        name: cat,
+        ...cat,
         type: 'category' as const,
       })),
       ...audienceCategories.map(aud => ({
-        name: aud,
+        ...aud,
         type: 'audience' as const,
       }))
     ];
@@ -147,6 +154,7 @@ export default function Home() {
                 <Link
                   href={`/products?${cat.type}=${cat.name}`}
                 >
+                  <cat.icon className="mr-2 h-4 w-4" />
                   {cat.name}
                 </Link>
               </Button>
