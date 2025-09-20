@@ -6,6 +6,7 @@ import { db } from '@/lib/firebase';
 import { collection, doc, onSnapshot, writeBatch, getDoc } from "firebase/firestore";
 import { CartItem, Product } from '@/lib/types';
 import { useToast } from './use-toast';
+import { useProducts } from './use-products';
 
 interface CartContextType {
   cartItems: CartItem[];
@@ -33,6 +34,7 @@ function getOrCreateCartId(): string {
     return cartId;
   } catch (error) {
     console.error("Failed to access localStorage:", error);
+    // Fallback for environments where localStorage is blocked
     return doc(collection(db, 'carts')).id;
   }
 }
@@ -44,16 +46,16 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const { toast } = useToast();
 
   useEffect(() => {
-    setCartId(getOrCreateCartId());
-  }, []);
+    // This effect runs only on the client-side
+    const id = getOrCreateCartId();
+    setCartId(id);
 
-  useEffect(() => {
-    if (!cartId) {
+    if (!id) {
         setLoading(false);
         return;
     };
     
-    const cartItemsCollection = collection(db, "carts", cartId, "items");
+    const cartItemsCollection = collection(db, "carts", id, "items");
     const unsubscribe = onSnapshot(cartItemsCollection, (snapshot) => {
       const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as CartItem));
       setCartItems(items);
@@ -64,7 +66,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     });
 
     return () => unsubscribe();
-  }, [cartId]);
+  }, []);
 
   const addToCart = useCallback(async (product: Product) => {
     if (!cartId) return;
@@ -95,7 +97,24 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     }
     
     const itemRef = doc(db, "carts", cartId, "items", product.id);
-    await writeBatch(db).set(itemRef, { ...product, quantity: newQuantity }).commit();
+    const itemPayload = {
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      imageUrl: product.imageUrl,
+      imageHint: product.imageHint,
+      quantity: newQuantity,
+      category: product.category,
+      audience: product.audience,
+      featured: product.featured,
+      description: product.description,
+      stock: product.stock,
+      hasDiscount: product.hasDiscount,
+      originalPrice: product.originalPrice,
+      discountPercentage: product.discountPercentage,
+    };
+    
+    await writeBatch(db).set(itemRef, itemPayload, { merge: true }).commit();
 
   }, [cartId, cartItems, toast]);
 
@@ -107,13 +126,38 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   const updateQuantity = useCallback(async (productId: string, quantity: number) => {
     if (!cartId) return;
-    const itemRef = doc(db, "carts", cartId, "items", productId);
+    const productRef = doc(db, "products", productId);
+    const productSnap = await getDoc(productRef);
+
+    if (!productSnap.exists()) {
+        toast({
+            variant: "destructive",
+            title: "Product not found",
+            description: "This product is no longer available.",
+        });
+        removeFromCart(productId);
+        return;
+    }
+
+    const currentStock = productSnap.data().stock;
+
+    if (quantity > currentStock) {
+        toast({
+            variant: "destructive",
+            title: "Stock Limit Reached",
+            description: `Only ${currentStock} items are available.`,
+        });
+        quantity = currentStock;
+    }
+
     if (quantity <= 0) {
       await removeFromCart(productId);
       return;
     }
+
+    const itemRef = doc(db, "carts", cartId, "items", productId);
     await writeBatch(db).set(itemRef, { quantity }, { merge: true }).commit();
-  }, [cartId, removeFromCart]);
+  }, [cartId, removeFromCart, toast]);
 
   const clearCart = useCallback(async () => {
      if (!cartId) return;

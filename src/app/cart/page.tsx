@@ -15,7 +15,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export default function CartPage() {
   const { cartItems, updateQuantity, removeFromCart, totalPrice, cartCount } = useCart();
-  const { getProductById, loading: productsLoading } = useProducts();
+  const { products: allProducts, loading: productsLoading } = useProducts();
 
   const cartDetails = useMemo(() => {
     if (productsLoading) {
@@ -27,13 +27,13 @@ export default function CartPage() {
     }
     
     const itemsWithStock = cartItems.map(item => {
-      const product = getProductById(item.id);
+      const product = allProducts.find(p => p.id === item.id);
       const stock = product?.stock ?? 0;
       const hasInsufficientStock = item.quantity > stock;
-      return { ...item, stock, hasInsufficientStock };
+      return { ...item, stock, hasInsufficientStock, productAvailable: !!product };
     });
 
-    const isCheckoutDisabled = itemsWithStock.some(item => item.hasInsufficientStock);
+    const isCheckoutDisabled = itemsWithStock.some(item => item.hasInsufficientStock || !item.productAvailable);
 
     const warnings = itemsWithStock
       .filter(item => item.hasInsufficientStock)
@@ -41,7 +41,7 @@ export default function CartPage() {
 
     return { itemsWithStock, isCheckoutDisabled, warnings };
 
-  }, [cartItems, getProductById, productsLoading]);
+  }, [cartItems, allProducts, productsLoading]);
 
 
   if (cartCount === 0) {
@@ -96,29 +96,35 @@ export default function CartPage() {
                     <div className="ml-4 flex-1">
                       <Link href={`/products/${item.id}`} className="font-semibold hover:text-primary">{item.name}</Link>
                       <p className="text-sm text-muted-foreground">₹{item.price.toFixed(2)}</p>
-                      <div className="mt-2 flex items-center">
-                        <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => updateQuantity(item.id, item.quantity - 1)}>
-                          <Minus className="h-4 w-4" />
-                        </Button>
-                        <Input
-                          type="number"
-                          min="1"
-                          max={maxQuantity}
-                          value={item.quantity}
-                          onChange={(e) => {
-                            const newQuantity = parseInt(e.target.value) || 1;
-                            updateQuantity(item.id, Math.min(newQuantity, maxQuantity))
-                          }}
-                          className="h-8 w-14 text-center mx-2"
-                        />
-                        <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => updateQuantity(item.id, item.quantity + 1)} disabled={item.quantity >= maxQuantity}>
-                          <Plus className="h-4 w-4" />
-                        </Button>
-                      </div>
-                       {item.quantity >= maxQuantity && maxQuantity > 0 && <p className="text-xs text-destructive mt-1">Maximum stock reached</p>}
-                       {maxQuantity === 0 && <p className="text-xs text-destructive mt-1">This item is now out of stock.</p>}
-                       {item.hasInsufficientStock && maxQuantity > 0 && (
-                          <p className="text-xs text-destructive mt-1">Only {maxQuantity} left in stock. Please reduce quantity.</p>
+                       {!item.productAvailable ? (
+                          <p className="text-xs text-destructive mt-1">This item is no longer available.</p>
+                       ) : (
+                          <>
+                            <div className="mt-2 flex items-center">
+                              <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => updateQuantity(item.id, item.quantity - 1)}>
+                                <Minus className="h-4 w-4" />
+                              </Button>
+                              <Input
+                                type="number"
+                                min="1"
+                                max={maxQuantity}
+                                value={item.quantity}
+                                onChange={(e) => {
+                                  const newQuantity = parseInt(e.target.value) || 1;
+                                  updateQuantity(item.id, Math.min(newQuantity, maxQuantity))
+                                }}
+                                className="h-8 w-14 text-center mx-2"
+                              />
+                              <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => updateQuantity(item.id, item.quantity + 1)} disabled={item.quantity >= maxQuantity}>
+                                <Plus className="h-4 w-4" />
+                              </Button>
+                            </div>
+                            {item.quantity >= maxQuantity && maxQuantity > 0 && <p className="text-xs text-destructive mt-1">Maximum stock reached</p>}
+                            {maxQuantity === 0 && <p className="text-xs text-destructive mt-1">This item is now out of stock.</p>}
+                            {item.hasInsufficientStock && maxQuantity > 0 && (
+                                <p className="text-xs text-destructive mt-1">Only {maxQuantity} left in stock. Please reduce quantity.</p>
+                            )}
+                          </>
                        )}
                     </div>
                     <div className="ml-4 flex flex-col items-end">
@@ -164,3 +170,4 @@ export default function CartPage() {
     </div>
   );
 }
+
