@@ -17,14 +17,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { BarChart as BarChartIcon, Heart, TrendingUp } from "lucide-react";
+import { Heart, TrendingUp } from "lucide-react";
 import {
   ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, BarChart } from "recharts";
+import { Bar, XAxis, YAxis, CartesianGrid, BarChart } from "recharts";
 import { useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -100,10 +100,15 @@ export default function AdminWishlistPage() {
             </CardDescription>
             </CardHeader>
             <CardContent className="pl-2">
-                <div className="h-[350px]">
+                <div className="h-[300px] md:h-[400px]">
                 <ChartContainer config={chartConfig} className="w-full h-full">
-                  <BarChart accessibilityLayer data={chartData} layout="vertical" margin={{ left: 120 }}>
-                      <CartesianGrid strokeDasharray="3 3" />
+                  <BarChart 
+                      accessibilityLayer 
+                      data={chartData} 
+                      layout="vertical" 
+                      margin={{ top: 5, right: 20, bottom: 5, left: 20 }}
+                  >
+                      <CartesianGrid strokeDasharray="3 3" horizontal={false} />
                       <XAxis type="number" dataKey="count" />
                       <YAxis 
                           dataKey="name" 
@@ -111,7 +116,8 @@ export default function AdminWishlistPage() {
                           tickLine={false} 
                           axisLine={false}
                           tick={{ fontSize: 12 }}
-                          width={200}
+                          width={100}
+                          interval={0}
                       />
                       <ChartTooltip
                           cursor={false}
@@ -133,7 +139,45 @@ export default function AdminWishlistPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="rounded-lg border">
+          {/* Mobile View */}
+           <div className="md:hidden space-y-4">
+            {wishlistedProducts.length > 0 ? (
+              wishlistedProducts.map((product) => (
+                <Card key={product.id}>
+                    <CardContent className="p-4 flex justify-between items-center">
+                        <div className="flex items-center gap-4">
+                            <Image
+                                src={product.imageUrl}
+                                alt={product.name}
+                                width={64}
+                                height={64}
+                                className="rounded-md object-cover"
+                            />
+                            <div>
+                                <Link href={`/admin/products?edit_id=${product.id}`} className="font-semibold hover:underline">
+                                    {product.name}
+                                </Link>
+                                <div className="mt-1">
+                                  <Badge variant="secondary">{product.category}</Badge>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="text-center">
+                            <p className="font-bold text-xl">{product.wishlistCount}</p>
+                            <p className="text-xs text-muted-foreground">Adds</p>
+                        </div>
+                    </CardContent>
+                </Card>
+              ))
+            ) : (
+                 <div className="text-center py-12">
+                    <p>No products have been wishlisted yet.</p>
+                 </div>
+            )}
+           </div>
+
+          {/* Desktop View */}
+          <div className="hidden md:block rounded-lg border">
             <Table>
                 <TableHeader>
                     <TableRow>
@@ -181,3 +225,5 @@ export default function AdminWishlistPage() {
     </div>
   );
 }
+
+    
