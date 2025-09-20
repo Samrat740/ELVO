@@ -39,7 +39,10 @@ function SearchResults() {
         ${p.audience === 'For Him' ? 'Men' : 'Women'}
       `.toLowerCase();
       
-      return searchTerms.every(term => productText.includes(term));
+      return searchTerms.every(term => {
+        const singularTerm = term.endsWith('s') ? term.slice(0, -1) : null;
+        return productText.includes(term) || (singularTerm && productText.includes(singularTerm));
+      });
     });
   }, [products, searchQuery]);
 
