@@ -3,9 +3,10 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { db } from '@/lib/firebase';
-import { collection, doc, onSnapshot, writeBatch, getDoc } from "firebase/firestore";
+import { collection, doc, onSnapshot, writeBatch, getDoc, getDocs } from "firebase/firestore";
 import { CartItem, Product } from '@/lib/types';
 import { useToast } from './use-toast';
+import { useAuth } from './use-auth';
 
 interface CartContextType {
   cartItems: CartItem[];
@@ -20,20 +21,19 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-const CART_ID_STORAGE_KEY = 'cart-id';
+const ANONYMOUS_CART_ID_STORAGE_KEY = 'anonymous-cart-id';
 
-function getOrCreateCartId(): string {
+function getOrCreateAnonymousCartId(): string {
   if (typeof window === 'undefined') return '';
   try {
-    let cartId = localStorage.getItem(CART_ID_STORAGE_KEY);
+    let cartId = localStorage.getItem(ANONYMOUS_CART_ID_STORAGE_KEY);
     if (!cartId) {
       cartId = doc(collection(db, 'carts')).id;
-      localStorage.setItem(CART_ID_STORAGE_KEY, cartId);
+      localStorage.setItem(ANONYMOUS_CART_ID_STORAGE_KEY, cartId);
     }
     return cartId;
   } catch (error) {
     console.error("Failed to access localStorage:", error);
-    // Fallback for environments where localStorage is blocked
     return doc(collection(db, 'carts')).id;
   }
 }
@@ -43,17 +43,62 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [cartId, setCartId] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const { currentUser, loading: authLoading } = useAuth();
 
-  useEffect(() => {
-    const id = getOrCreateCartId();
-    setCartId(id);
+  const mergeAnonymousCart = useCallback(async (userId: string) => {
+    const anonymousCartId = localStorage.getItem(ANONYMOUS_CART_ID_STORAGE_KEY);
+    if (!anonymousCartId) return;
 
-    if (!id) {
-        setLoading(false);
+    const anonCartItemsRef = collection(db, "carts", anonymousCartId, "items");
+    const userCartItemsRef = collection(db, "carts", userId, "items");
+    
+    const anonCartSnapshot = await getDocs(anonCartItemsRef);
+    if (anonCartSnapshot.empty) {
+        localStorage.removeItem(ANONYMOUS_CART_ID_STORAGE_KEY);
         return;
     }
 
-    const cartItemsCollection = collection(db, "carts", id, "items");
+    const batch = writeBatch(db);
+
+    for (const itemDoc of anonCartSnapshot.docs) {
+        const itemData = itemDoc.data() as CartItem;
+        const userCartItemRef = doc(userCartItemsRef, itemDoc.id);
+
+        // Simple merge: overwrite or add. A more complex logic could sum quantities.
+        batch.set(userCartItemRef, itemData, { merge: true });
+        
+        // Delete item from anonymous cart
+        batch.delete(itemDoc.ref);
+    }
+
+    await batch.commit();
+    localStorage.removeItem(ANONYMOUS_CART_ID_STORAGE_KEY);
+    console.log("Anonymous cart merged and deleted.");
+
+  }, []);
+
+  useEffect(() => {
+    if (authLoading) {
+        setLoading(true);
+        return;
+    }
+
+    let activeCartId: string;
+
+    if (currentUser) {
+        mergeAnonymousCart(currentUser.uid);
+        activeCartId = currentUser.uid;
+    } else {
+        activeCartId = getOrCreateAnonymousCartId();
+    }
+    setCartId(activeCartId);
+    
+    if (!activeCartId) {
+        setLoading(false);
+        return;
+    }
+    
+    const cartItemsCollection = collection(db, "carts", activeCartId, "items");
     const unsubscribe = onSnapshot(cartItemsCollection, (snapshot) => {
       const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as CartItem));
       setCartItems(items);
@@ -64,7 +109,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [currentUser, authLoading, mergeAnonymousCart]);
 
   const addToCart = useCallback(async (product: Product) => {
     if (!cartId) return;
@@ -98,14 +143,11 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     
     const { id, ...productDetails } = product;
 
-    const itemPayload: Omit<CartItem, 'id'> = {
-      ...productDetails,
-      quantity: newQuantity,
-    };
+    const itemPayload = { ...productDetails, quantity: newQuantity };
 
-    if (!itemPayload.hasDiscount || itemPayload.originalPrice === undefined) {
-      delete itemPayload.originalPrice;
-      delete itemPayload.discountPercentage;
+    if (!itemPayload.hasDiscount) {
+        delete itemPayload.originalPrice;
+        delete itemPayload.discountPercentage;
     }
     
     await writeBatch(db).set(itemRef, itemPayload, { merge: true }).commit();
