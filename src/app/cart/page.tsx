@@ -8,37 +8,83 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
+import { AlertCircle, Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
 import { useProducts } from "@/hooks/use-products";
+import React, { useMemo } from "react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export default function CartPage() {
   const { cartItems, updateQuantity, removeFromCart, totalPrice, cartCount } = useCart();
-  const { getProductById } = useProducts();
+  const { getProductById, loading: productsLoading } = useProducts();
+
+  const cartDetails = useMemo(() => {
+    if (productsLoading) {
+      return {
+        itemsWithStock: [],
+        isCheckoutDisabled: true,
+        warnings: [],
+      }
+    }
+    
+    const itemsWithStock = cartItems.map(item => {
+      const product = getProductById(item.id);
+      const stock = product?.stock ?? 0;
+      const hasInsufficientStock = item.quantity > stock;
+      return { ...item, stock, hasInsufficientStock };
+    });
+
+    const isCheckoutDisabled = itemsWithStock.some(item => item.hasInsufficientStock);
+
+    const warnings = itemsWithStock
+      .filter(item => item.hasInsufficientStock)
+      .map(item => `${item.name} has only ${item.stock} item(s) left. Please adjust the quantity.`);
+
+    return { itemsWithStock, isCheckoutDisabled, warnings };
+
+  }, [cartItems, getProductById, productsLoading]);
+
+
+  if (cartCount === 0) {
+    return (
+        <div className="container mx-auto py-12 px-4">
+            <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl mb-8">Your Cart</h1>
+            <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-border p-12 text-center">
+            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-muted">
+                <ShoppingBag className="h-10 w-10 text-muted-foreground" />
+            </div>
+            <h2 className="mt-6 text-xl font-semibold">Your cart is empty</h2>
+            <p className="mt-2 text-sm text-muted-foreground">Looks like you haven't added anything to your cart yet.</p>
+            <Button asChild className="mt-6">
+                <Link href="/">Start Shopping</Link>
+            </Button>
+            </div>
+        </div>
+    )
+  }
 
   return (
     <div className="container mx-auto py-12 px-4">
       <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl mb-8">Your Cart</h1>
-      {cartCount === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-border p-12 text-center">
-          <div className="flex h-20 w-20 items-center justify-center rounded-full bg-muted">
-             <ShoppingBag className="h-10 w-10 text-muted-foreground" />
-          </div>
-          <h2 className="mt-6 text-xl font-semibold">Your cart is empty</h2>
-          <p className="mt-2 text-sm text-muted-foreground">Looks like you haven't added anything to your cart yet.</p>
-          <Button asChild className="mt-6">
-            <Link href="/">Start Shopping</Link>
-          </Button>
-        </div>
-      ) : (
+      
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-3 lg:items-start">
           <div className="lg:col-span-2">
+            
+            {cartDetails.isCheckoutDisabled && (
+              <Alert variant="destructive" className="mb-6">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Stock Issue Detected</AlertTitle>
+                <AlertDescription>
+                  Please resolve the issues below before proceeding to checkout.
+                </AlertDescription>
+              </Alert>
+            )}
+
             <div className="space-y-4">
-              {cartItems.map((item) => {
-                const product = getProductById(item.id);
-                const maxQuantity = product?.stock ?? 0;
+              {cartDetails.itemsWithStock.map((item) => {
+                const maxQuantity = item.stock;
                 
                 return (
-                  <Card key={item.id} className="flex items-center p-4">
+                  <Card key={item.id} className={`flex items-center p-4 ${item.hasInsufficientStock ? 'border-destructive' : ''}`}>
                     <Image
                       src={item.imageUrl}
                       alt={item.name}
@@ -71,6 +117,9 @@ export default function CartPage() {
                       </div>
                        {item.quantity >= maxQuantity && maxQuantity > 0 && <p className="text-xs text-destructive mt-1">Maximum stock reached</p>}
                        {maxQuantity === 0 && <p className="text-xs text-destructive mt-1">This item is now out of stock.</p>}
+                       {item.hasInsufficientStock && maxQuantity > 0 && (
+                          <p className="text-xs text-destructive mt-1">Only {maxQuantity} left in stock. Please reduce quantity.</p>
+                       )}
                     </div>
                     <div className="ml-4 flex flex-col items-end">
                        <p className="font-bold">₹{(item.price * item.quantity).toFixed(2)}</p>
@@ -104,13 +153,14 @@ export default function CartPage() {
               </div>
             </CardContent>
             <CardFooter>
-              <Button asChild size="lg" className="w-full">
-                <Link href="/checkout">Proceed to Checkout</Link>
+              <Button asChild size="lg" className="w-full" disabled={cartDetails.isCheckoutDisabled}>
+                <Link href="/checkout" aria-disabled={cartDetails.isCheckoutDisabled} onClick={(e) => cartDetails.isCheckoutDisabled && e.preventDefault()}>
+                  Proceed to Checkout
+                </Link>
               </Button>
             </CardFooter>
           </Card>
         </div>
-      )}
     </div>
   );
 }
