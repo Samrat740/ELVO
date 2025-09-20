@@ -33,16 +33,19 @@ function getOrCreateCartId(): string {
     return cartId;
   } catch (error) {
     console.error("Failed to access localStorage:", error);
-    // Fallback for environments where localStorage is disabled
     return doc(collection(db, 'carts')).id;
   }
 }
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const [cartId] = useState<string>(getOrCreateCartId);
+  const [cartId, setCartId] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+
+  useEffect(() => {
+    setCartId(getOrCreateCartId());
+  }, []);
 
   useEffect(() => {
     if (!cartId) {
@@ -54,6 +57,9 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     const unsubscribe = onSnapshot(cartItemsCollection, (snapshot) => {
       const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as CartItem));
       setCartItems(items);
+      setLoading(false);
+    }, (err) => {
+      console.error("Error fetching cart items:", err);
       setLoading(false);
     });
 
