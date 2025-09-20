@@ -132,20 +132,22 @@ export default function ProductDetailPage() {
             )}
           </div>
           <p className="mt-6 text-base text-muted-foreground">{product.description}</p>
-          <div className="mt-8 flex gap-2">
+          <div className="mt-8 grid grid-cols-1 gap-2 sm:flex">
             <Button size="lg" className="w-full" onClick={handleAddToCart} disabled={product.stock === 0}>
               {product.stock > 0 ? 'Add to Cart' : 'Out of Stock'}
             </Button>
-            {currentUser && (
-               <Button size="lg" variant="outline" onClick={() => toggleWishlist(product)}>
-                  <Heart className={`mr-2 h-5 w-5 ${isInWishlist(product.id) ? 'fill-current text-red-500' : ''}`} />
-                  {isInWishlist(product.id) ? 'Wishlisted' : 'Wishlist'}
+            <div className="grid grid-cols-2 gap-2 sm:flex">
+              {currentUser && (
+                 <Button size="lg" variant="outline" className="w-full" onClick={() => toggleWishlist(product)}>
+                    <Heart className={`mr-2 h-5 w-5 ${isInWishlist(product.id) ? 'fill-current text-red-500' : ''}`} />
+                    {isInWishlist(product.id) ? 'Saved' : 'Save'}
+                </Button>
+              )}
+               <Button size="lg" variant="outline" className="w-full" onClick={handleShare}>
+                  <Share2 className="mr-2 h-5 w-5" />
+                  Share
               </Button>
-            )}
-             <Button size="lg" variant="outline" onClick={handleShare}>
-                <Share2 className="mr-2 h-5 w-5" />
-                Share
-            </Button>
+            </div>
           </div>
         </div>
       </div>
