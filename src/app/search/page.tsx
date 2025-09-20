@@ -28,11 +28,19 @@ function SearchResults() {
     if (!searchQuery) {
       return [];
     }
-    return products.filter(p => 
-      p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.category.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+
+    const searchTerms = searchQuery.toLowerCase().split(' ').filter(term => term);
+
+    return products.filter(p => {
+      const productText = `
+        ${p.name} 
+        ${p.description} 
+        ${p.category} 
+        ${p.audience === 'For Him' ? 'Men' : 'Women'}
+      `.toLowerCase();
+      
+      return searchTerms.every(term => productText.includes(term));
+    });
   }, [products, searchQuery]);
 
   const handleAddToCart = (product: Product) => {
@@ -67,7 +75,7 @@ function SearchResults() {
       </h1>
 
       {filteredProducts.length > 0 ? (
-        <div className="grid grid-cols-2 gap-4 sm:gap-8 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-4 sm:gap-8 lg:grid-cols-4">
           {filteredProducts.map((product) => (
             <Card key={product.id} className="group flex flex-col overflow-hidden rounded-lg border-none bg-card shadow-lg transition-all duration-300 hover:shadow-2xl hover:-translate-y-2">
               <div className="relative overflow-hidden">
